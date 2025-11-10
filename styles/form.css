@@ -1,0 +1,135 @@
+/* 폼 컨테이너 */
+.form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.form-wrapper {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.form-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+/* 이미지 업로드 영역 */
+.image-upload-section {
+  margin-bottom: 24px;
+}
+
+.image-upload {
+  position: relative;
+}
+
+.image-upload input[type="file"] {
+  display: none;
+}
+
+.image-upload-preview {
+  width: 100%;
+  height: 300px;
+  border-radius: 12px;
+  overflow: hidden;
+  display: none;
+}
+
+.image-upload-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-upload-preview.active {
+  display: block;
+}
+
+.image-remove-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0,0,0,0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 20px;
+  display: none;
+}
+
+.image-upload-preview.active + .image-remove-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 이미지 선택 버튼 */
+.image-select-wrapper {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.image-select-btn {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 14px;
+  color: #666;
+}
+
+.image-select-btn:hover {
+  border-color: #8B7FE8;
+  color: #8B7FE8;
+}
+
+/* 프로필/회원정보 전용 스타일 */
+.profile-form-container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.profile-section {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  margin-bottom: 24px;
+}
+
+.profile-actions {
+  display: flex;
+  gap: 12px;
+  flex-direction: column;
+}
+
+.profile-actions .btn {
+  width: 100%;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .form-wrapper {
+    padding: 24px;
+  }
+  
+  .profile-section {
+    padding: 24px;
+  }
+  
+  .image-upload {
+    height: 200px;
+  }
+}

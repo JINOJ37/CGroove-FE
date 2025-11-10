@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>게시글 목록 - 아무 말 대잔치</title>
+  <link rel="stylesheet" href="styles/common.css">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="page-container">
+    <header class="header">
+      <div class="header-content">
+        <div style="width: 40px;"></div>
+        <h1 class="header-title">아무 말 대잔치</h1>
+        <div class="header-profile" id="profileMenu">
+          <span>👤</span>
+          <div class="dropdown-menu" id="dropdownMenu">
+            <div class="dropdown-item" onclick="location.href='profile.html'">회원정보수정</div>
+            <div class="dropdown-item" onclick="location.href='password.html'">비밀번호수정</div>
+            <div class="dropdown-item" onclick="logout()">로그아웃</div>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <div class="main-container">
+      <div class="welcome-section">
+        <h2 class="welcome-text">안녕하세요,</h2>
+        <h2 class="welcome-text">아무 말 대잔치 <strong>게시판</strong> 입니다.</h2>
+        <button class="btn btn-primary btn-write" onclick="location.href='write.html'">게시글 작성</button>
+      </div>
+      
+      <div class="posts-grid" id="postsContainer">
+        <!-- 게시글 카드 1 -->
+        <article class="post-card" data-id="1">
+          <h3 class="post-title">제목 1</h3>
+          <div class="post-stats">
+            <span class="stat-item">
+              <span class="stat-icon">❤️</span>
+              <span class="stat-text">좋아요 0</span>
+            </span>
+            <span class="stat-item">
+              <span class="stat-icon">💬</span>
+              <span class="stat-text">댓글 0</span>
+            </span>
+            <span class="stat-item">
+              <span class="stat-icon">👁️</span>
+              <span class="stat-text">조회수 0</span>
+            </span>
+          </div>
+          <div class="post-footer">
+            <div class="post-author">
+              <span class="author-avatar">👤</span>
+              <span class="author-name">더미 작성자 1</span>
+            </div>
+            <span class="post-date">2021-01-01 00:00:00</span>
+          </div>
+        </article>
+        
+        <!-- 게시글 카드 2 -->
+        <article class="post-card" data-id="2">
+          <h3 class="post-title">제목 1</h3>
+          <div class="post-stats">
+            <span class="stat-item">
+              <span class="stat-icon">❤️</span>
+              <span class="stat-text">좋아요 0</span>
+            </span>
+            <span class="stat-item">
+              <span class="stat-icon">💬</span>
+              <span class="stat-text">댓글 0</span>
+            </span>
+            <span class="stat-item">
+              <span class="stat-icon">👁️</span>
+              <span class="stat-text">조회수 0</span>
+            </span>
+          </div>
+          <div class="post-footer">
+            <div class="post-author">
+              <span class="author-avatar">👤</span>
+              <span class="author-name">더미 작성자 1</span>
+            </div>
+            <span class="post-date">2021-01-01 00:00:00</span>
+          </div>
+        </article>
+        
+        <!-- 게시글 카드 3 -->
+        <article class="post-card" data-id="3">
+          <h3 class="post-title">제목 1</h3>
+          <div class="post-stats">
+            <span class="stat-item">
+              <span class="stat-icon">❤️</span>
+              <span class="stat-text">좋아요 0</span>
+            </span>
+            <span class="stat-item">
+              <span class="stat-icon">💬</span>
+              <span class="stat-text">댓글 0</span>
+            </span>
+            <span class="stat-item">
+              <span class="stat-icon">👁️</span>
+              <span class="stat-text">조회수 0</span>
+            </span>
+          </div>
+          <div class="post-footer">
+            <div class="post-author">
+              <span class="author-avatar">👤</span>
+              <span class="author-name">더미 작성자 1</span>
+            </div>
+            <span class="post-date">2021-01-01 00:00:00</span>
+          </div>
+        </article>
+        
+        <!-- 게시글 카드 4 -->
+        <article class="post-card" data-id="4">
+          <h3 class="post-title">제목 1</h3>
+          <div class="post-stats">
+            <span class="stat-item">
+              <span class="stat-icon">❤️</span>
+              <span class="stat-text">좋아요 0</span>
+            </span>
+            <span class="stat-item">
+              <span class="stat-icon">💬</span>
+              <span class="stat-text">댓글 0</span>
+            </span>
+            <span class="stat-item">
+              <span class="stat-icon">👁️</span>
+              <span class="stat-text">조회수 0</span>
+            </span>
+          </div>
+          <div class="post-footer">
+            <div class="post-author">
+              <span class="author-avatar">👤</span>
+              <span class="author-name">더미 작성자 1</span>
+            </div>
+            <span class="post-date">2021-01-01 00:00:00</span>
+          </div>
+        </article>
+        
+        <!-- 게시글 카드 5 -->
+        <article class="post-card" data-id="5">
+          <h3 class="post-title">제목 1</h3>
+          <div class="post-stats">
+            <span class="stat-item">
+              <span class="stat-icon">❤️</span>
+              <span class="stat-text">좋아요 0</span>
+            </span>
+            <span class="stat-item">
+              <span class="stat-icon">💬</span>
+              <span class="stat-text">댓글 0</span>
+            </span>
+            <span class="stat-item">
+              <span class="stat-icon">👁️</span>
+              <span class="stat-text">조회수 0</span>
+            </span>
+          </div>
+          <div class="post-footer">
+            <div class="post-author">
+              <span class="author-avatar">👤</span>
+              <span class="author-name">더미 작성자 1</span>
+            </div>
+            <span class="post-date">2021-01-01 00:00:00</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // 프로필 메뉴 토글
+    document.getElementById('profileMenu').addEventListener('click', function(e) {
+      e.stopPropagation();
+      document.getElementById('dropdownMenu').classList.toggle('active');
+    });
+    
+    // 외부 클릭 시 메뉴 닫기
+    document.addEventListener('click', function() {
+      document.getElementById('dropdownMenu').classList.remove('active');
+    });
+    
+    // 게시글 카드 클릭 시 상세페이지로 이동
+    document.querySelectorAll('.post-card').forEach(card => {
+      card.addEventListener('click', function() {
+        const postId = this.dataset.id;
+        location.href = `detail.html?id=${postId}`;
+      });
+    });
+    
+    function logout() {
+      if (confirm('로그아웃 하시겠습니까?')) {
+        location.href = 'index.html';
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+/* 로그인/회원가입 공통 스타일 */
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.auth-box {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.auth-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 600;
+  margin-bottom: 32px;
+  color: #333;
+}
+
+.auth-form {
+  margin-bottom: 20px;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: 20px;
+}
+
+/* 회원가입 전용 스타일 */
+.profile-upload-wrapper {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.profile-upload {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  overflow: hidden;
+  border: 3px dashed #d0d0d0;
+  transition: all 0.3s;
+}
+
+.profile-upload:hover {
+  border-color: #8B7FE8;
+  background: #f5f3ff;
+}
+
+.profile-upload img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-upload-icon {
+  font-size: 48px;
+  color: #ccc;
+}
+
+.profile-upload-text {
+  display: block;
+  margin-top: 12px;
+  font-size: 14px;
+  color: #666;
+}
+
+.profile-upload-helper {
+  color: #ff4444;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+/* 반응형 */
+@media (max-width: 480px) {
+  .auth-box {
+    padding: 32px 24px;
+  }
+  
+  .auth-title {
+    font-size: 24px;
+  }
+}

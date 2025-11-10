@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>게시글 상세 - 아무 말 대잔치</title>
+  <link rel="stylesheet" href="styles/common.css">
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <div class="page-container">
+    <header class="header">
+      <div class="header-content">
+        <button class="header-back" onclick="history.back()">‹</button>
+        <h1 class="header-title">아무 말 대잔치</h1>
+        <div class="header-profile" id="profileMenu">
+          <span>👤</span>
+        </div>
+      </div>
+    </header>
+    
+    <div class="detail-container">
+      <!-- 게시글 헤더 -->
+      <div class="detail-header">
+        <div class="detail-title-wrapper">
+          <h2 class="detail-title">제목 1</h2>
+          <div class="detail-actions">
+            <button class="btn btn-secondary btn-small">수정</button>
+            <button class="btn btn-secondary btn-small">삭제</button>
+          </div>
+        </div>
+        
+        <div class="detail-meta">
+          <div class="post-author">
+            <span class="author-avatar">👤</span>
+            <span class="author-name">더미 작성자 1</span>
+          </div>
+          <span class="post-date">2021-01-01 00:00:00</span>
+        </div>
+      </div>
+      
+      <!-- 게시글 내용 -->
+      <div class="detail-content">
+        <img src="https://via.placeholder.com/800x400" alt="게시글 이미지" class="detail-image">
+        
+        <div class="detail-text">
+          무엇을 해야할까요? 아무말입니다. 실은 많상 할말이 모앗아요. 상관읍습니다. 우리는 매벽로 조회읍과 조해서 있기떄 대 미완성과 지다릅를 이벤더니다. 또한 우리는 주변의 사밤들과 갱정에서 서로짜 지지들을 밨습니다. 그래서 우리의 삶은 소흐르고 의미로 있습니다.<br><br>
+          
+          지킴도 이허듭니 이가들니다. 우린 주변의 자연을 끌는는 아듀다조읍 신나듭을를 달고 밌습니다. 산, 바다, 숲, 숙를 등 깃의 주메의 우리들체 밌는 주 조금니다.<br><br>
+          
+          미저비로도, 지식을 말닐 탈구는 불섭 흘이로도 이어됴니다. 우리는 끔업서 새우이마 위한이조를 시리아와 의라이애 애듭를 디 할수 있습니다.<br><br>
+          
+          그런 의미에서, 삶은 늘레듁이 용이프로도 가듈 자 있습니다. 새듥든 경험을 놓기난 과너이조끼는 것이 흐은하다고 생각합니다.
+        </div>
+        
+        <div class="detail-stats">
+          <div class="stat-item">
+            <div class="stat-value">123</div>
+            <div class="stat-label">좋아요수</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">123</div>
+            <div class="stat-label">조회수</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value">123</div>
+            <div class="stat-label">댓글</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 댓글 섹션 -->
+      <div class="comments-section">
+        <h3 class="comments-title">댓글</h3>
+        
+        <!-- 댓글 입력 -->
+        <form class="comment-form">
+          <textarea 
+            class="comment-input" 
+            placeholder="댓글을 남겨주세요!"
+          ></textarea>
+          <button type="submit" class="btn btn-primary comment-submit">댓글 등록</button>
+        </form>
+        
+        <!-- 댓글 목록 -->
+        <div class="comments-list">
+          <div class="comment-item">
+            <div class="comment-header">
+              <div class="comment-author-wrapper">
+                <span class="author-avatar">👤</span>
+                <div>
+                  <div class="author-name">더미 작성자 1</div>
+                  <span class="post-date">2021-01-01 00:00:00</span>
+                </div>
+              </div>
+              <div class="comment-actions">
+                <button class="btn btn-secondary btn-small">수정</button>
+                <button class="btn btn-secondary btn-small">삭제</button>
+              </div>
+            </div>
+            <p class="comment-content">댓글 내용</p>
+          </div>
+          
+          <div class="comment-item">
+            <div class="comment-header">
+              <div class="comment-author-wrapper">
+                <span class="author-avatar">👤</span>
+                <div>
+                  <div class="author-name">더미 작성자 1</div>
+                  <span class="post-date">2021-01-01 00:00:00</span>
+                </div>
+              </div>
+              <div class="comment-actions">
+                <button class="btn btn-secondary btn-small">수정</button>
+                <button class="btn btn-secondary btn-small">삭제</button>
+              </div>
+            </div>
+            <p class="comment-content">댓글 내용</p>
+          </div>
+          
+          <div class="comment-item">
+            <div class="comment-header">
+              <div class="comment-author-wrapper">
+                <span class="author-avatar">👤</span>
+                <div>
+                  <div class="author-name">더미 작성자 1</div>
+                  <span class="post-date">2021-01-01 00:00:00</span>
+                </div>
+              </div>
+              <div class="comment-actions">
+                <button class="btn btn-secondary btn-small">수정</button>
+                <button class="btn btn-secondary btn-small">삭제</button>
+              </div>
+            </div>
+            <p class="comment-content">댓글 내용</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // 댓글 폼 제출
+    document.querySelector('.comment-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+      alert('댓글이 등록되었습니다!');
+    });
+  </script>
+</body>
+</html>
