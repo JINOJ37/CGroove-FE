@@ -1,0 +1,203 @@
+/**
+ * 게시물 작성 메인 로직
+ */
+
+// 폼 검증 상태
+const validation = {
+  title: false,
+  content: false
+};
+
+// 제목 입력 이벤트
+function setupTitleEvents() {
+  console.log('게시글 작성 : 제목 입력 처리 중');
+  const titleInput = document.getElementById('titleInput');
+  
+  titleInput.addEventListener('blur', function() {
+    validateTitle(this.value.trim(), validation);
+    updateButtonState(validation);
+  });
+  
+  titleInput.addEventListener('input', function() {
+    if (this.value) clearError('titleInput');
+    updateButtonState(validation);
+  });
+}
+
+// 내용 입력 이벤트
+function setupContentEvents() {
+  console.log('게시글 작성 : 내용 입력 처리 중');
+  const contentInput = document.getElementById('contentInput');
+  
+  contentInput.addEventListener('blur', function() {
+    validateContent(this.value.trim(), validation);
+    updateButtonState(validation);
+  });
+  
+  contentInput.addEventListener('input', function() {
+    if (this.value) clearError('contentInput');
+    updateButtonState(validation);
+  });
+}
+
+// 이미지 업로드 이벤트
+let imageFiles = [];
+function setupImageEvents() {
+  console.log('게시글 작성 : 이미지 업로드 처리 중');
+  
+  document.getElementById('fileSelectBtn').addEventListener('click', function() {
+    document.getElementById('imageInput').click();
+  });
+  
+  document.getElementById('imageInput').addEventListener('change', function(e) {
+    const files = Array.from(e.target.files);
+    
+    files.forEach(file => {
+      if (file && file.type.startsWith('image/')) {
+        addImageToPreview(file);
+      }
+    });
+
+    this.value = '';
+    console.log(`${files.length}개 이미지 추가됨. 총 ${imageFiles.length}개`);
+  });
+}
+
+// 이미지를 미리보기에 추가
+function addImageToPreview(file) {
+  // 파일을 배열에 추가
+  imageFiles.push(file);
+  const fileIndex = imageFiles.length - 1;
+  
+  // 미리보기 요소 생성
+  const previewItem = document.createElement('div');
+  previewItem.className = 'image-preview-item';
+  previewItem.dataset.index = fileIndex;
+  
+  const img = document.createElement('img');
+  const deleteBtn = document.createElement('button');
+  deleteBtn.className = 'image-delete-btn';
+  deleteBtn.textContent = '×';
+  deleteBtn.title = '이미지 삭제';
+  
+  // 삭제 버튼 이벤트
+  deleteBtn.addEventListener('click', function() {
+    removeImageFromPreview(fileIndex);
+  });
+  
+  previewItem.appendChild(img);
+  previewItem.appendChild(deleteBtn);
+  
+  // 컨테이너에 추가
+  document.getElementById('imagePreviewContainer').appendChild(previewItem);
+  
+  // 파일 읽기
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// 이미지를 미리보기에서 삭제
+function removeImageFromPreview(fileIndex) {
+  // 배열에서 제거 (null로 표시)
+  imageFiles[fileIndex] = null;
+  
+  // DOM에서 제거
+  const previewItem = document.querySelector(`[data-index="${fileIndex}"]`);
+  if (previewItem) {
+    previewItem.remove();
+  }
+  
+  console.log(`🗑️ 이미지 삭제됨. 현재 ${getValidImageCount()}개`);
+}
+
+// 유효한 이미지 개수 계산
+function getValidImageCount() {
+  return imageFiles.filter(file => file !== null).length;
+}
+
+// 유효한 이미지 파일들만 반환
+function getValidImageFiles() {
+  return imageFiles.filter(file => file !== null);
+}
+
+// 완료 버튼
+function setupSubmitEvent() {
+  console.log('게시글 작성 : 완료 버튼 처리 중');
+  
+  document.getElementById('postForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const title = document.getElementById('titleInput').value.trim();
+    const content = document.getElementById('contentInput').value.trim();
+    
+    if (!validateTitle(title, validation)) {
+      console.log('검증 실패: 제목');
+      return;
+    }
+    if (!validateContent(content, validation)) {
+      console.log('검증 실패: 내용');
+      return;
+    }
+    
+    // 로딩 상태
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.textContent = '작성 중...';
+    
+    // Mock 처리
+    console.log('작성할 데이터:', {
+      title,
+      content
+    });
+    
+    setTimeout(() => {
+      btn.disabled = false;
+      btn.textContent = '완료';
+      
+      // 성공 토스트
+      showToast('게시글이 작성되었습니다');
+      
+      // 2초 후 메인 페이지로
+      setTimeout(() => {
+        navigateTo('main.html');
+      }, 2000);
+      
+      // Phase 2: 실제 API 호출
+      // const formData = new FormData();
+      // formData.append('title', title);
+      // formData.append('content', content);
+      // if (imageFile) {
+      //   formData.append('image', imageFile);
+      // }
+      // const result = await fetch('/api/posts', {
+      //   method: 'POST',
+      //   body: formData
+      // });
+    }, 1000);
+  });
+}
+
+// 페이지 초기화
+function init() {
+  console.log('게시글 작성 페이지 불러오는 중');
+  
+  setupTitleEvents();
+  setupContentEvents();
+  setupImageEvents();
+  setupSubmitEvent();
+
+  updateButtonState(validation);
+  
+  console.log('게시글 작성 페이지 로딩 완료!');
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+
+console.log('post/create.js 로드 완료');

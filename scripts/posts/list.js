@@ -1,4 +1,4 @@
-// 게시글 목록 메인 로직
+// 게시물 목록 메인 로직
 
 const mockPosts = [
   {
@@ -117,7 +117,9 @@ function setupWriteButtonEvent() {
   const writeBtn = document.querySelector('.btn-write');
   if (writeBtn) {
     writeBtn.addEventListener('click', function() {      
-      alert('게시글 작성 페이지로 이동합니다!\n\nPhase 2에서 실제 페이지로 이동합니다.');
+      setTimeout(() => {
+        navigateTo('post_create.html');
+      }, 0);
     });
   }
 }
