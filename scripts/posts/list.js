@@ -103,7 +103,9 @@ function setupCardClickEvents() {
     const card = e.target.closest('.post-card');
     if (card) {
       const postId = card.dataset.id;      
-      alert(`게시글 ${postId}번 클릭!\n\nPhase 2에서 상세 페이지로 이동합니다.`);
+      setTimeout(() => {
+        navigateTo('post_detail.html');
+      }, 0);
     }
   });
   
@@ -124,7 +126,7 @@ function setupWriteButtonEvent() {
   }
 }
 
-// 무함 스크롤 이벤트
+// 무한 스크롤 이벤트
 function setupInfinityScroll() {
   console.log('게시물 목록 : 게시물 무한 스크롤 처리 중');
   
