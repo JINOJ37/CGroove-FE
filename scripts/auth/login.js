@@ -40,7 +40,7 @@ function setupPasswordEvents() {
 function setupLoginBtnEvents() {
   console.log('로그인 시도');
   
-  document.getElementById('loginForm').addEventListener('submit', function(e) {
+  document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
     
     // 데이터 수집
@@ -58,11 +58,50 @@ function setupLoginBtnEvents() {
       console.log('검증 실패');
       return;
     }
-    
-    // TODO : api 연결 시도
 
-    navigateTo('main.html', 1000);
+    // 로그인 실행
+    await handleLogin(formData);
   });
+}
+
+// 로그인 처리
+async function handleLogin(formData) {
+  setLoadingState(true, '로그인 중..');
+  
+  try {    
+    // API 요청
+    const response = await apiRequest('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: formData.email,
+        password: formData.password
+      })
+    });
+    
+    // 토큰 저장
+    if (response.data && response.data.accessToken && response.data.refreshToken) {
+      storeToken(response.data.accessToken, response.data.refreshToken);
+    }
+    
+    console.error('로그인 성공!');
+    showToast(response.message);
+    //navigateTo('main.html', 5000);
+
+  } catch (error) {
+    console.error('로그인 실패:', error.message);
+    
+    // 에러 메시지 표시
+    if (error.status === 401) {
+      showToast('이메일 또는 비밀번호가 잘못되었습니다', 3000, 'error');
+    } else if (error.status === 400) {
+      showToast('입력 정보를 확인해주세요', 3000, 'error');
+    } else {
+      showToast('로그인 중 오류가 발생했습니다', 3000, 'error');
+    }
+    
+  } finally {
+    setLoadingState(false, '로그인');
+  }
 }
 
 // 로그인 페이지 초기화

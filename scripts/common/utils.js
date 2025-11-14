@@ -1,6 +1,4 @@
-/**
- * DOM 응용
- */ 
+//DOM 응용
 
 // 에러 메세지 표시
 function showError(inputId, message) {
@@ -58,27 +56,19 @@ function updateButtonState(formValidation) {
 }
 
 // 로딩 상태 표시 (버튼)
-function setLoadingState(isLoading, loadingText = '처리중...', defaultText = null) {
+function setLoadingState(isLoading, text = '처리중...') {
   const submitBtn = document.querySelector('button[type="submit"]');
   if (!submitBtn) return;
   
   if (isLoading) {
     submitBtn.disabled = true;
-    submitBtn.textContent = loadingText;
+    submitBtn.textContent = text;
+    submitBtn.style.background = '#ACA0EB';
     submitBtn.style.cursor = 'wait';
   } else {
-    // 기본 텍스트 자동 감지
-    if (!defaultText) {
-      const form = submitBtn.closest('form');
-      if (form && form.id.includes('login')) {
-        defaultText = '로그인';
-      } else if (form && form.id.includes('signup')) {
-        defaultText = '회원가입';
-      } else {
-        defaultText = '완료';
-      }
-    }
-    submitBtn.textContent = defaultText;
+    submitBtn.style.background = '';
+    submitBtn.style.cursor = '';
+    submitBtn.textContent = text;
     submitBtn.disabled = false;
   }
 }
