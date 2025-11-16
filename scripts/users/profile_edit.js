@@ -1,64 +1,31 @@
 // 프로필 수정 로직
 
-// Mock 사용자 데이터 & 중복 닉네임 목록
-const mockUserData = {
-  email: 'startupcode@gmail.com',
-  nickname: '스타트업코드',
-  profileImage: null
-};
-const mockDuplicateNicknames = ['테스트', '관리자', 'admin', '운영자'];
-
-// 프로필 수정 폼 검증 상태
+// 프로필 수정 폼 검증
 const formValidation = {
     profileImage: false,
     nickname: false
 };
 
-// 닉네임 중복 체크 (회원정보수정 전용) -> TODO : api 연동 변경 예정
-function checkNicknameDuplicate(nickname) {
-  console.log('🔍 중복 체크:', nickname);
-  
-  // Mock 중복 체크
-  if (mockDuplicateNicknames.includes(nickname)) {
-    showError('nicknameInput', '*중복된 닉네임 입니다');
-    formValidation.nickname = false;
-    return false;
-  }
-  
-  // Phase 2: 실제 API 호출
-  // const response = await fetch(`/api/user/check-nickname?nickname=${nickname}`);
-  // const data = await response.json();
-  // if (data.isDuplicate) {
-  //   showError('nicknameInput', '*중복된 닉네임 입니다');
-  //   formValidation.nickname = false;
-  //   return false;
-  // }
-  
-  return true;
-}
-
 // 프로필 이미지 수정 이벤트
-let profileImageFile = null;
-
+let profileImage = null;
 function setupProfileImageEvent() {
   console.log('회원 정보 수정 : 프로필 이미지 처리 중');
-
   const profileImageContainer = document.getElementById('profileImageContainer');
-  if (profileImageContainer) {
-    profileImageContainer.addEventListener('click', function() {
-      document.getElementById('profileUpload').click();
-    });
-  }
+  const profileImageUpload = document.getElementById('profileImageUpload');
+
+  profileImageContainer.addEventListener('click', function() {
+    profileImageUpload.click();
+  });
   
-  document.getElementById('profileUpload').addEventListener('change', function(e) {
+  profileImageUpload.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
-      profileImageFile = file;
+      profileImage = file;
       const reader = new FileReader();
       reader.onload = function(e) {
-        const profileImageDiv = document.getElementById('profileImage');
-        if (profileImageDiv) {
-            profileImageDiv.innerHTML = `<img src="${e.target.result}">`;
+        const profileImageInput = document.getElementById('profileImageInput');
+        if (profileImageInput) {
+            profileImageInput.innerHTML = `<img src="${e.target.result}">`;
         }
         
         formValidation.profileImage = true;
@@ -79,6 +46,71 @@ function setupNicknameEvents() {
 
   document.getElementById('nicknameInput').addEventListener('input', function() {
     if (this.value) clearError('nicknameInput');
+  });
+}
+
+// 내 정보 조회
+async function getMyInfo() {
+  console.log('📋 내 정보 조회 API 호출');
+  return await apiRequest('/users/me', {
+    method: 'GET'
+  });
+}
+
+// 닉네임 중복 체크
+async function checkNickname(nickname) {
+  console.log('🔍 닉네임 중복 체크:', nickname);
+  
+  try {
+    const response = await apiRequest(`/users/check-nickname?nickname=${encodeURIComponent(nickname)}`, {
+      method: 'GET'
+    });
+    
+    // 백엔드 응답 형식에 따라 조정 필요
+    // 예: { available: true } 또는 { isDuplicate: false }
+    return response.data.available || !response.data.isDuplicate;
+    
+  } catch (error) {
+    if (error.status === 409) {
+      // 중복
+      return false;
+    }
+    throw error;
+  }
+}
+
+// 회원정보 수정
+async function updateUserInfo(updateData) {
+  console.log('✏️ 회원정보 수정 API 호출');
+  
+  // FormData 구성
+  const formData = new FormData();
+  
+  if (updateData.nickname) {
+    formData.append('nickname', updateData.nickname);
+  }
+  
+  // 프로필 이미지가 있을 때만 추가
+  if (updateData.profileImage) {
+    formData.append('profileImage', updateData.profileImage);
+    console.log('📷 프로필 이미지 포함:', updateData.profileImage.name);
+  } else {
+    console.log('📷 프로필 이미지 변경 없음');
+  }
+  
+  // API 호출
+  return await apiRequest('/users', {
+    method: 'PATCH',
+    body: formData
+  });
+}
+
+// 회원 탈퇴
+async function deleteAccount() {
+  console.log('🗑️ 회원 탈퇴 API 호출');
+  
+  return await apiRequest('/users', {
+    method: 'DELETE'
   });
 }
 

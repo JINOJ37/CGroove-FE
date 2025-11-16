@@ -12,21 +12,21 @@ const formValidation = {
 let profileImage = null;
 function setupProfileImageEvent() {
   console.log('회원가입 : 프로필 이미지 처리 중');
-  const profileImageInput = document.getElementById('profileInput');
-  const profileImageUpload = document.getElementById('profileUpload');
+  const profileImageContainer = document.getElementById('profileImageContainer');
+  const profileImageUpload = document.getElementById('profileImageUpload');
 
-  profileImageUpload.addEventListener('click', function() {
-    profileImageInput.click();
+  profileImageContainer.addEventListener('click', function() {
+    profileImageUpload.click();
   });
 
-  profileImageInput.addEventListener('change', function(e) {
+  profileImageUpload.addEventListener('change', function(e) {
     const file = e.target.files[0];
     if (file) {
       profileImage = file;
       const reader = new FileReader();
       reader.onload = function(e) {
-        if(profileImageUpload){
-          profileImageUpload.innerHTML = `<img src="${e.target.result}">`;
+        if(profileImageContainer){
+          profileImageContainer.innerHTML = `<img src="${e.target.result}">`;
         }
       };
       reader.readAsDataURL(file);
