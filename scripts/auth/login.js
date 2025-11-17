@@ -55,7 +55,7 @@ function setupLoginBtnEvents() {
       validatePassword(formData.password, formValidation, true);
 
     if (!isValid) {
-      console.log('검증 실패');
+      console.log('검증 실패 : 기본 검증');
       return;
     }
 

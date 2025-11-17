@@ -51,7 +51,7 @@ function setupEmailEvents() {
 
 // 비밀번호 입력 이벤트
 function setupPasswordEvents() {
-  console.log('회원가입 : 비밀번호 입력 처리 중');
+  console.log('회원가입 : 비밀번호 처리 중');
   const passwordInput = document.getElementById('passwordInput');
 
   passwordInput.addEventListener('blur', function() {
@@ -66,7 +66,7 @@ function setupPasswordEvents() {
 
 // 비밀번호 확인 입력 이벤트
 function setupPasswordConfirmEvents() {
-  console.log('회원가입 : 비밀번호 확인 입력 처리 중');
+  console.log('회원가입 : 비밀번호 확인 처리 중');
   const passwordConfirmInput = document.getElementById('passwordConfirmInput');
 
   passwordConfirmInput.addEventListener('blur', function() {
@@ -81,7 +81,7 @@ function setupPasswordConfirmEvents() {
 
 // 닉네임 입력 이벤트
 function setupNicknameEvents() {
-  console.log('회원가입 : 닉네임 입력 처리 중');
+  console.log('회원가입 : 닉네임 처리 중');
   const nicknameInput = document.getElementById('nicknameInput');
 
   nicknameInput.addEventListener('blur', function() {
@@ -118,7 +118,7 @@ function setupSignupBtnEvents() {
       validateNickname(signupData.nickname, formValidation);
     
     if (!isValid) {
-      console.log('검증 실패');
+      console.log('검증 실패 : 기본 검증');
       return;
     }
     

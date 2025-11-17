@@ -97,5 +97,36 @@ function removeAccessToken() {
 function isLoggedIn() {
   return !!getAccessToken();
 }
+// 내 정보 조회
+async function getMyInfo() {
+  console.log('내 정보 조회 API 호출');
+  return await apiRequest('/users/me', {
+    method: 'GET'
+  });
+}
+
+/*
+// 닉네임 중복 체크
+async function checkNickname(nickname) {
+  console.log('닉네임 중복 체크:', nickname);
+  
+  try {
+    const response = await apiRequest(`/users/check-nickname?nickname=${encodeURIComponent(nickname)}`, {
+      method: 'GET'
+    });
+    
+    // 백엔드 응답 형식에 따라 조정 필요
+    // 예: { available: true } 또는 { isDuplicate: false }
+    return response.data.available || !response.data.isDuplicate;
+    
+  } catch (error) {
+    if (error.status === 409) {
+      // 중복
+      return false;
+    }
+    throw error;
+  }
+}
+*/
 
 console.log('common/api.js 로드 완료');
