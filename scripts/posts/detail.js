@@ -31,14 +31,14 @@ const mockComments = [
   }
 ];
 
-// ✅ 댓글 카운터 (새 댓글 추가용)
+// 댓글 카운터 (새 댓글 추가용)
 let nextCommentId = 4;
 
 // 게시글 데이터 로드
 async function loadPostData() {
   console.log('📄 게시글 데이터 로드 중...');
   
-  // ✅ URL 파라미터에서 postId 가져오기
+  // URL 파라미터에서 postId 가져오기
   const urlParams = new URLSearchParams(window.location.search);
   const postId = urlParams.get('id');
   
@@ -95,7 +95,7 @@ async function loadPostData() {
       showToast('게시글을 불러오는데 실패했습니다');
     }
     
-    //setTimeout(() => navigateTo('main.html'), 1500);
+    setTimeout(() => navigateTo('main.html'), 1500);
   }
 }
 
