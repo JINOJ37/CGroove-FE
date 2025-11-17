@@ -1,57 +1,10 @@
 // 게시물 목록 메인 로직
 
-const mockPosts = [
-  {
-    id: 1,
-    title: '첫 번째 게시글입니다',
-    author: '홍길동',
-    likes: 1234,
-    comments: 56,
-    views: 9876,
-    createdAt: '2025-11-11T10:30:00Z'
-  },
-  {
-    id: 2,
-    title: '이것은 매우 긴 제목을 가진 게시글인데 26자를 넘어가면 잘려야 합니다 테스트',
-    author: '김철수',
-    likes: 500,
-    comments: 12,
-    views: 3450,
-    createdAt: '2025-11-10T15:20:00Z'
-  },
-  {
-    id: 3,
-    title: '인기 게시글',
-    author: '이영희',
-    likes: 15000,
-    comments: 234,
-    views: 120000,
-    createdAt: '2025-11-09T09:10:00Z'
-  },
-  {
-    id: 4,
-    title: '일반 게시글',
-    author: '박민수',
-    likes: 100,
-    comments: 5,
-    views: 800,
-    createdAt: '2025-11-08T14:50:00Z'
-  },
-  {
-    id: 5,
-    title: 'JavaScript 꿀팁 공유',
-    author: '배기',
-    likes: 2500,
-    comments: 45,
-    views: 18000,
-    createdAt: '2025-11-07T11:30:00Z'
-  }
-];
-
 // 상태
 let currentPage = 1;
 let isLoading = false;
 let hasMorePosts = true;
+let allPosts = [];
 
 // 게시글 카드 HTML 생성
 function createPostCardHTML(post) {
@@ -60,20 +13,20 @@ function createPostCardHTML(post) {
       <h3 class="post-title">${truncateTitle(post.title)}</h3>
       <div class="post-stats">
         <div class="stat-item">
-          <span class="stat-text">좋아요 ${formatNumber(post.likes)}</span>
-        </span>
-        <span class="stat-item">
-          <span class="stat-text">댓글 ${formatNumber(post.comments)}</span>
-        </span>
-        <span class="stat-item">
-          <span class="stat-text">조회수 ${formatNumber(post.views)}</span>
+          <span class="stat-text">좋아요 ${formatNumber(post.likes || 0)}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-text">댓글 ${formatNumber(post.comments || 0)}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-text">조회수 ${formatNumber(post.views || 0)}</span>
         </div>
         <span class="post-date">${formatDate(post.createdAt)}</span>
       </div>
       <div class="post-footer">
         <div class="post-author">
           <span class="author-avatar">👤</span>
-          <span class="author-name">${post.author}</span>
+          <span class="author-name">${post.author || post.authorName || '익명'}</span>
         </div>
       </div>
     </article>
@@ -102,7 +55,11 @@ function setupCardClickEvents() {
   container.addEventListener('click', function(e) {
     const card = e.target.closest('.post-card');
     if (card) {
-      const postId = card.dataset.id;      
+      const postId = card.dataset.id;
+      console.log('게시글 클릭:', postId);
+      
+      localStorage.setItem('selectedPostId', postId);
+      
       setTimeout(() => {
         navigateTo('post_detail.html');
       }, 0);
@@ -137,6 +94,7 @@ function setupInfinityScroll() {
     const windowHeight = window.innerHeight;
     const documentHeight = document.documentElement.scrollHeight;
     
+    // 하단에 100px 남았을 때 다음 페이지 로드
     if (scrollTop + windowHeight >= documentHeight - 100) {
       loadMorePosts();
     }
@@ -199,14 +157,71 @@ function loadMorePosts() {
 }
 
 // 초기 게시글 로드
-function loadInitialPosts() {  
+async function loadInitialPosts() {
+  console.log('📋 초기 게시글 로드 중...');
+  
   const container = document.getElementById('postsContainer');
   container.innerHTML = '';
   
-  renderPosts(mockPosts);
+  showLoading();
   
-  console.log('='.repeat(50));
-  console.log('');
+  try {
+    const response = await getPosts();
+    
+    console.log('✅ 게시글 목록 조회 성공:', response);
+    
+    // 전체 게시글 저장
+    allPosts = response.data || [];
+    
+    // 게시글이 없으면
+    if (allPosts.length === 0) {
+      hideLoading();
+      container.innerHTML = `
+        <div style="text-align: center; padding: 80px 20px; color: #999;">
+          <p style="font-size: 18px; margin-bottom: 20px;">아직 게시글이 없습니다</p>
+          <p>첫 번째 게시글을 작성해보세요!</p>
+        </div>
+      `;
+      hasMorePosts = false;
+      return;
+    }
+    
+    // 최신순 정렬 (createdAt 기준)
+    allPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    
+    // 첫 페이지 데이터 (10개)
+    const firstPagePosts = allPosts.slice(0, 10);
+    
+    hideLoading();
+    renderPosts(firstPagePosts);
+    
+    // 10개 이하면 더 이상 로드할 게시글 없음
+    if (allPosts.length <= 10) {
+      hasMorePosts = false;
+    }
+    
+    console.log(`✅ 초기 로드 완료 (전체: ${allPosts.length}개, 표시: ${firstPagePosts.length}개)`);
+    console.log('='.repeat(50));
+    
+  } catch (error) {
+    console.error('❌ 게시글 목록 로드 실패:', error);
+    
+    hideLoading();
+    
+    if (error.status === 401) {
+      showToast('로그인이 필요합니다');
+      setTimeout(() => navigateTo('login.html'), 1500);
+    } else {
+      container.innerHTML = `
+        <div style="text-align: center; padding: 80px 20px; color: #999;">
+          <p style="font-size: 18px; margin-bottom: 20px;">게시글을 불러오는데 실패했습니다</p>
+          <button onclick="location.reload()" style="padding: 10px 20px; background: #7F6AEE; color: white; border: none; border-radius: 8px; cursor: pointer;">
+            다시 시도
+          </button>
+        </div>
+      `;
+    }
+  }
 }
 
 // 모든 이벤트 초기화
@@ -217,9 +232,13 @@ function initAllEvents() {
 }
 
 // 초기화
-function init() {  
+async function init() {
+  console.log('게시글 목록 페이지 초기화 중...');
+  
   initAllEvents();
-  loadInitialPosts();
+  await loadInitialPosts();
+  
+  console.log('게시글 목록 페이지 로딩 완료!');
 }
 
 if (document.readyState === 'loading') {

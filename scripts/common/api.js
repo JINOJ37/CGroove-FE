@@ -128,4 +128,19 @@ async function checkNickname(nickname) {
 }
 */
 
+// 게시글 목록 조회
+async function getPosts(page = 1, limit = 10) {
+  console.log('게시글 목록 조회 API 호출', { page, limit }); 
+  return await apiRequest('/posts', {
+    method: 'GET'
+  });
+}
+// 게시글 상세 조회 ㅇ
+async function getPost(postId) {
+  console.log('게시글 상세 조회 API 호출', postId);
+  return await apiRequest(`/posts/${postId}`, {
+    method: 'GET'
+  });
+}
+
 console.log('common/api.js 로드 완료');
