@@ -3,61 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>게시글 목록 - 아무 말 대잔치</title>
+  <title>C.Groove</title>
   <link rel="stylesheet" href="styles/common.css">
   <link rel="stylesheet" href="styles/main.css">
 </head>
 <body>
-  <div id="globalLoading">
-    <div class="loading-spinner">
-      <div class="spinner"></div>
-      <div class="loading-text">로딩 중...</div>
-    </div>
-  </div>
-  <div class="page-container">
-    <!-- 헤더 -->
-    <header class="header">
-      <div class="header-content">
-        <div style="width: 40px;"></div>
-        <h1 class="header-title">아무 말 대잔치</h1>
+  <!-- 헤더 -->
+  <header class="header">
+    <div class="header-container">
+      <h1 class="logo bagel-fat-one-regular">C.Groove</h1>
+      <nav class="nav">
+        <a href="#" class="nav-link kimm-light">장르</a>
+        <a href="#" class="nav-link kimm-light">동아리</a>
+        <a href="#" class="nav-link kimm-light">행사</a>
+        <a href="#" class="nav-link kimm-light">달력</a>
         <div class="header-profile" id="profileMenu">
-          <!-- 프로필 이미지 영역 -->
-           <span class="profile-avatar"></span>
-          <!-- 드롭다운 메뉴 -->
+          <span class="profile-avatar"></span>
           <div class="dropdown-menu" id="dropdownMenu">
             <div class="dropdown-item" onclick="location.href='profile_edit.html'">회원정보수정</div>
             <div class="dropdown-item" onclick="location.href='password_edit.html'">비밀번호수정</div>
             <div class="dropdown-item" onclick="logout()">로그아웃</div>
           </div>
         </div>
-      </div>
-    </header>
-    
-    <div class="main-container">
-      <!-- 환영 섹션 -->
-      <div class="welcome-section">
-        <h2 class="welcome-text">안녕하세요,</h2>
-        <h2 class="welcome-text">아무 말 대잔치 <strong>게시판</strong> 입니다.</h2>
-        <button class="btn btn-primary btn-write">게시글 작성</button>
-      </div>
-      
-      <!-- 게시글 목록 (JS로 동적 렌더링) -->
-      <div class="posts-grid" id="postsContainer">
-        <!-- 게시글 카드들이 여기에 동적으로 추가됩니다 -->
-      </div>
+      </nav>
     </div>
-  </div>
-  
-  <!-- 도메인별 구조: 스크립트 로드 -->
+  </header>
+
+  <!-- 히어로 섹션 (전체 화면) -->
+  <section class="hero" id="hero">
+    <img src="main.svg" alt="Campus Groove" class="hero-svg">
+  </section>
+
+  <!-- 메인 콘텐츠 영역 -->
+  <main class="main-content">
+    
+    <!-- 섹션 1: 내 클럽 최신 소식 -->
+    <section class="content-section bg-gray">
+      <div class="section-container">
+        <div class="section-header">
+          <h3 class="section-title">Campus News</h3>
+          <a href="posts.html?scope=myClubs" class="more-link">더보기 →</a>
+        </div>
+        <div class="slider-wrapper">
+          <button class="slider-arrow left" data-target="myClubSlider">‹</button>
+          <div class="card-container" id="myClubSlider">
+            <!-- JS로 렌더링 -->
+          </div>
+          <button class="slider-arrow right" data-target="myClubSlider">›</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 섹션 2: 핫 게시물 -->
+    <section class="content-section bg-white">
+      <div class="section-container">
+        <div class="section-header">
+          <h3 class="section-title">Hot Groove</h3>
+          <a href="posts.html?sort=hot" class="more-link">더보기 →</a>
+        </div>
+        <div class="slider-wrapper">
+          <button class="slider-arrow left" data-target="hotSlider">‹</button>
+          <div class="card-container" id="hotSlider">
+            <!-- JS로 렌더링 -->
+          </div>
+          <button class="slider-arrow right" data-target="hotSlider">›</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 섹션 3: 전체 게시글 -->
+    <section class="content-section bg-gray">
+      <div class="section-container">
+        <div class="section-header">
+          <h3 class="section-title">Upcoming Event</h3>
+          <a href="posts.html?scope=all" class="more-link">더보기 →</a>
+        </div>
+        <div class="slider-wrapper">
+          <button class="slider-arrow left" data-target="allPostsSlider">‹</button>
+          <div class="card-container" id="allPostsSlider">
+            <!-- JS로 렌더링 -->
+          </div>
+          <button class="slider-arrow right" data-target="allPostsSlider">›</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- TOP 버튼 (스크롤 시 표시) -->
+  <button class="top-button" id="topButton" aria-label="맨 위로">
+    TOP
+  </button>
+
+  <!-- 푸터 -->
+  <footer class="footer">
+    <p>Copyright ⓒ 2025 Designed by Hongyoungseo</p>
+  </footer>
+
+  <!-- 스크립트 -->
   <script src="scripts/common/utils.js"></script>
   <script src="scripts/common/format.js"></script>
   <script src="scripts/common/api.js"></script>
   <script src="scripts/common/header.js"></script> 
-  <script src="scripts/posts/list.js"></script>
-  
-  <!-- 페이지 초기화 -->
+  <script type="module" src="scripts/main/main.js"></script>
+  <script src="scripts/main/main-ui.js"></script>
+
   <script>
-    // 헤더 초기화
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', initHeader);
     } else {

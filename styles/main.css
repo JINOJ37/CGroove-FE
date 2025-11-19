@@ -1,159 +1,305 @@
-/* ========================================
+/* ==========================================
    메인 페이지 전용 스타일
-======================================== */
+========================================== */
 
-/* 메인 컨테이너 */
-.main-container {
+/* 스크롤 스냅 제거 (자연스러운 스크롤) */
+html {
+  scroll-behavior: smooth;
+}
+
+/* 히어로 섹션 - 전체 화면 (헤더 높이 제외) */
+.hero {
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-svg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* 메인 콘텐츠 */
+.main-content {
+  position: relative;
+  z-index: 1;
+}
+
+/* 콘텐츠 섹션 */
+.content-section {
+  padding: 80px 0;
+}
+
+.bg-gray {
+  background: #F5F5F5;
+}
+
+.bg-white {
+  background: white;
+}
+
+.section-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 0 40px;
 }
 
-/* ========================================
-   환영 섹션
-======================================== */
-
-.welcome-section {
-  border-radius: 16px;
-  padding: 10px;
-  margin-bottom: 16px;
-  text-align: center;
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
 }
 
-.welcome-text {
-  font-size: 20px;
-  font-weight: 400;
-  color: #333;
-}
-
-.welcome-text strong {
+.section-title {
+  font-size: 32px;
   font-weight: 700;
-  color: #0b0b0b;
+  color: #333;
+  margin: 0;
 }
 
-.btn-write {
-  margin-top: 24px;
-  margin-left: 250px;
-  max-width: 150px;
+.more-link {
+  color: #666;
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.2s;
 }
 
-/* ========================================
-   게시글 목록
-======================================== */
+.more-link:hover {
+  color: #7c5cff;
+}
 
-/* 게시글 그리드 */
-.posts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(500px, 1fr));
+/* 슬라이더 */
+.slider-wrapper {
+  position: relative;
+}
+
+.slider-arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  font-size: 30px;
+  color: #333;
+  cursor: pointer;
+  z-index: 10;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+}
+
+.slider-arrow:hover {
+  background: #7c5cff;
+  color: white;
+  border-color: #7c5cff;
+}
+
+.slider-arrow.left {
+  left: -25px;
+}
+
+.slider-arrow.right {
+  right: -25px;
+}
+
+.card-container {
+  display: flex;
   gap: 20px;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  padding: 10px 0;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* 게시글 카드 */
+.card-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* 카드 스타일 */
 .post-card {
+  min-width: 320px;
+  max-width: 320px;
+  flex-shrink: 0;
   background: white;
   border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   transition: all 0.3s;
   cursor: pointer;
 }
 
 .post-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.post-image {
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+}
+
+.post-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.post-content {
+  padding: 20px;
+}
+
+.post-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.club-badge {
+  background: #f0f0f0;
+  color: #666;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.post-time {
+  font-size: 12px;
+  color: #999;
 }
 
 .post-title {
   font-size: 18px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 16px;
+  margin: 0 0 8px 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* 게시글 통계 */
+.post-excerpt {
+  font-size: 14px;
+  color: #666;
+  line-height: 1.6;
+  margin: 0 0 16px 0;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
 .post-stats {
   display: flex;
   gap: 16px;
-  margin-bottom: 16px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #f0f0f0;
-  justify-content: space-between;
-  align-items: center;
+  margin-bottom: 12px;
 }
 
-.post-stats .stat-item {
+.stat-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 13px;
-  color: #666;
-}
-
-.post-stats .stat-icon {
-  font-size: 16px;
-}
-
-/* 게시글 푸터 */
-.post-footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  color: #999;
 }
 
 .post-author {
   display: flex;
   align-items: center;
   gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
 }
 
 .author-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: #f0f0f0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
+  font-size: 20px;
 }
 
 .author-name {
   font-size: 14px;
-  font-weight: 500;
-  color: #333;
-}
-
-.post-date {
-  font-size: 12px;
   color: #666;
 }
 
-/* ========================================
-   반응형
-======================================== */
+/* 빈 상태 */
+.empty-state {
+  padding: 60px 20px;
+  text-align: center;
+  color: #999;
+}
+
+/* TOP 버튼 */
+.top-button {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #4A4A4A;
+  color: #fff;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 50;
+  opacity: 0;
+  transform: scale(0.8);
+  transition: all 0.3s;
+}
+
+.top-button.show {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.top-button:hover {
+  background: #333;
+  transform: translateY(-3px);
+}
+
+/* 푸터 */
+.footer {
+  background: #3A3A3A;
+  color: #999;
+  text-align: center;
+  padding: 30px 20px;
+  font-size: 13px;
+}
+
+/* 반응형 */
+@media (max-width: 1024px) {
+  .slider-arrow {
+    display: none;
+  }
+}
 
 @media (max-width: 768px) {
-  .main-container {
-    padding: 24px 16px;
+  .section-title {
+    font-size: 24px;
   }
   
-  .welcome-section {
-    padding: 24px;
+  .post-card {
+    min-width: 280px;
+    max-width: 280px;
   }
   
-  .welcome-text {
-    font-size: 18px;
+  .content-section {
+    padding: 60px 0;
   }
   
-  .btn-write {
-    margin-left: 0;
-    max-width: 100%;
+  .section-container {
+    padding: 0 20px;
   }
   
-  .posts-grid {
-    grid-template-columns: 1fr;
+  .top-button {
+    bottom: 20px;
+    right: 20px;
   }
 }

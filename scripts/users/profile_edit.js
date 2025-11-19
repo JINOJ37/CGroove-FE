@@ -137,6 +137,9 @@ function setupEditButtonEvent() {
 
       hasChanges = false;
       updateButtonState(formValidation, hasChanges);
+
+      // 2초 후 회원정보 수정 페이지로
+      navigateTo('main.html', 2000);
       
     } catch (error) {      
       if (error.status === 409) {

@@ -1,7 +1,49 @@
 /* ========================================
+   폰트 Import
+======================================== */
+@import url('https://fonts.googleapis.com/css2?family=Bagel+Fat+One&display=swap');
+
+@font-face {
+  font-family: 'KoreaInstituteOfMachineryAndMaterials';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2212@1.0/KIMM_Light.woff2') format('woff2');
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'KoreaInstituteOfMachineryAndMaterials';
+  src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_2212@1.0/KIMM_Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* ========================================
+   폰트 클래스
+======================================== */
+.bagel-fat-one-regular {
+  font-family: "Bagel Fat One", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.kimm-light {
+  font-family: 'KoreaInstituteOfMachineryAndMaterials', sans-serif;
+  font-weight: 300;
+  font-size: 30px;
+  line-height: 100%;
+  letter-spacing: 0%;
+}
+
+.kimm-bold {
+  font-family: 'KoreaInstituteOfMachineryAndMaterials', sans-serif;
+  font-weight: 700;
+  line-height: 100%;
+  letter-spacing: 0%;
+}
+
+/* ========================================
    리셋 & 기본 설정
 ======================================== */
-
 * {
   margin: 0;
   padding: 0;
@@ -9,33 +51,32 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  font-family: 'KoreaInstituteOfMachineryAndMaterials', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background-color: #f5f5f5;
   color: #333;
   line-height: 1.6;
+  font-weight: 300;
 }
 
 /* ========================================
-   레이아웃 컨테이너
+   헤더 (모든 페이지 공통)
 ======================================== */
-
-.page-container {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-
-/* ========================================
-   헤더
-======================================== */
-
 .header {
   background: white;
   border-bottom: 1px solid #e0e0e0;
-  padding: 16px 20px;
   position: sticky;
   top: 0;
   z-index: 100;
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 40px;
+  height: 80px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .header-content {
@@ -47,9 +88,32 @@ body {
 }
 
 .header-title {
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   color: #333;
+}
+
+.logo {
+  font-size: 32px;
+  font-weight: 700;
+  color: #000;
+}
+
+.nav {
+  display: flex;
+  gap: 60px;
+}
+
+.nav-link {
+  font-size: 18px;
+  color: #333;
+  text-decoration: none;
+  transition: color 0.2s;
+  align-content: center;
+}
+
+.nav-link:hover {
+  color: #666;
 }
 
 .header-back {
@@ -84,7 +148,6 @@ body {
   object-fit: cover;
 }
 
-/* 프로필 이미지 스타일 */
 .profile-avatar {
   display: flex;
   align-items: center;
@@ -106,11 +169,10 @@ body {
 /* ========================================
    드롭다운 메뉴
 ======================================== */
-
 .dropdown-menu {
   position: absolute;
   top: 50px;
-  right: 0;
+  left: 0px;
   background: white;
   border: 1px solid #e0e0e0;
   border-radius: 8px;
@@ -127,7 +189,6 @@ body {
   padding: 12px 20px;
   cursor: pointer;
   border-bottom: 1px solid #f0f0f0;
-  transition: background 0.2s;
 }
 
 .dropdown-item:last-child {
@@ -139,9 +200,17 @@ body {
 }
 
 /* ========================================
+   레이아웃 컨테이너
+======================================== */
+.page-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ========================================
    버튼
 ======================================== */
-
 .btn {
   padding: 12px 24px;
   border: none;
@@ -191,11 +260,9 @@ body {
 /* ========================================
    기본 폼 요소
 ======================================== */
-
 .form-group {
   position: relative;
-  margin-top: 30px;
-  margin-bottom: 25px;
+  margin-bottom: 12px;
 }
 
 .form-label {
@@ -251,23 +318,66 @@ body {
 
 .helper-text {
   position: absolute;
+  left: calc(100% + 16px);
+  top: 50%;
+  transform: translateY(-50%);
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 8px 12px;
   font-size: 12px;
   color: #666;
-  height: 20px;
-  line-height: 20px;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s, visibility 0.2s;
+  z-index: 10;
+}
+
+.helper-text::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 8px solid transparent;
+  border-right-color: #e0e0e0;
+}
+
+.helper-text::after {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 7px solid transparent;
+  border-right-color: #fff;
+  margin-right: -1px;
+}
+
+.helper-text:not(:empty) {
+  opacity: 1;
+  visibility: visible;
 }
 
 .helper-text.error {
   color: #e74c3c;
+  border-color: #e74c3c;
+  background: #fff5f5;
 }
 
-.helper-text:empty {
-  min-height: 20px; 
-  content: ' ';
+.helper-text.error::before {
+  border-right-color: #e74c3c;
 }
 
-.helper-text.error {
-  visibility: visible;
+.helper-text.error::after {
+  border-right-color: #fff5f5;
+}
+
+.form-group:has(.form-textarea) .helper-text {
+  top: 16px;
+  transform: none;
 }
 
 .form-link {
@@ -327,14 +437,39 @@ body {
 /* ========================================
    반응형
 ======================================== */
-
 @media (max-width: 768px) {
+  .header-container {
+    padding: 0 20px;
+  }
+  
+  .nav {
+    gap: 30px;
+  }
+  
+  .nav-link {
+    font-size: 16px;
+  }
+  
   .form-input,
   .form-textarea {
-    font-size: 16px; /* iOS 확대 방지 */
+    font-size: 16px;
   }
   
   .btn {
     padding: 10px 20px;
+  }
+  
+  .helper-text {
+    position: static;
+    transform: none;
+    margin-top: 4px;
+    display: block;
+    white-space: normal;
+    left: auto;
+  }
+  
+  .helper-text::before,
+  .helper-text::after {
+    display: none;
   }
 }

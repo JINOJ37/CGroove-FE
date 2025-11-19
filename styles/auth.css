@@ -24,17 +24,16 @@
   text-align: center;
   font-size: 25px;
   font-weight: 600;
-  margin-bottom: 32px;
+  margin-bottom: 25px;
   color: #333;
 }
 
 .auth-form {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .auth-footer {
   text-align: center;
-  margin-top: 20px;
 }
 
 /* ========================================
@@ -43,7 +42,6 @@
 
 .profile-upload-wrapper {
   text-align: center;
-  margin-bottom: 8px;
 }
 
 .profile-upload {
@@ -79,7 +77,7 @@
 
 .profile-upload-text {
   display: block;
-  margin-top: 12px;
+  margin-top: 8px;
   font-size: 14px;
   color: #666;
 }
