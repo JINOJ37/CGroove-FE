@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>장르 - C.Groove</title>
+  <link rel="stylesheet" href="styles/common.css">
+  <link rel="stylesheet" href="styles/coming_soon.css">
+</head>
+<body>
+  <div class="page-container">
+    <!-- 헤더 -->
+    <header class="header">
+        <div class="header-container">
+            <h1 class="logo bagel-fat-one-regular" onclick="location.href='main.html'" style="cursor: pointer;">C.Groove</h1>
+            <nav class="nav">
+            <a href="genre.html" class="nav-link kimm-light active">장르</a>
+            <a href="club_list.html" class="nav-link kimm-light">동아리</a>
+            <a href="post_list.html" class="nav-link kimm-light">게시판</a>
+            <a href="calendar.html" class="nav-link kimm-light">달력</a>
+            <div class="header-profile" id="profileMenu">
+                <span class="profile-avatar"></span>
+                <div class="dropdown-menu" id="dropdownMenu">
+                <div class="dropdown-item" onclick="location.href='profile_edit.html'">회원정보수정</div>
+                <div class="dropdown-item" onclick="location.href='password_edit.html'">비밀번호수정</div>
+                <div class="dropdown-item" onclick="logout()">로그아웃</div>
+                </div>
+            </div>
+            </nav>
+        </div>
+    </header>
+    
+    <!-- Coming Soon 컨텐츠 -->
+    <main class="coming-soon-container">
+      <div class="coming-soon-content">
+        <div class="coming-soon-icon">🎵</div>
+        <h1 class="coming-soon-title">장르별 탐색</h1>
+        <p class="coming-soon-subtitle">개발 예정 중입니다</p>
+        <p class="coming-soon-description">
+          힙합, 팝핀, 락킹, 왁킹, 하우스 등<br>
+          다양한 댄스 장르별로 동아리와 게시글을 탐색할 수 있습니다.
+        </p>
+        <div class="coming-soon-actions">
+          <button class="btn btn-primary" onclick="location.href='club_list.html'">
+            동아리 둘러보기
+          </button>
+          <button class="btn btn-secondary" onclick="location.href='main.html'">
+            메인으로 돌아가기
+          </button>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <script src="scripts/common/utils.js"></script>
+  <script src="scripts/common/api.js"></script>
+  <script src="scripts/common/header.js"></script>
+  
+  <script>
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initHeader);
+    } else {
+      initHeader();
+    }
+  </script>
+</body>
+</html>

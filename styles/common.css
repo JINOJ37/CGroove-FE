@@ -125,6 +125,11 @@ select {
   color: #1A1A1A;
 }
 
+.nav-link.active {
+  color: #1A1A1A;
+  font-weight: 600;
+}
+
 .header-back {
   background: none;
   border: none;
