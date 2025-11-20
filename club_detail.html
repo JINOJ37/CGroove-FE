@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>동아리 상세 - C.Groove</title>
+  <link rel="stylesheet" href="styles/common.css">
+  <link rel="stylesheet" href="styles/club_detail.css">
+</head>
+<body>
+  <div id="globalLoading">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <div class="loading-text">로딩 중...</div>
+    </div>
+  </div>
+  
+  <div class="page-container">
+    <!-- 헤더 -->
+    <header class="header">
+      <div class="header-container">
+        <button class="header-back">‹</button>
+        <h1 class="logo bagel-fat-one-regular">C.Groove</h1>
+        <div class="header-spacer"></div>
+      </div>
+    </header>
+    
+    <!-- 메인 컨텐츠 -->
+    <main class="detail-main">
+      <!-- 히어로 섹션 -->
+      <section class="club-hero">
+        <div class="hero-container">
+          <div class="club-header">
+            <div class="club-logo-large">
+              <span id="clubLogoLarge">🎭</span>
+            </div>
+            <div class="club-header-info">
+              <div class="club-badge" id="clubBadge">MY</div>
+              <h1 class="club-name-large" id="clubName">TIPSSY</h1>
+              <p class="club-subtitle-large" id="clubSubtitle">스트릿댄스 동아리</p>
+              <div class="club-meta">
+                <span class="meta-item">👥 45명</span>
+                <span class="meta-divider">|</span>
+                <span class="meta-item">📍 고려대학교</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="club-actions">
+            <button class="btn btn-primary" id="joinBtn">가입 신청</button>
+            <button class="btn btn-secondary" id="shareBtn">공유하기</button>
+          </div>
+        </div>
+      </section>
+      
+      <!-- 소개 섹션 -->
+      <section class="club-section">
+        <div class="section-container">
+          <h2 class="section-title">동아리 소개</h2>
+          <div class="club-description-full" id="clubDescription">
+            Drink the Rhythm, TIPSSY!<br><br>
+            스트릿 댄스의 모든 장르를 즐기는 댄스 동아리입니다. 
+            힙합, 팝핀, 락킹, 왁킹, 하우스 등 다양한 장르의 댄스를 배우고, 
+            공연과 대회를 통해 실력을 발전시킵니다.<br><br>
+            매주 정기 연습과 월별 공연을 통해 함께 성장하는 댄스 크루입니다.
+          </div>
+          
+          <div class="club-tags-large">
+            <span class="tag-large">힙합</span>
+            <span class="tag-large">댄스</span>
+            <span class="tag-large">공연</span>
+            <span class="tag-large">대회</span>
+          </div>
+        </div>
+      </section>
+      
+      <!-- 활동 갤러리 -->
+      <section class="club-section bg-gray">
+        <div class="section-container">
+          <h2 class="section-title">활동 사진</h2>
+          <div class="gallery-grid" id="galleryGrid">
+            <!-- JS로 동적 렌더링 -->
+          </div>
+        </div>
+      </section>
+      
+      <!-- 멤버 정보 -->
+      <section class="club-section">
+        <div class="section-container">
+          <h2 class="section-title">멤버 정보</h2>
+          
+          <div class="members-stats">
+            <div class="stat-card">
+              <div class="stat-number">45</div>
+              <div class="stat-label">전체 멤버</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">12</div>
+              <div class="stat-label">신입 멤버</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number">15</div>
+              <div class="stat-label">공연 횟수</div>
+            </div>
+          </div>
+          
+          <div class="leadership">
+            <h3 class="subsection-title">운영진</h3>
+            <div class="leadership-grid">
+              <div class="leader-card">
+                <div class="leader-avatar">👤</div>
+                <div class="leader-info">
+                  <div class="leader-name">김동아</div>
+                  <div class="leader-role">회장</div>
+                </div>
+              </div>
+              <div class="leader-card">
+                <div class="leader-avatar">👤</div>
+                <div class="leader-info">
+                  <div class="leader-name">이댄스</div>
+                  <div class="leader-role">부회장</div>
+                </div>
+              </div>
+              <div class="leader-card">
+                <div class="leader-avatar">👤</div>
+                <div class="leader-info">
+                  <div class="leader-name">박리듬</div>
+                  <div class="leader-role">총무</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      
+      <!-- 최근 활동 -->
+      <section class="club-section bg-gray">
+        <div class="section-container">
+          <div class="section-header">
+            <h2 class="section-title">최근 활동</h2>
+            <a href="#" class="more-link">전체보기 →</a>
+          </div>
+          
+          <div class="activity-list" id="activityList">
+            <!-- JS로 동적 렌더링 -->
+          </div>
+        </div>
+      </section>
+      
+      <!-- 연락처 -->
+      <section class="club-section">
+        <div class="section-container">
+          <h2 class="section-title">연락처 & SNS</h2>
+          
+          <div class="contact-grid">
+            <div class="contact-item">
+              <div class="contact-icon">📧</div>
+              <div class="contact-info">
+                <div class="contact-label">이메일</div>
+                <div class="contact-value">tipssy@korea.ac.kr</div>
+              </div>
+            </div>
+            
+            <div class="contact-item">
+              <div class="contact-icon">📱</div>
+              <div class="contact-info">
+                <div class="contact-label">인스타그램</div>
+                <div class="contact-value">@tipssy_official</div>
+              </div>
+            </div>
+            
+            <div class="contact-item">
+              <div class="contact-icon">🔗</div>
+              <div class="contact-info">
+                <div class="contact-label">홈페이지</div>
+                <div class="contact-value">www.tipssy.com</div>
+              </div>
+            </div>
+            
+            <div class="contact-item">
+              <div class="contact-icon">💬</div>
+              <div class="contact-info">
+                <div class="contact-label">오픈채팅</div>
+                <div class="contact-value">카카오톡 오픈채팅</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  
+  <script src="scripts/common/utils.js"></script>
+  <script src="scripts/common/api.js"></script>
+  <script src="scripts/common/header.js"></script>
+  <script src="scripts/clubs/detail.js"></script>
+  
+  <script>
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initHeader);
+    } else {
+      initHeader();
+    }
+  </script>
+</body>
+</html>

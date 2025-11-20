@@ -48,7 +48,82 @@
 }
 
 /* ========================================
-   게시글 섹션
+   필터 섹션
+======================================== */
+
+.filter-section {
+  background: white;
+  border-bottom: 1px solid #E0E0E0;
+  padding: 30px 40px;
+  position: sticky;
+  top: 80px;
+  z-index: 50;
+}
+
+.filter-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.filter-tabs {
+  display: flex;
+  gap: 16px;
+}
+
+.filter-tab {
+  padding: 10px 24px;
+  background: white;
+  border: 1px solid #E0E0E0;
+  border-radius: 0;
+  font-size: 15px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-tab:hover {
+  border-color: #333;
+  color: #333;
+}
+
+.filter-tab.active {
+  background: #1A1A1A;
+  color: white;
+  border-color: #1A1A1A;
+}
+
+.sort-options {
+  display: flex;
+  gap: 8px;
+}
+
+.sort-btn {
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #E0E0E0;
+  border-radius: 0;
+  font-size: 13px;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.sort-btn:hover {
+  border-color: #333;
+  color: #333;
+}
+
+.sort-btn.active {
+  background: #F5F5F5;
+  color: #1A1A1A;
+  border-color: #333;
+}
+
+/* ========================================
+   게시글 목록
 ======================================== */
 
 .posts-section {
@@ -60,40 +135,63 @@
   margin: 0 auto;
 }
 
-/* ========================================
-   게시글 그리드
-======================================== */
-
-.posts-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 24px;
+.posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* 게시글 카드 - 메인과 유사한 스타일 */
+/* 게시글 카드 - 동아리 스타일 */
 .post-card {
   background: white;
   border: 1px solid #E0E0E0;
   border-radius: 0;
-  overflow: hidden;
-  transition: all 0.3s;
-  cursor: pointer;
+  padding: 24px;
   display: flex;
-  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
 }
 
 .post-card:hover {
+  border-color: #333;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-/* 이미지 영역 */
+/* 타입 뱃지 */
+.post-type-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border-radius: 0;
+}
+
+.post-type-badge.notice {
+  background: #1A1A1A;
+  color: white;
+}
+
+.post-type-badge.event {
+  background: #333;
+  color: white;
+}
+
+/* 이미지 */
 .post-image {
-  width: 100%;
+  width: 200px;
   height: 200px;
   background: #F5F5F5;
+  border-radius: 0;
   overflow: hidden;
   flex-shrink: 0;
+  position: relative;
 }
 
 .post-image img {
@@ -102,19 +200,37 @@
   object-fit: cover;
 }
 
-/* 컨텐츠 영역 */
+.post-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 64px;
+  background: linear-gradient(135deg, #FAFAFA 0%, #E0E0E0 100%);
+}
+
+/* 구분선 */
+.post-divider {
+  width: 1px;
+  height: 140px;
+  background: #E0E0E0;
+  flex-shrink: 0;
+}
+
+/* 컨텐츠 */
 .post-content {
-  padding: 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 12px;
 }
 
 .post-title {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   color: #1A1A1A;
-  margin: 0 0 12px 0;
+  margin: 0;
   line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -124,45 +240,41 @@
 }
 
 .post-excerpt {
-  font-size: 14px;
+  font-size: 15px;
   color: #666;
   line-height: 1.6;
-  margin: 0 0 16px 0;
+  margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
-  flex: 1;
 }
 
-/* 하단 메타 정보 */
-.post-footer {
+.post-meta {
   display: flex;
-  justify-content: space-between;
+  gap: 16px;
   align-items: center;
-  padding-top: 12px;
-  border-top: 1px solid #F0F0F0;
-  margin-top: auto;
+  margin-top: 8px;
 }
 
 .post-author {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 8px;
+  font-size: 14px;
   color: #666;
 }
 
 .author-avatar {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: #E0E0E0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .post-stats {
@@ -179,14 +291,36 @@
 }
 
 .post-date {
-  font-size: 12px;
+  font-size: 13px;
   color: #999;
-  margin-top: 8px;
+  margin-left: auto;
+}
+
+/* 화살표 */
+.post-arrow {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #F5F5F5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+
+.post-card:hover .post-arrow {
+  background: #1A1A1A;
+  color: white;
+}
+
+.post-arrow-icon {
+  font-size: 20px;
+  transform: rotate(-45deg);
 }
 
 /* 빈 상태 */
 .empty-state {
-  grid-column: 1 / -1;
   text-align: center;
   padding: 80px 20px;
   color: #999;
@@ -313,7 +447,7 @@
   border-color: #1A1A1A;
 }
 
-/* 헬퍼텍스트 - 작성 페이지도 아래로 */
+/* 헬퍼텍스트 */
 .form-wrapper .helper-text {
   position: static;
   display: block;
@@ -339,14 +473,21 @@
    반응형
 ======================================== */
 
-@media (max-width: 1024px) {
-  .posts-grid {
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 20px;
-  }
-}
-
 @media (max-width: 768px) {
+  .filter-section {
+    padding: 20px;
+  }
+  
+  .filter-container {
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .filter-tabs {
+    width: 100%;
+    justify-content: center;
+  }
+  
   .posts-hero {
     padding: 40px 20px;
   }
@@ -363,11 +504,32 @@
     padding: 40px 20px;
   }
   
-  .posts-grid {
-    grid-template-columns: 1fr;
+  .post-card {
+    flex-direction: column;
+    padding: 20px;
+  }
+  
+  .post-type-badge {
+    top: 12px;
+    left: 12px;
   }
   
   .post-image {
-    height: 180px;
+    width: 100%;
+    height: 200px;
+  }
+  
+  .post-divider {
+    display: none;
+  }
+  
+  .post-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .post-date {
+    margin-left: 0;
   }
 }
