@@ -210,7 +210,6 @@ select {
   border-bottom: 1px solid #F0F0F0;
   font-size: 14px;
   color: #333;
-  transition: background 0.2s;
 }
 
 .dropdown-item:last-child {

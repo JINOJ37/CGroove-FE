@@ -334,11 +334,21 @@ function applyFiltersAndSort() {
 //=========이벤트 핸들러=========
 // 게시글 작성 버튼 클릭 이벤트
 function setupWriteButtonEvent() {
-  const writeBtn = document.querySelector('.btn-write');
+  const writeBtn = document.querySelector('.btn-post');
   if (!writeBtn) return;
   
   writeBtn.addEventListener('click', function() {
-    navigateTo('post_write.html');
+    navigateTo('post_create.html');
+  });
+}
+
+// 행사작성 버튼 클릭 이벤트
+function setupWriteButtonEvent() {
+  const writeBtn = document.querySelector('.btn-event');
+  if (!writeBtn) return;
+  
+  writeBtn.addEventListener('click', function() {
+    navigateTo('event_create.html');
   });
 }
 

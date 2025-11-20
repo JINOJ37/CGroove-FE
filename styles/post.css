@@ -40,13 +40,19 @@
   color: #1A1A1A;
 }
 
-.btn-write {
+.btn-post {
+  padding: 14px 32px;
+  font-size: 16px;
+  width: auto;
+  margin-right: 20px;
+}
+
+.btn-event {
   padding: 14px 32px;
   font-size: 16px;
   width: auto;
   margin: 0;
 }
-
 /* ========================================
    필터 섹션
 ======================================== */
@@ -467,6 +473,62 @@
 
 .form-wrapper .helper-text:empty {
   display: none;
+}
+
+/* ========================================
+   공개 범위 선택
+======================================== */
+
+.scope-options {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+}
+
+.scope-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: 1px solid #E0E0E0;
+  border-radius: 0;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.scope-option:hover {
+  border-color: #333;
+}
+
+.scope-option input[type="radio"] {
+  margin: 0;
+  cursor: pointer;
+}
+
+.scope-option input[type="radio"]:checked + span {
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.scope-option:has(input[type="radio"]:checked) {
+  border-color: #1A1A1A;
+  background: #FAFAFA;
+}
+
+/* 동아리 옵션 비활성화 상태 */
+.scope-option:has(input[type="radio"]:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+}
+
+.scope-option:has(input[type="radio"]:disabled):hover {
+  border-color: #E0E0E0;
+}
+
+.scope-help-text {
+  font-size: 13px;
+  color: #999;
+  align-content: center;
 }
 
 /* ========================================

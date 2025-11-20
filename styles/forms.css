@@ -1,6 +1,13 @@
 /* ========================================
    폼 전용 스타일 - C.Groove
 ======================================== */
+input[type="password"] {
+  font-family: -apple-system, system-ui, sans-serif !important;
+}
+
+input[type="password"]::placeholder {
+  font-family: 'KoreaInstituteOfMachineryAndMaterials', sans-serif;
+}
 
 /* 폼 그룹 */
 .form-group {
@@ -32,6 +39,7 @@
   transition: all 0.2s;
   background: #FAFAFA;
   font-family: inherit;
+  color: #333 !important;
 }
 
 .form-input:focus {
@@ -74,45 +82,15 @@
   border-color: #D32F2F;
 }
 
-/* 헬퍼 텍스트 - 데스크톱 (오른쪽 툴팁) */
+/* 헬퍼 텍스트 - 항상 아래로 통일 */
 .helper-text {
-  position: absolute;
-  left: calc(100% + 16px);
-  top: 50%;
-  transform: translateY(-50%);
-  background: #fff;
-  border: 1px solid #E0E0E0;
-  border-radius: 0;
-  padding: 8px 12px;
+  display: block;
+  margin-top: 4px;
   font-size: 12px;
   color: #666;
-  white-space: nowrap;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.2s, visibility 0.2s;
-  z-index: 10;
-}
-
-.helper-text::before {
-  content: '';
-  position: absolute;
-  right: 100%;
-  top: 50%;
-  transform: translateY(-50%);
-  border: 6px solid transparent;
-  border-right-color: #E0E0E0;
-}
-
-.helper-text::after {
-  content: '';
-  position: absolute;
-  right: 100%;
-  top: 50%;
-  transform: translateY(-50%);
-  border: 5px solid transparent;
-  border-right-color: #fff;
-  margin-right: -1px;
 }
 
 .helper-text:not(:empty) {
@@ -122,21 +100,6 @@
 
 .helper-text.error {
   color: #D32F2F;
-  border-color: #D32F2F;
-  background: #FFF5F5;
-}
-
-.helper-text.error::before {
-  border-right-color: #D32F2F;
-}
-
-.helper-text.error::after {
-  border-right-color: #FFF5F5;
-}
-
-.form-group:has(.form-textarea) .helper-text {
-  top: 16px;
-  transform: none;
 }
 
 /* 링크 */
@@ -160,55 +123,16 @@
   margin-left: 8px;
 }
 
-/* ========================================
-   특수 페이지 오버라이드
-======================================== */
-
-/* 프로필/게시글 작성 페이지 - 헬퍼텍스트 아래로 */
-.profile-section .helper-text,
-.form-wrapper .helper-text {
-  position: static;
-  display: block;
-  margin-top: 4px;
-  transform: none;
-  left: auto;
-  background: none;
-  border: none;
-  padding: 0;
-  box-shadow: none;
-}
-
-.profile-section .helper-text::before,
-.profile-section .helper-text::after,
-.form-wrapper .helper-text::before,
-.form-wrapper .helper-text::after {
-  display: none;
-}
-
-.profile-section .helper-text:empty,
-.form-wrapper .helper-text:empty {
-  display: none;
+/* 폼 안의 버튼 */
+.form-wrapper .btn {
+  width: 100%;
 }
 
 /* ========================================
-   반응형 - 모바일에서는 항상 아래로
+   반응형
 ======================================== */
 
 @media (max-width: 768px) {
-  .helper-text {
-    position: static;
-    transform: none;
-    margin-top: 4px;
-    display: block;
-    white-space: normal;
-    left: auto;
-  }
-  
-  .helper-text::before,
-  .helper-text::after {
-    display: none;
-  }
-  
   .form-input,
   .form-textarea {
     font-size: 16px; /* 모바일 줌 방지 */
