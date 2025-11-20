@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>동아리 소개 - C.Groove</title>
+  <link rel="stylesheet" href="styles/common.css">
+  <link rel="stylesheet" href="styles/club.css">
+</head>
+<body>
+  <div id="globalLoading">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <div class="loading-text">로딩 중...</div>
+    </div>
+  </div>
+  
+  <div class="page-container">
+    <!-- 헤더 -->
+    <header class="header">
+      <div class="header-container">
+        <h1 class="logo bagel-fat-one-regular" onclick="location.href='main.html'" style="cursor: pointer;">C.Groove</h1>
+        <nav class="nav">
+          <a href="#" class="nav-link kimm-light">장르</a>
+          <a href="clubs.html" class="nav-link kimm-light active">동아리</a>
+          <a href="#" class="nav-link kimm-light">행사</a>
+          <a href="#" class="nav-link kimm-light">달력</a>
+          <div class="header-profile" id="profileMenu">
+            <span class="profile-avatar"></span>
+            <div class="dropdown-menu" id="dropdownMenu">
+              <div class="dropdown-item" onclick="location.href='profile_edit.html'">회원정보수정</div>
+              <div class="dropdown-item" onclick="location.href='password_edit.html'">비밀번호수정</div>
+              <div class="dropdown-item" onclick="logout()">로그아웃</div>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </header>
+    
+    <!-- 메인 컨텐츠 -->
+    <main class="clubs-main">
+      <!-- 필터 섹션 -->
+      <section class="filter-section">
+        <div class="filter-container">
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all">전체</button>
+            <button class="filter-tab" data-filter="university">대학별</button>
+            <button class="filter-tab" data-filter="genre">장르별</button>
+          </div>
+          
+          <div class="sort-options">
+            <button class="sort-btn active" data-sort="name">가-하</button>
+            <button class="sort-btn" data-sort="name-desc">하-가</button>
+            <button class="sort-btn" data-sort="members">인기순</button>
+          </div>
+        </div>
+      </section>
+      
+      <!-- 동아리 그리드 -->
+      <section class="clubs-section">
+        <div class="clubs-container">
+          <div class="clubs-grid" id="clubsGrid">
+            <!-- JS로 동적 렌더링 -->
+          </div>
+        </div>
+      </section>
+    </main>
+    
+    <!-- TOP 버튼 -->
+    <button class="top-button" id="topButton">
+      TOP
+    </button>
+  </div>
+  
+  <script src="scripts/common/utils.js"></script>
+  <script src="scripts/common/api.js"></script>
+  <script src="scripts/common/header.js"></script>
+  <script src="scripts/clubs/list.js"></script>
+  
+  <script>
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initHeader);
+    } else {
+      initHeader();
+    }
+  </script>
+</body>
+</html>
