@@ -117,6 +117,7 @@ async function getMyInfo() {
     method: 'GET'
   });
 }
+
 // 내가 속한 동아리 목록 조회
 async function getMyClubs() {
   console.log('내 동아리 목록 조회 API 호출');
@@ -125,10 +126,15 @@ async function getMyClubs() {
     method: 'GET'
   });
 }
-
 // 동아리 목록 조회
 async function getClubs() {
   return await apiRequest('/clubs', { method: 'GET' });
+}
+// 동아리 목록 조회
+async function getClub(clubId) {
+  return await apiRequest(
+    `/clubs/${clubId}`, { 
+      method: 'GET' });
 }
 
 // 게시글 목록 조회

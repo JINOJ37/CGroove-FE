@@ -1,32 +1,16 @@
+// scripts/clubs/detail.js
+
 // ============================================
-// 더미 데이터
+// 더미 데이터 (백엔드가 아직 안 주는 부분용)
 // ============================================
 
 const dummyClubDetail = {
-  id: 1,
-  name: 'TIPSSY',
-  subtitle: '스트릿댄스 동아리',
-  logo: '🎭',
-  description: `Drink the Rhythm, TIPSSY!
-
-스트릿 댄스의 모든 장르를 즐기는 댄스 동아리입니다. 
-힙합, 팝핀, 락킹, 왁킹, 하우스 등 다양한 장르의 댄스를 배우고, 
-공연과 대회를 통해 실력을 발전시킵니다.
-
-매주 정기 연습과 월별 공연을 통해 함께 성장하는 댄스 크루입니다.`,
-  tags: ['힙합', '댄스', '공연', '대회'],
-  university: '고려대학교',
+  // 통계
   totalMembers: 45,
   newMembers: 12,
   performances: 15,
-  isMine: true,
-  
-  leaders: [
-    { name: '김동아', role: '회장', avatar: '👤' },
-    { name: '이댄스', role: '부회장', avatar: '👤' },
-    { name: '박리듬', role: '총무', avatar: '👤' }
-  ],
-  
+
+  // 갤러리
   gallery: [
     { id: 1, placeholder: '📸' },
     { id: 2, placeholder: '🎬' },
@@ -37,7 +21,15 @@ const dummyClubDetail = {
     { id: 7, placeholder: '🎵' },
     { id: 8, placeholder: '⚡' }
   ],
-  
+
+  // 운영진
+  leaders: [
+    { name: '김동아', role: '회장', avatar: '👤' },
+    { name: '이댄스', role: '부회장', avatar: '👤' },
+    { name: '박리듬', role: '총무',  avatar: '👤' }
+  ],
+
+  // 최근 활동
   recentActivities: [
     {
       id: 1,
@@ -61,11 +53,12 @@ const dummyClubDetail = {
       image: '🏆'
     }
   ],
-  
+
+  // 연락처
   contact: {
-    email: 'tipssy@korea.ac.kr',
-    instagram: '@tipssy_official',
-    website: 'www.tipssy.com',
+    email: 'club@univ.ac.kr',
+    instagram: '@club_official',
+    website: 'https://club.example.com',
     kakao: '카카오톡 오픈채팅'
   }
 };
@@ -76,90 +69,193 @@ const dummyClubDetail = {
 
 document.addEventListener('DOMContentLoaded', () => {
   console.log('동아리 상세 페이지 초기화');
-  
-  loadClubDetail();
-  setupButtons();
-  setupBackButton();
+  initClubDetailPage();
 });
 
-// ============================================
-// 동아리 상세 로드
-// ============================================
+async function initClubDetailPage() {
+  setupBackButton();
+  setupButtons();
 
-function loadClubDetail() {
-  // URL에서 ID 추출
-  const urlParams = new URLSearchParams(window.location.search);
-  const clubId = urlParams.get('id');
-  
-  console.log('동아리 ID:', clubId);
-  
-  // 더미 데이터 사용
-  const club = dummyClubDetail;
-  
-  // 기본 정보
-  document.getElementById('clubLogoLarge').textContent = club.logo;
-  document.getElementById('clubName').textContent = club.name;
-  document.getElementById('clubSubtitle').textContent = club.subtitle;
-  document.getElementById('clubDescription').innerHTML = club.description.replace(/\n/g, '<br>');
-  
-  // 뱃지 표시
-  const badge = document.getElementById('clubBadge');
-  if (club.isMine) {
-    badge.style.display = 'inline-block';
-  } else {
-    badge.style.display = 'none';
+  const clubId = getClubIdFromUrl();
+  if (!clubId) {
+    console.error('clubId 없음');
+    showToast('잘못된 접근입니다.');
+    smartBack('club_list.html');
+    return;
   }
-  
-  // 메타 정보
-  document.querySelector('.club-meta').innerHTML = `
-    <span class="meta-item">👥 ${club.totalMembers}명</span>
-    <span class="meta-divider">|</span>
-    <span class="meta-item">📍 ${club.university}</span>
-  `;
-  
-  // 태그
-  document.querySelector('.club-tags-large').innerHTML = club.tags
-    .map(tag => `<span class="tag-large">${tag}</span>`)
-    .join('');
-  
-  // 통계
-  document.querySelector('.members-stats').innerHTML = `
-    <div class="stat-card">
-      <div class="stat-number">${club.totalMembers}</div>
-      <div class="stat-label">전체 멤버</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number">${club.newMembers}</div>
-      <div class="stat-label">신입 멤버</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number">${club.performances}</div>
-      <div class="stat-label">공연 횟수</div>
-    </div>
-  `;
-  
-  // 갤러리
-  renderGallery(club.gallery);
-  
-  // 운영진
-  renderLeadership(club.leaders);
-  
-  // 최근 활동
-  renderActivities(club.recentActivities);
+
+  await loadClubDetail(clubId);
 }
 
 // ============================================
-// 갤러리 렌더링
+// URL에서 clubId 추출
+// ============================================
+
+function getClubIdFromUrl() {
+  const urlParams = new URLSearchParams(window.location.search);
+  const clubId = urlParams.get('id');
+  return clubId ? Number(clubId) : null;
+}
+
+// ============================================
+// 동아리 상세 로드 (실제 API 사용)
+// ============================================
+
+async function loadClubDetail(clubId) {
+  const loading = document.getElementById('loadingIndicator');
+
+  try {
+    if (loading) loading.style.display = 'block';
+
+    console.log('동아리 상세 조회:', clubId);
+    const response = await getClub(clubId); // 🔥 GET /clubs/{clubId}
+    const club = response.data;
+
+    if (!club) {
+      console.warn('클럽 데이터 없음');
+      renderEmptyClub();
+      return;
+    }
+
+    renderClubDetail(club);
+
+  } catch (error) {
+    console.error('동아리 상세 로드 실패:', error);
+    renderErrorState();
+  } finally {
+    if (loading) loading.style.display = 'none';
+  }
+}
+
+// ============================================
+// 상세 정보 렌더링
+// ============================================
+
+function renderClubDetail(club) {
+  // club: ClubResponse
+  // { clubId, clubName, intro, description, clubImage, locationName, tags, memberCount, isMine }
+
+  const nameEl = document.getElementById('clubName');
+  const subtitleEl = document.getElementById('clubSubtitle');
+  const descEl = document.getElementById('clubDescription');
+  const logoEl = document.getElementById('clubLogoLarge');
+  const badgeEl = document.getElementById('clubBadge');
+
+  // 1) 이름 / 한줄소개 / 설명
+  if (nameEl) nameEl.textContent = club.clubName || '동아리 이름';
+  if (subtitleEl) subtitleEl.textContent = club.intro || '';
+  if (descEl) {
+    const text = club.description || '';
+    descEl.innerHTML = text.replace(/\n/g, '<br>');
+  }
+
+  // 2) 로고 / 이미지
+  if (logoEl) {
+    if (club.clubImage) {
+      const imgUrl = `${API_BASE_URL}${club.clubImage}`;
+      logoEl.innerHTML = `<img src="${imgUrl}" alt="${club.clubName}">`;
+    } else {
+      // 이미지 없으면 이니셜
+      const initial =
+        (club.clubName && club.clubName.trim().charAt(0)) ||
+        (club.intro && club.intro.trim().charAt(0)) ||
+        'C';
+      logoEl.textContent = initial;
+      logoEl.classList.add('club-logo-initial');
+    }
+  }
+
+  // 3) "내 동아리" 뱃지
+  const isMine = club.isMine === true;
+  if (badgeEl) {
+    badgeEl.style.display = isMine ? 'inline-block' : 'none';
+  }
+
+  // 4) 메타 정보 (멤버 수, 위치)
+  const metaEl = document.querySelector('.club-meta');
+  if (metaEl) {
+    const members = club.memberCount ?? dummyClubDetail.totalMembers;
+    const location = club.locationName || '위치 미등록';
+
+    metaEl.innerHTML = `
+      <span class="meta-item">👥 ${members}명</span>
+      <span class="meta-divider">|</span>
+      <span class="meta-item">📍 ${location}</span>
+    `;
+  }
+
+  // 5) 태그
+  const tagsEl = document.querySelector('.club-tags-large');
+  if (tagsEl) {
+    const tags = club.tags || [];
+    if (tags.length === 0) {
+      tagsEl.innerHTML = `<span class="tag-large tag-empty">태그 없음</span>`;
+    } else {
+      tagsEl.innerHTML = tags
+        .map((tag) => `<span class="tag-large">${tag}</span>`)
+        .join('');
+    }
+  }
+
+  // 6) 멤버 통계 (totalMembers는 실제값, 나머지는 dummy)
+  const statsEl = document.querySelector('.members-stats');
+  if (statsEl) {
+    const totalMembers = club.memberCount ?? dummyClubDetail.totalMembers;
+    const newMembers = dummyClubDetail.newMembers;
+    const performances = dummyClubDetail.performances;
+
+    statsEl.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-number">${totalMembers}</div>
+        <div class="stat-label">전체 멤버</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${newMembers}</div>
+        <div class="stat-label">신입 멤버</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${performances}</div>
+        <div class="stat-label">공연 횟수</div>
+      </div>
+    `;
+  }
+
+  // 7) 갤러리 / 운영진 / 최근 활동 / 연락처 – 아직 백엔드 없으니 dummy + 나중에 확장
+  renderGallery(club.gallery);
+  renderLeadership(club.leaders);
+  renderActivities(club.recentActivities);
+  renderContact(club.contact);
+
+  // 8) 가입 버튼 상태
+  updateJoinButtonText(isMine);
+}
+
+// ============================================
+// 갤러리 렌더링 (실데이터가 있으면 사용, 없으면 dummy)
 // ============================================
 
 function renderGallery(gallery) {
   const grid = document.getElementById('galleryGrid');
-  
-  grid.innerHTML = gallery.map(item => `
-    <div class="gallery-item">
-      <div class="gallery-placeholder">${item.placeholder}</div>
-    </div>
-  `).join('');
+  if (!grid) return;
+
+  const source =
+    gallery && Array.isArray(gallery) && gallery.length > 0
+      ? gallery
+      : dummyClubDetail.gallery;
+
+  grid.innerHTML = source
+    .map(
+      (item) => `
+      <div class="gallery-item">
+        ${
+          item.imageUrl
+            ? `<img src="${API_BASE_URL}${item.imageUrl}" alt="gallery">`
+            : `<div class="gallery-placeholder">${item.placeholder || '📸'}</div>`
+        }
+      </div>
+    `
+    )
+    .join('');
 }
 
 // ============================================
@@ -168,16 +264,26 @@ function renderGallery(gallery) {
 
 function renderLeadership(leaders) {
   const grid = document.querySelector('.leadership-grid');
-  
-  grid.innerHTML = leaders.map(leader => `
-    <div class="leader-card">
-      <div class="leader-avatar">${leader.avatar}</div>
-      <div class="leader-info">
-        <div class="leader-name">${leader.name}</div>
-        <div class="leader-role">${leader.role}</div>
+  if (!grid) return;
+
+  const source =
+    leaders && Array.isArray(leaders) && leaders.length > 0
+      ? leaders
+      : dummyClubDetail.leaders;
+
+  grid.innerHTML = source
+    .map(
+      (leader) => `
+      <div class="leader-card">
+        <div class="leader-avatar">${leader.avatar || '👤'}</div>
+        <div class="leader-info">
+          <div class="leader-name">${leader.name || '운영진'}</div>
+          <div class="leader-role">${leader.role || ''}</div>
+        </div>
       </div>
-    </div>
-  `).join('');
+    `
+    )
+    .join('');
 }
 
 // ============================================
@@ -186,19 +292,125 @@ function renderLeadership(leaders) {
 
 function renderActivities(activities) {
   const list = document.getElementById('activityList');
-  
-  list.innerHTML = activities.map(activity => `
-    <div class="activity-item" onclick="goToPost(${activity.id})">
-      <div class="activity-image">
-        <div class="gallery-placeholder">${activity.image}</div>
+  if (!list) return;
+
+  const source =
+    activities && Array.isArray(activities) && activities.length > 0
+      ? activities
+      : dummyClubDetail.recentActivities;
+
+  list.innerHTML = source
+    .map(
+      (activity) => `
+      <div class="activity-item" onclick="goToPost(${activity.id})">
+        <div class="activity-image">
+          ${
+            activity.imageUrl
+              ? `<img src="${API_BASE_URL}${activity.imageUrl}" alt="${activity.title}">`
+              : `<div class="gallery-placeholder">${activity.image || '📝'}</div>`
+          }
+        </div>
+        <div class="activity-info">
+          <h3 class="activity-title">${activity.title}</h3>
+          <p class="activity-description">${activity.description}</p>
+          <span class="activity-date">${
+            typeof formatDate === 'function'
+              ? formatDate(activity.date)
+              : activity.date
+          }</span>
+        </div>
       </div>
-      <div class="activity-info">
-        <h3 class="activity-title">${activity.title}</h3>
-        <p class="activity-description">${activity.description}</p>
-        <span class="activity-date">${formatDate(activity.date)}</span>
+    `
+    )
+    .join('');
+}
+
+// ============================================
+// 연락처 렌더링
+// ============================================
+
+function renderContact(contact) {
+  const grid = document.querySelector('.contact-grid');
+  if (!grid) return;
+
+  const src = { ...dummyClubDetail.contact, ...(contact || {}) };
+
+  grid.innerHTML = `
+    <div class="contact-item">
+      <div class="contact-icon">✉️</div>
+      <div class="contact-info">
+        <div class="contact-label">이메일</div>
+        <div class="contact-value">${src.email || '-'}</div>
       </div>
     </div>
-  `).join('');
+    <div class="contact-item">
+      <div class="contact-icon">📸</div>
+      <div class="contact-info">
+        <div class="contact-label">인스타그램</div>
+        <div class="contact-value">${src.instagram || '-'}</div>
+      </div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-icon">🌐</div>
+      <div class="contact-info">
+        <div class="contact-label">웹사이트</div>
+        <div class="contact-value">${src.website || '-'}</div>
+      </div>
+    </div>
+    <div class="contact-item">
+      <div class="contact-icon">💬</div>
+      <div class="contact-info">
+        <div class="contact-label">카카오톡</div>
+        <div class="contact-value">${src.kakao || '-'}</div>
+      </div>
+    </div>
+  `;
+}
+
+// ============================================
+// 가입 버튼 상태 업데이트
+// ============================================
+
+function updateJoinButtonText(isMine) {
+  const joinBtn = document.getElementById('joinBtn');
+  if (!joinBtn) return;
+
+  if (isMine) {
+    joinBtn.textContent = '탈퇴하기';
+    joinBtn.classList.add('btn-outline');
+  } else {
+    joinBtn.textContent = '가입 신청';
+    joinBtn.classList.remove('btn-outline');
+  }
+}
+
+// ============================================
+// 에러 / 빈 상태
+// ============================================
+
+function renderEmptyClub() {
+  const container = document.querySelector('.detail-container');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="empty-state">
+      <div class="empty-state-icon">🎭</div>
+      <div class="empty-state-text">동아리 정보를 찾을 수 없습니다</div>
+    </div>
+  `;
+}
+
+function renderErrorState() {
+  const container = document.querySelector('.detail-container');
+  if (!container) return;
+  container.innerHTML = `
+    <div class="empty-state">
+      <div class="empty-state-icon">⚠️</div>
+      <div class="empty-state-text">동아리 정보를 불러오는 중 오류가 발생했습니다</div>
+      <button class="btn btn-primary" style="margin-top: 20px; width: auto;" onclick="location.reload()">
+        다시 시도
+      </button>
+    </div>
+  `;
 }
 
 // ============================================
@@ -206,24 +418,41 @@ function renderActivities(activities) {
 // ============================================
 
 function setupButtons() {
-  // 가입 신청
-  document.getElementById('joinBtn').addEventListener('click', () => {
-    showModal(
-      '동아리 가입',
-      '가입 신청을 하시겠습니까?',
-      () => {
-        showToast('가입 신청이 완료되었습니다');
+  const joinBtn = document.getElementById('joinBtn');
+  const shareBtn = document.getElementById('shareBtn');
+
+  if (joinBtn) {
+    joinBtn.addEventListener('click', () => {
+      // 실제 가입/탈퇴 API 연동은 추후
+      showModal(
+        '동아리 가입',
+        '가입 신청을 하시겠습니까?',
+        () => {
+          showToast('가입 신청이 완료되었습니다');
+        }
+      );
+    });
+  }
+
+  if (shareBtn) {
+    shareBtn.addEventListener('click', () => {
+      const url = window.location.href;
+      if (navigator.clipboard) {
+        navigator.clipboard
+          .writeText(url)
+          .then(() => showToast('링크가 복사되었습니다'))
+          .catch(() => showToast('링크 복사에 실패했습니다'));
+      } else {
+        showToast('링크 복사 기능을 사용할 수 없습니다');
       }
-    );
-  });
-  
-  // 공유하기
-  document.getElementById('shareBtn').addEventListener('click', () => {
-    showToast('링크가 복사되었습니다');
-  });
+    });
+  }
 }
 
-// 뒤로가기 버튼 업데이트
+// ============================================
+// 뒤로가기 버튼
+// ============================================
+
 function setupBackButton() {
   const backBtn = document.querySelector('.header-back');
   if (backBtn) {
@@ -231,21 +460,9 @@ function setupBackButton() {
   }
 }
 
-// ============================================
-// 유틸리티
-// ============================================
-
-function formatDate(dateStr) {
-  const date = new Date(dateStr);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
-  return `${year}.${month}.${day}`;
-}
-
 function goToPost(postId) {
   console.log('게시글 이동:', postId);
-  navigateTo(`detail.html?id=${postId}`);
+  navigateTo(`post_detail.html?id=${postId}`);
 }
 
 console.log('clubs/detail.js 로드 완료');
