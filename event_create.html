@@ -46,26 +46,68 @@
             </div>
           </div>
           
-          <!-- 동아리 선택 (CLUB 선택 시에만 표시) -->
           <div class="form-group" id="clubSelectGroup" style="display: none;">
             <label class="form-label required">동아리 선택</label>
-            <select class="form-input" id="clubSelect">
+
+            <!-- ✅ 커스텀 드롭다운 UI -->
+            <div class="custom-select" data-target="clubSelect">
+              <button type="button" class="custom-select-trigger">
+                동아리를 선택해주세요
+              </button>
+              <div class="custom-select-menu">
+                <!-- JS에서 동적으로 렌더링 (클럽 목록 불러와서) -->
+                <!--
+                <div class="custom-select-option" data-value="1">TIPSSY</div>
+                <div class="custom-select-option" data-value="2">KUDT</div>
+                -->
+              </div>
+            </div>
+
+            <!-- ✅ 실제 값은 여기(hidden select)에 반영됨 -->
+            <select class="form-input" id="clubSelect" style="display:none;">
               <option value="">동아리를 선택해주세요</option>
             </select>
-            <span class="helper-text"></span>
+
+            <span class="helper-text" id="clubSelectHelper"></span>
           </div>
           
-          <!-- 행사 유형 -->
           <div class="form-group">
             <label class="form-label required">행사 유형</label>
-            <select class="form-input" id="typeSelect">
+
+            <!-- ✅ 커스텀 드롭다운 UI -->
+            <div class="custom-select" data-target="typeSelect">
+              <button type="button" class="custom-select-trigger">
+                행사 유형을 선택해주세요
+              </button>
+              <div class="custom-select-menu">
+                <div class="custom-select-option" data-value="">
+                  행사 유형을 선택해주세요
+                </div>
+                <div class="custom-select-option" data-value="WORKSHOP">
+                  워크샵
+                </div>
+                <div class="custom-select-option" data-value="BATTLE">
+                  배틀
+                </div>
+                <div class="custom-select-option" data-value="JAM">
+                  잼
+                </div>
+                <div class="custom-select-option" data-value="PERFORMANCE">
+                  공연
+                </div>
+              </div>
+            </div>
+
+            <!-- ✅ 진짜 form 값은 여기(hidden select)에 들어감 -->
+            <select class="form-input" id="typeSelect" style="display:none;">
               <option value="">행사 유형을 선택해주세요</option>
-              <option value="WORKSHOP">워크샵</option>
-              <option value="BATTLE">배틀</option>
-              <option value="JAM">잼</option>
-              <option value="PERFORMANCE">공연</option>
+              <option value="WORKSHOP">WORKSHOP</option>
+              <option value="BATTLE">BATTLE</option>
+              <option value="JAM">JAM</option>
+              <option value="PERFORMANCE">PERFORMANCE</option>
             </select>
-            <span class="helper-text"></span>
+
+            <span class="helper-text" id="typeSelectHelper"></span>
           </div>
           
           <!-- 제목 -->
@@ -202,6 +244,7 @@
   <script src="scripts/common/validators.js"></script>
   <script src="scripts/common/api.js"></script>
   <script src="scripts/common/header.js"></script>
+  <script src="scripts/common/custom_select.js"></script>
   <script src="scripts/events/create.js"></script>
 
   <script>

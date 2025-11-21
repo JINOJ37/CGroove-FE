@@ -25,23 +25,90 @@ async function loadMyClubs() {
     
     console.log('내 동아리 목록:', myClubs);
     
-    // 동아리가 없으면 "내 동아리만" 옵션 비활성화
-    if (myClubs.length === 0) {
-      disableClubScope();
+    const hiddenSelect = document.getElementById('clubSelect');
+    const customWrapper = document.querySelector('.custom-select[data-target="clubSelect"]');
+    const helper = document.getElementById('clubSelectHelper');
+
+    if (!hiddenSelect || !customWrapper) {
+      console.warn('clubSelect 또는 custom-select wrapper를 찾을 수 없습니다.');
       return;
     }
-    
-    // 동아리 선택 옵션 렌더링
-    const clubSelect = document.getElementById('clubSelect');
-    clubSelect.innerHTML = '<option value="">동아리를 선택해주세요</option>';
-    
-    myClubs.forEach(club => {
+
+    const menu = customWrapper.querySelector('.custom-select-menu');
+    if (!menu) {
+      console.warn('custom-select-menu를 찾을 수 없습니다.');
+      return;
+    }
+
+    // 동아리가 없으면 CLUB 스코프 비활성화
+    if (myClubs.length === 0) {
+      console.log('내 동아리 없음 → CLUB 범위 비활성화');
+      disableClubScope();  // 기존 로직 재사용
+      // select / custom-select 초기화
+      hiddenSelect.innerHTML = '<option value="">동아리가 없습니다</option>';
+      menu.innerHTML = `
+        <div class="custom-select-option" data-value="">
+          동아리가 없습니다
+        </div>
+      `;
+      // placeholder 상태로 세팅
+      resetCustomSelectPlaceholder(customWrapper, '동아리가 없습니다');
+      if (helper) helper.textContent = '';
+      return;
+    }
+
+    // =============================
+    // 1) hidden select 초기화
+    // =============================
+    hiddenSelect.innerHTML = '<option value="">동아리를 선택해주세요</option>';
+
+    // =============================
+    // 2) custom dropdown 메뉴 초기화
+    // =============================
+    menu.innerHTML = `
+      <div class="custom-select-option" data-value="">
+        동아리를 선택해주세요
+      </div>
+    `;
+
+    // =============================
+    // 3) 동아리 데이터 렌더링
+    //    (백 응답 필드명에 맞춰서 써야 함!)
+    // =============================
+    myClubs.forEach((club) => {
+      // ⚠️ 응답 구조에 따라 이름 필드 확인 필요
+      // ClubJoinResponse면 club.clubName일 가능성이 높음.
+      const id = club.clubId;
+      const name = club.clubName || club.name || `클럽 ${id}`;
+
+      // hidden select option
       const option = document.createElement('option');
-      option.value = club.clubId;
-      option.textContent = club.name;
-      clubSelect.appendChild(option);
+      option.value = id;
+      option.textContent = name;
+      hiddenSelect.appendChild(option);
+
+      // custom dropdown option
+      const optDiv = document.createElement('div');
+      optDiv.className = 'custom-select-option';
+      optDiv.dataset.value = id;
+      optDiv.textContent = name;
+      menu.appendChild(optDiv);
     });
-    
+
+    // =============================
+    // 4) 커스텀 드롭다운 초기화/동기화
+    // =============================
+    // 이미 initCustomSelects()가 전체 페이지 기준으로 한 번 돌았다면,
+    // 여기선 해당 wrapper만 다시 동기화해주면 됨.
+    syncFromHiddenSelect(
+      customWrapper,
+      hiddenSelect,
+      customWrapper.querySelector('.custom-select-trigger'),
+      menu
+    );
+
+    if (helper) helper.textContent = '';
+
   } catch (error) {
     console.error('동아리 목록 로드 실패:', error);
     showToast('동아리 목록을 불러오는데 실패했습니다', 3000, 'error');
@@ -511,6 +578,7 @@ async function init() {
   
   await loadMyClubs();
   
+  initCustomSelects();
   setupBackButton();
   setupScopeEvents();
   setupClubSelectEvents();

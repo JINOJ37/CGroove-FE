@@ -29,22 +29,39 @@ function setupProfileImageEvent() {
     profileImageUpload.click();
   });
   
-  // 파일 선택 → 미리보기
-  profileImageUpload.addEventListener('change', (e) => {
+  // ✅ 파일 선택 → 압축 + 미리보기
+  profileImageUpload.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-    
-    profileImageFile = file;
-    imageDeleted = false; // 삭제 상태 해제
-    
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      profileImageDiv.innerHTML = `<img src="${e.target.result}" alt="프로필">`;
+
+    try {
+      // 회원가입/동아리 생성과 동일한 옵션 사용 (원하면 숫자만 조절)
+      const { file: processedFile, previewUrl } = await processImageFile(file, {
+        maxWidth: 1024,
+        maxHeight: 1024,
+        quality: 0.8,
+        maxSizeBytes: 2 * 1024 * 1024 // 2MB 이하면 그대로, 넘으면 리사이즈/압축
+      });
+
+      profileImageFile = processedFile; // 🔥 서버로 보내줄 최종 파일
+      imageDeleted = false;             // 삭제 상태 해제
+
+      profileImageDiv.innerHTML = `
+        <img src="${previewUrl}" alt="프로필"
+             style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+      `;
       removeBtn.classList.add('show'); // X 버튼 표시
-    };
-    reader.readAsDataURL(file);
-    
-    checkForChanges();
+
+      console.log('📷 프로필 이미지 처리 완료:', processedFile.name || 'blob');
+
+    } catch (err) {
+      console.error('프로필 이미지 처리 중 오류:', err);
+      showToast('이미지 처리 중 오류가 발생했습니다', 2000, 'error');
+    } finally {
+      // 같은 파일 다시 선택해도 change 이벤트 발생하게 초기화
+      profileImageUpload.value = '';
+      checkForChanges();
+    }
   });
   
   // X 버튼 클릭 → 삭제
@@ -189,7 +206,7 @@ async function updateUserInfo(updateData) {
   formData.append('nickname', updateData.nickname);
   
   if (updateData.deleteImage) {
-    formData.append('deleteImage');
+    formData.append('deleteImage', 'true');
     console.log('📷 프로필 이미지 삭제');
   } else if (updateData.profileImage) {
     formData.append('profileImage', updateData.profileImage);
