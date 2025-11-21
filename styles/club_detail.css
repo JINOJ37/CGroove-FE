@@ -371,6 +371,7 @@
   font-size: 14px;
   color: #666;
   line-height: 1.6;
+  line-clamp: 2;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;

@@ -210,6 +210,7 @@ function setupClubSubmitEvent() {
     const intro = document.getElementById('clubSubtitleInput').value.trim();
     const locationName = document.getElementById('locationInput').value.trim();
     const description = document.getElementById('descriptionInput').value.trim();
+    const clubType = document.querySelector('input[name="clubType"]:checked').value;
     const tagsInput = document.getElementById('tagsInput').value.trim();
 
     const tags = tagsInput
