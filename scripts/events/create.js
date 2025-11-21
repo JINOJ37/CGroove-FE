@@ -414,7 +414,7 @@ function setupSubmitEvent() {
       
       showToast(response.message || '행사가 등록되었습니다');
       
-      navigateTo('posts.html', 2000);
+      navigateTo('post_list.html', 2000);
       
     } catch (error) {
       console.error('행사 등록 실패:', error);
@@ -500,7 +500,7 @@ function setupBackButton() {
         document.getElementById('contentInput').value.trim() ||
         imageFiles.length > 0;
       
-      confirmBack('posts.html', hasContent, '작성 중인 내용이 사라집니다.');
+      confirmBack('post_list.html', hasContent, '작성 중인 내용이 사라집니다.');
     };
   }
 }

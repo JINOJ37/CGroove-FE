@@ -79,6 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   loadClubDetail();
   setupButtons();
+  setupBackButton();
 });
 
 // ============================================
@@ -220,6 +221,14 @@ function setupButtons() {
   document.getElementById('shareBtn').addEventListener('click', () => {
     showToast('링크가 복사되었습니다');
   });
+}
+
+// 뒤로가기 버튼 업데이트
+function setupBackButton() {
+  const backBtn = document.querySelector('.header-back');
+  if (backBtn) {
+    backBtn.onclick = () => smartBack('club_list.html');
+  }
 }
 
 // ============================================

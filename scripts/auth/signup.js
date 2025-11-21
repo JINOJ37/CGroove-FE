@@ -21,16 +21,27 @@ function setupProfileImageEvent() {
 
   profileImageUpload.addEventListener('change', function(e) {
     const file = e.target.files[0];
-    if (file) {
-      profileImage = file;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        if(profileImageContainer){
-          profileImageContainer.innerHTML = `<img src="${e.target.result}">`;
+    if (!file) return;
+    processImageFile(file, {
+      maxWidth: 1024,
+      maxHeight: 1024,
+      quality: 0.8,
+      maxSizeBytes: 2 * 1024 * 1024 // 2MB 이하는 압축 X
+    })
+      .then(({ file: processedFile, previewUrl }) => {
+        profileImage = processedFile; // ✅ 서버로 보낼 최종 파일
+
+        if (profileImageContainer) {
+          profileImageContainer.innerHTML = `
+            <img src="${previewUrl}" 
+                 style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+          `;
         }
-      };
-      reader.readAsDataURL(file);
-    }
+      })
+      .catch(err => {
+        console.error(err);
+        alert('이미지 처리 중 오류가 발생했습니다.');
+      });
   });
 }
 
