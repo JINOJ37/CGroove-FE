@@ -1,4 +1,31 @@
 /* ========================================
+   폼 레이아웃
+======================================== */
+
+.form-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  flex: 1;
+  width: 100%;
+}
+
+.form-wrapper {
+  background: white;
+  border: 1px solid #E0E0E0;
+  border-radius: 0;
+  padding: 40px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.form-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 32px;
+}
+
+/* ========================================
    폼 전용 스타일 - C.Groove
 ======================================== */
 input[type="password"] {

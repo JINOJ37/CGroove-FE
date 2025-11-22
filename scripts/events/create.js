@@ -100,12 +100,10 @@ async function loadMyClubs() {
     // =============================
     // 이미 initCustomSelects()가 전체 페이지 기준으로 한 번 돌았다면,
     // 여기선 해당 wrapper만 다시 동기화해주면 됨.
-    syncFromHiddenSelect(
-      customWrapper,
-      hiddenSelect,
-      customWrapper.querySelector('.custom-select-trigger'),
-      menu
-    );
+    // ✅ 새로 추가
+    if (window.initCustomSelects) {
+      window.initCustomSelects();
+    }
 
     if (helper) helper.textContent = '';
 
@@ -578,7 +576,6 @@ async function init() {
   
   await loadMyClubs();
   
-  initCustomSelects();
   setupBackButton();
   setupScopeEvents();
   setupClubSelectEvents();

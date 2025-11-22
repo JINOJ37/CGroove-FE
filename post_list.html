@@ -39,38 +39,57 @@
     
     <!-- 메인 컨텐츠 -->
     <main class="posts-main">
-      <!-- 환영 섹션 -->
+      <!-- 히어로 섹션 -->
       <section class="posts-hero">
         <div class="hero-content">
           <h2 class="hero-title">안녕하세요,</h2>
-          <h2 class="hero-subtitle">C.Groove <span class="highlight">게시판</span>입니다.</h2>
-          <button class="btn btn-primary btn-post" onclick="location.href='post_create.html'">
-            게시글 작성
-          </button>
-          <button class="btn btn-primary btn-event" onclick="location.href='event_create.html'">
-            행사 작성
-          </button>
-        </div>
-      </section>
-      
-      <!-- 필터 섹션 -->
-      <section class="filter-section">
-        <div class="filter-container">
-          <div class="filter-tabs">
-            <button class="filter-tab active" data-filter="all">전체</button>
-            <button class="filter-tab" data-filter="general">일반</button>
-            <button class="filter-tab" data-filter="event">행사</button>
-            <button class="filter-tab" data-filter="notice">공지</button>
+          <h2 class="hero-subtitle" id="heroSubtitle">
+            C.Groove <span class="highlight">게시판</span>입니다.
+          </h2>
+          
+          <!-- 동아리 필터 -->
+          <div class="hero-filter">
+            <label class="filter-label">동아리</label>
+            <div class="custom-select" data-target="clubFilter">
+              <button type="button" class="custom-select-trigger">전체</button>
+              <div class="custom-select-menu"></div>
+            </div>
+            <select id="clubFilter" style="display: none;">
+              <option value="all">전체</option>
+            </select>
           </div>
           
+          <!-- 액션 버튼 -->
+          <div class="hero-actions">
+            <button class="btn btn-primary" onclick="location.href='post_create.html'">
+              게시글 작성
+            </button>
+            <button class="btn btn-secondary" onclick="location.href='event_create.html'">
+              행사 등록
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 필터 섹션 -->
+      <div class="filter-section">
+        <div class="filter-container">
+          <!-- 타입 필터 -->
+          <div class="type-tabs">
+            <button class="type-tab active" data-filter="all">전체</button>
+            <button class="type-tab" data-filter="post">포스트</button>
+            <button class="type-tab" data-filter="event">행사</button>
+          </div>
+
+          <!-- 정렬 -->
           <div class="sort-options">
             <button class="sort-btn active" data-sort="latest">최신순</button>
             <button class="sort-btn" data-sort="popular">인기순</button>
             <button class="sort-btn" data-sort="views">조회순</button>
           </div>
         </div>
-      </section>
-      
+      </div>
+
       <!-- 게시글 목록 -->
       <section class="posts-section">
         <div class="posts-container">
@@ -86,6 +105,7 @@
   <script src="scripts/common/format.js"></script>
   <script src="scripts/common/api.js"></script>
   <script src="scripts/common/header.js"></script> 
+  <script src="scripts/common/custom_select.js"></script> 
   <script src="scripts/posts/list.js"></script>
   
   <script>

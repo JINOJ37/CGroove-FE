@@ -12,8 +12,8 @@
 ======================================== */
 
 .posts-hero {
-  background: white;
-  border-bottom: 1px solid #E0E0E0;
+  background: linear-gradient(135deg, #FAFAFA 0%, #F5F5F5 100%);
+  border-bottom: 2px solid #E0E0E0;
   padding: 60px 40px;
 }
 
@@ -23,9 +23,9 @@
 }
 
 .hero-title {
-  font-size: 32px;
+  font-size: 24px;
   font-weight: 300;
-  color: #666;
+  color: #999;
   margin-bottom: 8px;
 }
 
@@ -33,26 +33,143 @@
   font-size: 42px;
   font-weight: 700;
   color: #1A1A1A;
-  margin-bottom: 32px;
+  margin-bottom: 40px;
+  transition: all 0.3s;
 }
 
 .highlight {
   color: #1A1A1A;
 }
 
-.btn-post {
-  padding: 14px 32px;
-  font-size: 16px;
-  width: auto;
-  margin-right: 20px;
+/* 동아리 필터 */
+.hero-filter {
+  max-width: 400px;
+  margin-bottom: 32px;
 }
 
-.btn-event {
-  padding: 14px 32px;
-  font-size: 16px;
+.filter-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: #999;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+}
+
+/* 액션 버튼 */
+.hero-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.hero-actions .btn {
   width: auto;
   margin: 0;
+  padding: 16px 40px;
+  font-size: 16px;
+  font-weight: 600;
 }
+
+/* ========================================
+   커스텀 셀렉트
+======================================== */
+
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-trigger {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #E0E0E0;
+  border-radius: 0;
+  background: white;
+  font-size: 15px;
+  font-family: inherit;
+  color: #333;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-weight: 500;
+  position: relative;
+}
+
+.custom-select-trigger::after {
+  content: "";
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  border-width: 6px 5px 0 5px;
+  border-style: solid;
+  border-color: #666 transparent transparent transparent;
+  transition: all 0.2s;
+}
+
+.custom-select.open .custom-select-trigger {
+  border-color: #1A1A1A;
+  background: #FAFAFA;
+}
+
+.custom-select.open .custom-select-trigger::after {
+  transform: translateY(-50%) rotate(180deg);
+}
+
+.custom-select-trigger:hover {
+  border-color: #999;
+}
+
+.custom-select-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  width: 100%;
+  background: white;
+  border: 1px solid #E0E0E0;
+  border-radius: 0;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  max-height: 280px;
+  overflow-y: auto;
+  z-index: 100;
+  display: none;
+}
+
+.custom-select.open .custom-select-menu {
+  display: block;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.custom-select-option {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.custom-select-option:hover {
+  background: #F5F5F5;
+}
+
+.custom-select-option.is-selected {
+  background: #1A1A1A;
+  color: white;
+  font-weight: 600;
+}
+
 /* ========================================
    필터 섹션
 ======================================== */
@@ -72,14 +189,16 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
 }
 
-.filter-tabs {
+/* 타입 탭 - 동아리 스타일 */
+.type-tabs {
   display: flex;
   gap: 16px;
 }
 
-.filter-tab {
+.type-tab {
   padding: 10px 24px;
   background: white;
   border: 1px solid #E0E0E0;
@@ -90,17 +209,18 @@
   transition: all 0.2s;
 }
 
-.filter-tab:hover {
+.type-tab:hover {
   border-color: #333;
   color: #333;
 }
 
-.filter-tab.active {
+.type-tab.active {
   background: #1A1A1A;
   color: white;
   border-color: #1A1A1A;
 }
 
+/* 정렬 옵션 - 동아리 스타일 */
 .sort-options {
   display: flex;
   gap: 8px;
@@ -147,12 +267,12 @@
   gap: 20px;
 }
 
-/* 게시글 카드 - 동아리 스타일 */
+/* 게시글 카드 */
 .post-card {
   background: white;
   border: 1px solid #E0E0E0;
   border-radius: 0;
-  padding: 24px;
+  padding: 20px;
   display: flex;
   gap: 24px;
   align-items: center;
@@ -162,9 +282,9 @@
 }
 
 .post-card:hover {
-  border-color: #333;
+  border-color: #1A1A1A;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
 }
 
 /* 타입 뱃지 */
@@ -177,6 +297,7 @@
   font-weight: 700;
   letter-spacing: 0.5px;
   border-radius: 0;
+  z-index: 1;
 }
 
 .post-type-badge.notice {
@@ -197,7 +318,6 @@
   border-radius: 0;
   overflow: hidden;
   flex-shrink: 0;
-  position: relative;
 }
 
 .post-image img {
@@ -212,14 +332,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 64px;
+  font-size: 48px;
   background: linear-gradient(135deg, #FAFAFA 0%, #E0E0E0 100%);
 }
 
 /* 구분선 */
 .post-divider {
   width: 1px;
-  height: 140px;
+  height: 160px;
   background: #E0E0E0;
   flex-shrink: 0;
 }
@@ -233,14 +353,13 @@
 }
 
 .post-title {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: #1A1A1A;
   margin: 0;
   line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-clamp: 2;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -253,7 +372,6 @@
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-clamp: 2;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -275,8 +393,8 @@
 }
 
 .author-avatar {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   background: #E0E0E0;
   display: flex;
@@ -306,86 +424,58 @@
 
 /* 화살표 */
 .post-arrow {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: #F5F5F5;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 0.2s;
+  transition: all 0.3s;
 }
 
 .post-card:hover .post-arrow {
   background: #1A1A1A;
-  color: white;
 }
 
 .post-arrow-icon {
   font-size: 20px;
+  color: #666;
+  transition: all 0.3s;
+}
+
+.post-card:hover .post-arrow-icon {
+  color: white;
   transform: rotate(-45deg);
 }
 
 /* 빈 상태 */
 .empty-state {
   text-align: center;
-  padding: 80px 20px;
+  padding: 100px 20px;
   color: #999;
 }
 
 .empty-state-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
+  font-size: 64px;
+  margin-bottom: 20px;
   opacity: 0.3;
 }
 
 .empty-state-text {
-  font-size: 16px;
+  font-size: 18px;
 }
 
 /* ========================================
-   게시글 작성/수정 페이지
+   이미지 업로드 (작성 페이지용)
 ======================================== */
 
-.form-container {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 60px 20px;
-  flex: 1;
-  width: 100%;
-}
-
-.form-wrapper {
-  background: white;
-  border-radius: 0;
-  border: 1px solid #E0E0E0;
-  padding: 50px 40px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-}
-
-.form-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #1A1A1A;
-  margin-bottom: 40px;
-  text-align: left;
-}
-
-.form-text {
-  font-size: 13px;
-  font-weight: 400;
-  color: #666;
-  margin-left: 8px;
-}
-
-/* 이미지 미리보기 */
 .image-preview-container {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
   margin: 12px 0;
-  min-height: 0;
 }
 
 .image-preview-container:empty {
@@ -399,7 +489,6 @@
   border-radius: 0;
   overflow: hidden;
   border: 1px solid #E0E0E0;
-  background: #F9F9F9;
 }
 
 .image-preview-item img {
@@ -410,11 +499,11 @@
 
 .image-delete-btn {
   position: absolute;
-  top: 4px;
-  right: 4px;
-  width: 24px;
-  height: 24px;
-  background: rgba(26, 26, 26, 0.8);
+  top: 8px;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  background: rgba(26, 26, 26, 0.9);
   color: white;
   border: none;
   border-radius: 50%;
@@ -422,15 +511,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
-  line-height: 1;
   transition: all 0.2s;
 }
 
 .image-delete-btn:hover {
   background: #D32F2F;
-  transform: scale(1.1);
 }
 
 .image-select-wrapper {
@@ -452,38 +539,15 @@
 .image-select-btn:hover {
   background: #1A1A1A;
   color: white;
-  border-color: #1A1A1A;
-}
-
-/* 헬퍼텍스트 */
-.form-wrapper .helper-text {
-  position: static;
-  display: block;
-  margin-top: 4px;
-  transform: none;
-  left: auto;
-  background: none;
-  border: none;
-  padding: 0;
-  box-shadow: none;
-}
-
-.form-wrapper .helper-text::before,
-.form-wrapper .helper-text::after {
-  display: none;
-}
-
-.form-wrapper .helper-text:empty {
-  display: none;
 }
 
 /* ========================================
-   공개 범위 선택
+   공개 범위 (작성 페이지용)
 ======================================== */
 
 .scope-options {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   margin-top: 8px;
 }
 
@@ -517,30 +581,38 @@
   background: #FAFAFA;
 }
 
-/* 동아리 옵션 비활성화 상태 */
-.scope-option:has(input[type="radio"]:disabled) {
-  opacity: 0.5;
-  cursor: not-allowed !important;
-}
-
-.scope-option:has(input[type="radio"]:disabled):hover {
-  border-color: #E0E0E0;
-}
-
-.scope-help-text {
-  font-size: 13px;
-  color: #999;
-  align-content: center;
-  margin-bottom: 10px;
-}
-
 /* ========================================
    반응형
 ======================================== */
 
 @media (max-width: 768px) {
+  .posts-hero {
+    padding: 40px 20px;
+  }
+  
+  .hero-title {
+    font-size: 20px;
+  }
+  
+  .hero-subtitle {
+    font-size: 32px;
+    margin-bottom: 32px;
+  }
+  
+  .hero-filter {
+    max-width: 100%;
+  }
+  
+  .hero-actions {
+    flex-direction: column;
+  }
+  
+  .hero-actions .btn {
+    width: 100%;
+  }
+  
   .filter-section {
-    padding: 20px;
+    padding: 16px 20px;
   }
   
   .filter-container {
@@ -548,21 +620,10 @@
     gap: 16px;
   }
   
-  .filter-tabs {
+  .type-tabs,
+  .sort-options {
     width: 100%;
     justify-content: center;
-  }
-  
-  .posts-hero {
-    padding: 40px 20px;
-  }
-  
-  .hero-title {
-    font-size: 24px;
-  }
-  
-  .hero-subtitle {
-    font-size: 32px;
   }
   
   .posts-section {
@@ -571,12 +632,7 @@
   
   .post-card {
     flex-direction: column;
-    padding: 20px;
-  }
-  
-  .post-type-badge {
-    top: 12px;
-    left: 12px;
+    padding: 16px;
   }
   
   .post-image {
@@ -589,12 +645,11 @@
   }
   
   .post-meta {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    flex-wrap: wrap;
   }
   
   .post-date {
     margin-left: 0;
+    width: 100%;
   }
 }

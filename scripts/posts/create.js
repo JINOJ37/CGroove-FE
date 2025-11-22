@@ -27,16 +27,43 @@ async function loadMyClubs() {
       return;
     }
     
-    // 동아리 선택 옵션 렌더링
-    const clubSelect = document.getElementById('clubSelect');
-    clubSelect.innerHTML = '<option value="">동아리를 선택해주세요</option>';
+    // ✅ 커스텀 셀렉트 UI 요소 가져오기
+    const wrapper = document.querySelector('.custom-select[data-target="clubSelect"]');
+    const hiddenSelect = document.getElementById('clubSelect');
+    const menu = wrapper ? wrapper.querySelector('.custom-select-menu') : null;
+    
+    // ✅ hidden select에 옵션 추가
+    hiddenSelect.innerHTML = '<option value="">동아리를 선택해주세요</option>';
+    
+    // ✅ custom menu에 옵션 추가
+    if (menu) {
+      menu.innerHTML = '<div class="custom-select-option" data-value="">동아리를 선택해주세요</div>';
+    }
     
     myClubs.forEach(club => {
+      const id = club.clubId;
+      const name = club.clubName || club.name || `클럽 ${id}`;  // ← 수정!
+      
+      // hidden select에 option 추가
       const option = document.createElement('option');
-      option.value = club.clubId;
-      option.textContent = club.name;
-      clubSelect.appendChild(option);
+      option.value = id;
+      option.textContent = name;  // ← 이제 올바른 이름 사용
+      hiddenSelect.appendChild(option);
+      
+      // custom menu에 option 추가
+      if (menu) {
+        const div = document.createElement('div');
+        div.className = 'custom-select-option';
+        div.dataset.value = id;
+        div.textContent = name;  // ← 이제 올바른 이름 사용
+        menu.appendChild(div);
+      }
     });
+    
+    // ✅ 커스텀 셀렉트 초기화
+    if (window.initCustomSelects) {
+      window.initCustomSelects();
+    }
     
   } catch (error) {
     console.error('동아리 목록 로드 실패:', error);
@@ -396,4 +423,4 @@ if (document.readyState === 'loading') {
   init();
 }
 
-console.log('posts/write.js 로드 완료');
+console.log('posts/create.js 로드 완료');

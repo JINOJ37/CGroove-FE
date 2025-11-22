@@ -82,6 +82,7 @@ select {
 }
 
 .filter-tab,
+.type-tab,
 .sort-btn{
   font-family: inherit;
 }
