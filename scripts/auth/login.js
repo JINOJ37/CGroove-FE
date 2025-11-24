@@ -1,4 +1,4 @@
-// 로그인 메인 로직
+// 로그인
 
 // 로그인 폼 검증
 const formValidation = {

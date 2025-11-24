@@ -1,4 +1,4 @@
-// scripts/common/mock-data.js
+// 메인 목 데이터
 
 export const mockPosts = [
   // 내 클럽 게시글들

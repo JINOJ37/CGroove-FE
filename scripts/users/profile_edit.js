@@ -1,72 +1,60 @@
-// ============================================
-// 전역 변수
-// ============================================
+// 프로필 수정
+
 let currentUserData = null;
 let profileImageFile = null;
 let hasChanges = false;
-let imageDeleted = false; // ← 삭제 추적 추가!
+let imageDeleted = false;
 
+// 프로필 수정 폼 검증
 const formValidation = {
   nickname: false
 };
 
-// ============================================
-// 프로필 이미지 관리
-// ============================================
-
+// 프로필 이미지 수정 이벤트
 function setupProfileImageEvent() {
-  console.log('프로필 이미지 이벤트 설정');
+  console.log('프로필 수정 : 프로필 이미지 처리 중');
   
   const profileImageContainer = document.getElementById('profileImageContainer');
   const profileImageUpload = document.getElementById('profileImageUpload');
   const profileImageDiv = document.getElementById('profileImage');
   const removeBtn = document.getElementById('removeImageBtn');
   
-  // 컨테이너 클릭 → 파일 선택
   profileImageContainer.addEventListener('click', (e) => {
-    // X 버튼 클릭은 제외
     if (e.target.id === 'removeImageBtn') return;
     profileImageUpload.click();
   });
   
-  // ✅ 파일 선택 → 압축 + 미리보기
   profileImageUpload.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
     try {
-      // 회원가입/동아리 생성과 동일한 옵션 사용 (원하면 숫자만 조절)
       const { file: processedFile, previewUrl } = await processImageFile(file, {
         maxWidth: 1024,
         maxHeight: 1024,
         quality: 0.8,
-        maxSizeBytes: 2 * 1024 * 1024 // 2MB 이하면 그대로, 넘으면 리사이즈/압축
+        maxSizeBytes: 2 * 1024 * 1024
       });
 
-      profileImageFile = processedFile; // 🔥 서버로 보내줄 최종 파일
-      imageDeleted = false;             // 삭제 상태 해제
+      profileImageFile = processedFile;
+      imageDeleted = false;
 
       profileImageDiv.innerHTML = `
         <img src="${previewUrl}" alt="프로필"
              style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
       `;
-      removeBtn.classList.add('show'); // X 버튼 표시
-
-      console.log('📷 프로필 이미지 처리 완료:', processedFile.name || 'blob');
-
+      removeBtn.classList.add('show');
     } catch (err) {
       console.error('프로필 이미지 처리 중 오류:', err);
       showToast('이미지 처리 중 오류가 발생했습니다', 2000, 'error');
     } finally {
-      // 같은 파일 다시 선택해도 change 이벤트 발생하게 초기화
       profileImageUpload.value = '';
       checkForChanges();
     }
   });
   
-  // X 버튼 클릭 → 삭제
   removeBtn.addEventListener('click', (e) => {
-    e.stopPropagation(); // 컨테이너 클릭 이벤트 방지
+    e.stopPropagation();
     
     showModal(
       '프로필 사진 삭제',
@@ -74,8 +62,8 @@ function setupProfileImageEvent() {
       () => {
         profileImageDiv.innerHTML = '<span class="profile-image-empty">+</span>';
         profileImageFile = null;
-        imageDeleted = true; // ← 삭제됨 표시!
-        removeBtn.classList.remove('show'); // X 버튼 숨김
+        imageDeleted = true;
+        removeBtn.classList.remove('show');
         checkForChanges();
         showToast('프로필 사진이 삭제되었습니다');
       }
@@ -83,12 +71,9 @@ function setupProfileImageEvent() {
   });
 }
 
-// ============================================
-// 닉네임 이벤트
-// ============================================
-
+// 닉네임 수정 이벤트
 function setupNicknameEvents() {
-  console.log('닉네임 이벤트 설정');
+  console.log('프로필 수정 : 닉네임 처리 중');
   
   const nicknameInput = document.getElementById('nicknameInput');
   
@@ -103,10 +88,7 @@ function setupNicknameEvents() {
   });
 }
 
-// ============================================
-// 변경 감지
-// ============================================
-
+// 수정 여부 확인
 function checkForChanges() {
   if (!currentUserData) {
     hasChanges = false;
@@ -116,28 +98,16 @@ function checkForChanges() {
   
   const currentNickname = document.getElementById('nicknameInput').value.trim();
   const nicknameChanged = currentNickname !== currentUserData.nickname;
-  
-  // 이미지 변경: 새 파일 있거나 OR 삭제됨
   const imageChanged = (profileImageFile !== null) || imageDeleted;
   
   hasChanges = (nicknameChanged || imageChanged) && formValidation.nickname;
   
-  console.log('변경 감지:', { 
-    nicknameChanged, 
-    imageChanged, 
-    imageDeleted,  // ← 로그에 추가
-    hasChanges 
-  });
-  
   updateButtonState(formValidation, hasChanges);
 }
 
-// ============================================
-// 수정하기
-// ============================================
-
+// '수정하기' 버튼 이벤트
 function setupEditButtonEvent() {
-  console.log('수정하기 이벤트 설정');
+  console.log('프로필 수정 : 수정하기 버튼 처리 중');
   
   document.getElementById('profileForm').addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -161,7 +131,7 @@ function setupEditButtonEvent() {
       const updateData = {
         nickname: nickname,
         profileImage: profileImageFile,
-        deleteImage: imageDeleted // ← 삭제 여부 전달
+        deleteImage: imageDeleted
       };
       
       const response = await updateUserInfo(updateData);
@@ -177,7 +147,7 @@ function setupEditButtonEvent() {
       }
       
       profileImageFile = null;
-      imageDeleted = false; // ← 초기화
+      imageDeleted = false;
       hasChanges = false;
       updateButtonState(formValidation, hasChanges);
       
@@ -200,17 +170,15 @@ function setupEditButtonEvent() {
 }
 
 async function updateUserInfo(updateData) {
-  console.log('회원정보 수정 API 호출');
+  console.log('프로필 수정 : 프로필 수정 API 호출');
   
   const formData = new FormData();
   formData.append('nickname', updateData.nickname);
   
   if (updateData.deleteImage) {
     formData.append('deleteImage', 'true');
-    console.log('📷 프로필 이미지 삭제');
   } else if (updateData.profileImage) {
     formData.append('profileImage', updateData.profileImage);
-    console.log('📷 프로필 이미지 포함:', updateData.profileImage.name);
   }
   
   return await apiRequest('/users', {
@@ -219,12 +187,9 @@ async function updateUserInfo(updateData) {
   });
 }
 
-// ============================================
-// 회원 탈퇴
-// ============================================
-
+// '회원 탈퇴' 버튼 이벤트
 function setupDeleteAccountEvent() {
-  console.log('회원 탈퇴 이벤트 설정');
+  console.log('프로필 수정 : 회원 탈퇴 버튼 처리 중');
   
   const deleteBtn = document.querySelector('.btn-danger');
   if (!deleteBtn) return;
@@ -255,10 +220,17 @@ function setupDeleteAccountEvent() {
   });
 }
 
-// ============================================
-// 사용자 정보 로드
-// ============================================
+// 뒤로가기 버튼 업데이트
+function setupBackButton() {
+  const backBtn = document.querySelector('.header-back');
+  if (backBtn) {
+    backBtn.onclick = () => {
+      confirmBack('main.html', hasChanges, '수정 사항이 저장되지 않습니다.');
+    };
+  }
+}
 
+// 사용자 정보 로드
 async function loadUserData() {
   console.log('사용자 정보 로드');
   
@@ -276,14 +248,14 @@ async function loadUserData() {
     
     if (currentUserData.profileImage) {
       profileImageDiv.innerHTML = `<img src="${API_BASE_URL}${currentUserData.profileImage}" alt="프로필">`;
-      removeBtn.classList.add('show'); // X 버튼 표시
+      removeBtn.classList.add('show');
     } else {
       profileImageDiv.innerHTML = '<span class="profile-image-empty">+</span>';
-      removeBtn.classList.remove('show'); // X 버튼 숨김
+      removeBtn.classList.remove('show');
     }
     
     formValidation.nickname = true;
-    imageDeleted = false; // 초기화
+    imageDeleted = false; 
     
   } catch (error) {
     console.error('사용자 정보 로드 실패:', error);
@@ -297,25 +269,9 @@ async function loadUserData() {
   }
 }
 
-// ============================================
-// 뒤로가기
-// ============================================
-
-function setupBackButton() {
-  const backBtn = document.querySelector('.header-back');
-  if (backBtn) {
-    backBtn.onclick = () => {
-      confirmBack('main.html', hasChanges, '수정 사항이 저장되지 않습니다.');
-    };
-  }
-}
-
-// ============================================
-// 초기화
-// ============================================
-
+// 페이지 초기화
 async function init() {
-  console.log('회원정보 수정 페이지 초기화');
+  console.log('프로필 수정 페이지 불러오는 중');
   
   await loadUserData();
   setupBackButton();
@@ -327,7 +283,7 @@ async function init() {
   hasChanges = false;
   updateButtonState(formValidation, hasChanges);
   
-  console.log('회원정보 수정 페이지 로딩 완료!');
+  console.log('프로필 수정 페이지 로딩 완료!');
 }
 
 if (document.readyState === 'loading') {

@@ -480,6 +480,7 @@ function handleUpdateError(error) {
   }
 }
 
+
 //=========초기화=========
 async function init() {
   console.log('게시글 수정 페이지 초기화 중...');

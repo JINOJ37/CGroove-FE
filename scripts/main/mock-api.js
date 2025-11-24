@@ -1,4 +1,4 @@
-// scripts/common/mock-api.js
+// 메인 목
 
 import { mockPosts } from './mock-data.js';
 

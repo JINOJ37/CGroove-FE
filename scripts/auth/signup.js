@@ -1,4 +1,4 @@
-// 회원가입 메인 로직
+// 회원가입
 
 // 회원가입 폼 검증
 const formValidation = {

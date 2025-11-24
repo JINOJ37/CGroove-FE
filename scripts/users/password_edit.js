@@ -65,21 +65,16 @@ function setupSubmitEvent() {
     btn.textContent = '수정 중...';
     
     try {
-      // API 호출
       const response = await updatePassword(password);
-      
+
       console.log('비밀번호 변경 완료!', response);
-      
-      // 성공 토스트
       showToast(response.message || '비밀번호가 변경되었습니다');
       
-      // 입력 필드 초기화
       document.getElementById('passwordInput').value = '';
       document.getElementById('passwordConfirmInput').value = '';
       formValidation.password = false;
       formValidation.passwordConfirm = false;
       
-      // 2초 후 회원정보 수정 페이지로
       navigateTo('main.html', 2000);
       
     } catch (error) {
@@ -105,7 +100,7 @@ function setupSubmitEvent() {
 
 // 비밀번호 변경
 async function updatePassword(newPassword) {
-  console.log('비밀번호 변경 API 호출');
+  console.log('비밀번호 수정 : 비밀번호 수정 API 호출');
   
   return await apiRequest('/users/password', {
     method: 'PATCH',
