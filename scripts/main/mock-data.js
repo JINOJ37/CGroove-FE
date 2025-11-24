@@ -1,11 +1,10 @@
-// 메인 목 데이터
+// Mock 데이터 (메인 페이지용)
 
 export const mockPosts = [
-  // 내 클럽 게시글들
   {
     id: 1,
     title: '오늘 연습 대박이었다',
-    content: '새로운 안무 배웠는데 진짜 어려워요ㅠ� ㅠ 그래도 재밌었어요!',
+    content: '새로운 안무 배웠는데 진짜 어려워요ㅠㅠ 그래도 재밌었어요!',
     clubId: 1,
     clubName: '힙합 댄스 클럽',
     author: '김댄서',
@@ -44,7 +43,7 @@ export const mockPosts = [
     commentCount: 5
   },
   
-  // 다른 클럽 게시글들
+  // 다른 클럽 게시글
   {
     id: 4,
     title: '브레이킹 기초 영상 공유',
@@ -139,3 +138,5 @@ export const mockPosts = [
     commentCount: 25
   }
 ];
+
+console.log('main/mock-data.js 로드 완료');

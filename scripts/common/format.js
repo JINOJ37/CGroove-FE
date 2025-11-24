@@ -45,4 +45,23 @@ function parseTags(tagsInput) {
     .filter(tag => tag.length > 0);
 }
 
+// 시간 포맷팅 (상대 시간)
+function formatTimeAgo(dateString) {
+  const now = new Date();
+  const past = new Date(dateString);
+  const diffMs = now - past;
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  if (diffHours < 24) return `${diffHours}시간 전`;
+  if (diffDays < 7) return `${diffDays}일 전`;
+  return past.toLocaleDateString('ko-KR');
+}
+
+// 텍스트 자르기
+function truncateText(text, maxLength) {
+  if (!text || text.length <= maxLength) return text;
+  return text.substring(0, maxLength) + '...';
+}
+
 console.log('common/format.js 로드 완료');

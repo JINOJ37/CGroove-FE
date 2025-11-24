@@ -1,26 +1,11 @@
-// ============================================
-// 메인 대시보드 - 게시글 데이터 관리
-// ============================================
+// 메인 페이지
 
-import { mockAPI } from '../main/mock-api.js';
+import { mockAPI } from './mock-api.js';
 
-// ============================================
-// 초기화
-// ============================================
-
-document.addEventListener('DOMContentLoaded', () => {
-  initMainDashboard();
-});
-
-async function initMainDashboard() {
-  await loadDashboard();
-}
-
-// ============================================
-// 대시보드 로드
-// ============================================
-
+// 대시보드 데이터 로드
 async function loadDashboard() {
+  console.log('메인 대시보드 로드');
+
   try {
     const [myClubPosts, hotPosts, allPosts] = await Promise.all([
       mockAPI.getMyClubPosts(3),
@@ -37,10 +22,7 @@ async function loadDashboard() {
   }
 }
 
-// ============================================
 // 섹션 렌더링
-// ============================================
-
 function renderSection(sectionId, posts) {
   const container = document.getElementById(sectionId);
   
@@ -51,14 +33,11 @@ function renderSection(sectionId, posts) {
     return;
   }
   
-  container.innerHTML = posts.map(post => createCard(post)).join('');
+  container.innerHTML = posts.map(post => createPostCard(post)).join('');
 }
 
-// ============================================
-// 카드 HTML 생성
-// ============================================
-
-function createCard(post) {
+// 게시글 카드 생성
+function createPostCard(post) {
   const imageHtml = post.imageUrl ? `
     <div class="post-image">
       <img src="${post.imageUrl}" alt="${post.title}">
@@ -92,23 +71,95 @@ function createCard(post) {
   `;
 }
 
-// ============================================
-// 유틸리티
-// ============================================
-
-function formatTimeAgo(dateString) {
-  const now = new Date();
-  const past = new Date(dateString);
-  const diffMs = now - past;
-  const diffHours = Math.floor(diffMs / 3600000);
-  const diffDays = Math.floor(diffMs / 86400000);
+// 슬라이더 좌우 버튼
+function setupSlider() {
+  const arrows = document.querySelectorAll('.slider-arrow');
   
-  if (diffHours < 24) return `${diffHours}시간 전`;
-  if (diffDays < 7) return `${diffDays}일 전`;
-  return past.toLocaleDateString('ko-KR');
+  arrows.forEach(arrow => {
+    arrow.addEventListener('click', () => {
+      const target = arrow.dataset.target;
+      const isLeft = arrow.classList.contains('left');
+      
+      if (target) {
+        const slider = document.getElementById(target);
+        if (slider) {
+          const scrollAmount = isLeft ? -350 : 350;
+          slider.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        }
+      }
+    });
+  });
 }
 
-function truncateText(text, maxLength) {
-  if (!text || text.length <= maxLength) return text;
-  return text.substring(0, maxLength) + '...';
+// TOP 버튼
+function setupTopButton() {
+  const topButton = document.getElementById('topButton');
+  
+  if (!topButton) {
+    console.warn('TOP 버튼을 찾을 수 없습니다');
+    return;
+  }
+
+  topButton.addEventListener('click', () => {
+    window.scrollTo({ 
+      top: 0, 
+      behavior: 'smooth' 
+    });
+  });
 }
+
+// 스크롤 감지 (TOP 버튼 표시/숨김)
+function setupScrollDetection() {
+  const topButton = document.getElementById('topButton');
+  
+  if (!topButton) {
+    console.warn('TOP 버튼을 찾을 수 없습니다');
+    return;
+  }
+  
+  window.addEventListener('scroll', () => {
+    const scrollPosition = window.scrollY;
+    const windowHeight = window.innerHeight;
+    const documentHeight = document.documentElement.scrollHeight;
+    
+    // 전체 문서의 70% 이상 스크롤했을 때 버튼 표시
+    const scrollPercentage = (scrollPosition + windowHeight) / documentHeight;
+    
+    if (scrollPercentage > 0.7) {
+      topButton.classList.add('show');
+    } else {
+      topButton.classList.remove('show');
+    }
+  });
+}
+
+// 게시글 카드 클릭
+function setupPostCardClick() {
+  document.addEventListener('click', (e) => {
+    const card = e.target.closest('.post-card');
+    if (!card) return;
+    
+    const postId = card.dataset.postId;
+    if (postId) {
+      navigateTo(`post_detail.html?id=${postId}`);
+    }
+  });
+}
+
+async function initMainPage() {
+  console.log('메인 페이지 초기화');
+
+  await loadDashboard();
+  setupSlider();
+  setupTopButton();
+  setupScrollDetection();
+  setupPostCardClick();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initMainPage);
+} else {
+  initMainPage();
+}
+
+console.log('main/main.js 로드 완료');

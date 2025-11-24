@@ -35,7 +35,7 @@
   </section>
 
   <!-- 메인 콘텐츠 영역 -->
-  <main class="main-con tent">
+  <main class="main-content">
     
     <!-- 섹션 1: 내 클럽 최신 소식 -->
     <section class="content-section bg-gray">
@@ -46,9 +46,7 @@
         </div>
         <div class="slider-wrapper">
           <button class="slider-arrow left" data-target="myClubSlider">‹</button>
-          <div class="card-container" id="myClubSlider">
-            <!-- JS로 렌더링 -->
-          </div>
+          <div class="card-container" id="myClubSlider"></div>
           <button class="slider-arrow right" data-target="myClubSlider">›</button>
         </div>
       </div>
@@ -63,9 +61,7 @@
         </div>
         <div class="slider-wrapper">
           <button class="slider-arrow left" data-target="hotSlider">‹</button>
-          <div class="card-container" id="hotSlider">
-            <!-- JS로 렌더링 -->
-          </div>
+          <div class="card-container" id="hotSlider"></div>
           <button class="slider-arrow right" data-target="hotSlider">›</button>
         </div>
       </div>
@@ -80,9 +76,7 @@
         </div>
         <div class="slider-wrapper">
           <button class="slider-arrow left" data-target="allPostsSlider">‹</button>
-          <div class="card-container" id="allPostsSlider">
-            <!-- JS로 렌더링 -->
-          </div>
+          <div class="card-container" id="allPostsSlider"></div>
           <button class="slider-arrow right" data-target="allPostsSlider">›</button>
         </div>
       </div>
@@ -91,13 +85,11 @@
   </main>
 
   <!-- TOP 버튼 (스크롤 시 표시) -->
-  <button class="top-button" id="topButton" aria-label="맨 위로">
-    TOP
-  </button>
+  <button class="top-button" id="topButton" aria-label="맨 위로">TOP</button>
 
   <!-- 푸터 -->
   <footer class="footer">
-    <p>Copyright ⓒ 2025 Designed by Hongyoungseo</p>
+    <p>Copyright ⓒ 2025 Designed by 0seo</p>
   </footer>
 
   <!-- 스크립트 -->
@@ -106,7 +98,6 @@
   <script src="scripts/common/api.js"></script>
   <script src="scripts/common/header.js"></script> 
   <script type="module" src="scripts/main/main.js"></script>
-  <script src="scripts/main/main-ui.js"></script>
 
   <script>
     if (document.readyState === 'loading') {
