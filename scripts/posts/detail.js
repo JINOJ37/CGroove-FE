@@ -1,12 +1,11 @@
-// 게시물 상세 메인 로직
+// 게시글 상세 페이지
 
-//=========상태 관리=========
 let postData = null;
 let currentUserId = null;
 let isEditingComment = false;
 let editingCommentId = null;
 
-//=========Mock 댓글 데이터=========
+// Mock 댓글 데이터 (TODO: 백엔드 API 완성 시 제거)
 let mockComments = [
   {
     id: 1,
@@ -32,34 +31,102 @@ let mockComments = [
 ];
 let nextCommentId = 4;
 
-//=========UI 업데이트=========
-// 게시물 UI 업데이트
+// 현재 사용자 정보 로드
+async function loadCurrentUser() {
+  try {
+    const response = await getMyInfo();
+    currentUserId = response.data.userId;
+    console.log('현재 사용자 ID:', currentUserId);
+  } catch (error) {
+    console.error('사용자 정보 로드 실패:', error);
+    currentUserId = null;
+  }
+}
+
+// 게시글 데이터 로드
+async function loadPostData() {
+  console.log('게시글 데이터 로드 중');
+  
+  const urlParams = new URLSearchParams(window.location.search);
+  const postId = urlParams.get('id');
+  
+  if (!postId) {
+    showToast('게시글을 찾을 수 없습니다');
+    setTimeout(() => navigateTo('main.html'), 1500);
+    return;
+  }
+  
+  showLoading('게시글을 불러오는 중...');
+  
+  try {
+    const response = await getPost(postId);
+    postData = response.data;
+    
+    // Mock 데이터 추가 (TODO: 백엔드 API 완성 시 제거)
+    postData.isLiked = false;
+    postData.likes = postData.likes || Math.floor(Math.random() * 1000);
+    postData.views = postData.views || Math.floor(Math.random() * 5000);
+    postData.commentCount = mockComments.length;
+    
+    console.log('게시글 로드 완료:', postData.postId);
+    
+    hideLoading();
+    
+    updatePostUI();
+    loadComments();
+    
+  } catch (error) {
+    console.error('게시글 로드 실패:', error);
+    hideLoading();
+    
+    if (error.status === 404) {
+      showToast('존재하지 않는 게시글입니다');
+    } else if (error.status === 401) {
+      showToast('로그인이 필요합니다');
+    } else {
+      showToast('게시글을 불러오는데 실패했습니다');
+    }
+    
+    setTimeout(() => navigateTo('main.html'), 1500);
+  }
+}
+
+// 게시글 삭제
+async function deletePostData() {
+  try {
+    await deletePost(postData.postId);
+    showToast('게시글이 삭제되었습니다');
+    setTimeout(() => navigateTo('main.html'), 1500);
+    
+  } catch (error) {
+    console.error('게시글 삭제 실패:', error);
+    
+    if (error.status === 403) {
+      showToast('삭제 권한이 없습니다');
+    } else if (error.status === 401) {
+      showToast('로그인이 필요합니다');
+    } else {
+      showToast('게시글 삭제 중 오류가 발생했습니다');
+    }
+  }
+}
+
+// 게시글 UI 업데이트
 function updatePostUI() {
-  console.log('게시글 UI 업데이트 중...');
+  console.log('게시글 UI 업데이트');
   
-  // 제목
   document.querySelector('.detail-title').textContent = postData.title;
-  
-  // 작성자 & 날짜
   document.querySelector('.author-name').textContent = postData.authorName || '익명';
   document.querySelector('.post-date').textContent = formatDate(postData.createdAt);
-  
-  // 내용
   document.querySelector('.detail-text').textContent = postData.content;
   
-  // 이미지
   updatePostImage();
-  
-  // 통계
   updatePostStats();
-  
-  // 좋아요 버튼
   updateLikeButton();
-  
-  // 수정/삭제 버튼 (본인 게시글만)
   updatePostActions();
 }
-// 게시물 이미지 업데이트
+
+// 게시글 이미지 업데이트
 function updatePostImage() {
   const imageElement = document.querySelector('.detail-image');
   
@@ -68,19 +135,32 @@ function updatePostImage() {
     imageElement.style.display = 'block';
     
     imageElement.onerror = function() {
-      console.warn('⚠️ 이미지 로드 실패:', this.src);
+      console.warn('이미지 로드 실패:', this.src);
       this.style.display = 'none';
     };
   } else {
     imageElement.style.display = 'none';
   }
 }
-// 게시물 통계 업데이트
+
+// 게시글 통계 업데이트
 function updatePostStats() {
   document.getElementById('likeCount').textContent = formatNumber(postData.likes);
   document.querySelector('.detail-stats .stat-item:nth-child(2) .stat-value').textContent = formatNumber(postData.views);
   document.querySelector('.detail-stats .stat-item:nth-child(3) .stat-value').textContent = formatNumber(postData.commentCount);
 }
+
+// 좋아요 버튼 상태 업데이트
+function updateLikeButton() {
+  const likeButton = document.getElementById('likeButton');
+  
+  if (postData.isLiked) {
+    likeButton.className = 'stat-item like-button active';
+  } else {
+    likeButton.className = 'stat-item like-button inactive';
+  }
+}
+
 // 수정/삭제 버튼 표시 여부
 function updatePostActions() {
   const actionsDiv = document.querySelector('.detail-actions');
@@ -91,116 +171,10 @@ function updatePostActions() {
     actionsDiv.style.display = 'none';
   }
 }
-// 뒤로가기 버튼 업데이트
-function setupBackButton() {
-  const backBtn = document.querySelector('.header-back');
-  if (backBtn) {
-    backBtn.onclick = () => smartBack('main.html');
-  }
-}
 
-//=========게시글 수정/삭제=========
-// 게시글 수정/삭제 버튼 설정
-function setupPostActions() {
-  const editBtn = document.querySelector('.detail-actions .btn:first-child');
-  const deleteBtn = document.querySelector('.detail-actions .btn:last-child');
-  
-  // 수정 버튼
-  editBtn.addEventListener('click', function() {
-    console.log('게시글 수정으로 이동');
-    navigateTo(`post_edit.html?id=${postData.postId}`);
-  });
-  
-  // 삭제 버튼
-  deleteBtn.addEventListener('click', function() {
-    handleDeletePost();
-  });
-}
-// 게시글 삭제 처리
-function handleDeletePost() {
-  showModal(
-    '게시글을 삭제하시겠습니까?',
-    '삭제한 내용은 복구할 수 없습니다.',
-    async function() {
-      console.log('게시글 삭제 확인');
-      
-      try {
-        await deletePost(postData.postId);
-        
-        showToast('게시글이 삭제되었습니다');
-        
-        setTimeout(() => {
-          navigateTo('main.html');
-        }, 1500);
-        
-      } catch (error) {
-        console.error('❌ 게시글 삭제 실패:', error);
-        
-        if (error.status === 403) {
-          showToast('삭제 권한이 없습니다');
-        } else if (error.status === 401) {
-          showToast('로그인이 필요합니다');
-        } else {
-          showToast('게시글 삭제 중 오류가 발생했습니다');
-        }
-      }
-    },
-    function() {
-      console.log('게시글 삭제 취소');
-    }
-  );
-}
-
-//=========좋아요 기능 (Mock)=========
-// 좋아요 버튼 상태 업데이트
-function updateLikeButton() {
-  const likeButton = document.getElementById('likeButton');
-  const likeCount = document.getElementById('likeCount');
-  
-  if (postData.isLiked) {
-    likeButton.className = 'stat-item like-button active';
-  } else {
-    likeButton.className = 'stat-item like-button inactive';
-  }
-  
-  likeCount.textContent = formatNumber(postData.likes);
-}
-// 좋아요 버튼 이벤트 설정
-function setupLikeButton() {
-  const likeButton = document.getElementById('likeButton');
-  
-  likeButton.addEventListener('click', async function() {
-    // TODO: 백엔드 좋아요 API 완성 시 활성화
-    // Mock: 클라이언트에서만 처리
-    if (postData.isLiked) {
-      postData.isLiked = false;
-      postData.likes -= 1;
-    } else {
-      postData.isLiked = true;
-      postData.likes += 1;
-    }
-    
-    updateLikeButton();
-    console.log('좋아요 상태:', postData.isLiked ? '활성' : '비활성');
-    
-    // 실제 API 연동 (추후)
-    // try {
-    //   if (postData.isLiked) {
-    //     await likePost(postData.postId);
-    //   } else {
-    //     await unlikePost(postData.postId);
-    //   }
-    // } catch (error) {
-    //   console.error('좋아요 처리 실패:', error);
-    //   showToast('좋아요 처리 중 오류가 발생했습니다');
-    // }
-  });
-}
-
-//=========댓글 기능 (Mock)=========
-// 댓글 목록 로드
+// 댓글 목록 로드 (Mock)
 function loadComments() {
-  console.log('💬 댓글 로드 중...');
+  console.log('댓글 로드:', mockComments.length, '개');
   
   const commentsList = document.querySelector('.comments-list');
   commentsList.innerHTML = '';
@@ -218,17 +192,11 @@ function loadComments() {
     });
   }
   
-  console.log('✅ 댓글 로드 완료:', mockComments.length, '개');
-  
-  // TODO: 실제 API 연동 (추후)
-  // try {
-  //   const response = await getComments(postData.postId);
-  //   const comments = response.data || [];
-  //   renderComments(comments);
-  // } catch (error) {
-  //   console.error('댓글 로드 실패:', error);
-  // }
+  // TODO: 실제 API 연동
+  // const response = await getComments(postData.postId);
+  // renderComments(response.data);
 }
+
 // 댓글 DOM 요소 생성
 function createCommentElement(comment) {
   const commentDiv = document.createElement('div');
@@ -262,13 +230,88 @@ function createCommentElement(comment) {
   
   return commentDiv;
 }
+
+// 댓글 입력 폼 초기화
+function resetCommentForm() {
+  const commentInput = document.getElementById('commentInput');
+  const commentSubmit = document.getElementById('commentSubmit');
+  
+  commentInput.value = '';
+  commentSubmit.disabled = true;
+  commentSubmit.classList.remove('active');
+  commentSubmit.textContent = '댓글 등록';
+  
+  isEditingComment = false;
+  editingCommentId = null;
+}
+
+// 뒤로가기 버튼
+function setupBackButton() {
+  const backBtn = document.querySelector('.header-back');
+  if (backBtn) {
+    backBtn.onclick = () => smartBack('main.html');
+  }
+}
+
+// 좋아요 버튼
+function setupLikeButton() {
+  const likeButton = document.getElementById('likeButton');
+  
+  likeButton.addEventListener('click', function() {
+    // Mock: 클라이언트에서만 처리
+    if (postData.isLiked) {
+      postData.isLiked = false;
+      postData.likes -= 1;
+    } else {
+      postData.isLiked = true;
+      postData.likes += 1;
+    }
+    
+    updateLikeButton();
+    updatePostStats();
+    console.log('좋아요 상태:', postData.isLiked ? '활성' : '비활성');
+    
+    // TODO: 실제 API 연동
+    // await likePost(postData.postId) or unlikePost(postData.postId)
+  });
+}
+
+// 게시글 수정/삭제 버튼
+function setupPostActions() {
+  const editBtn = document.querySelector('.detail-actions .btn:first-child');
+  const deleteBtn = document.querySelector('.detail-actions .btn:last-child');
+  
+  editBtn.addEventListener('click', function() {
+    console.log('게시글 수정으로 이동');
+    navigateTo(`post_edit.html?id=${postData.postId}`);
+  });
+  
+  deleteBtn.addEventListener('click', function() {
+    handleDeletePost();
+  });
+}
+
+// 게시글 삭제 처리
+function handleDeletePost() {
+  showModal(
+    '게시글을 삭제하시겠습니까?',
+    '삭제한 내용은 복구할 수 없습니다.',
+    function() {
+      console.log('게시글 삭제 확인');
+      deletePostData();
+    },
+    function() {
+      console.log('게시글 삭제 취소');
+    }
+  );
+}
+
 // 댓글 입력 폼 설정
 function setupCommentInput() {
   const commentInput = document.getElementById('commentInput');
   const commentSubmit = document.getElementById('commentSubmit');
   const commentForm = document.getElementById('commentForm');
   
-  // 입력 시 버튼 활성화
   commentInput.addEventListener('input', function() {
     const hasContent = this.value.trim() !== '';
     
@@ -281,7 +324,6 @@ function setupCommentInput() {
     }
   });
   
-  // 폼 제출
   commentForm.addEventListener('submit', function(e) {
     e.preventDefault();
     
@@ -294,15 +336,14 @@ function setupCommentInput() {
       handleAddComment(content);
     }
     
-    // 초기화
     resetCommentForm();
   });
 }
-// 댓글 추가
+
+// 댓글 추가 (Mock)
 function handleAddComment(content) {
   console.log('댓글 추가:', content);
   
-  // Mock 데이터 추가
   const newComment = {
     id: nextCommentId++,
     content: content,
@@ -314,26 +355,19 @@ function handleAddComment(content) {
   mockComments.push(newComment);
   postData.commentCount += 1;
   
-  // UI 업데이트
   updatePostStats();
   loadComments();
   
   showToast('댓글이 등록되었습니다');
   
-  // TODO: 실제 API 연동 (추후)
-  // try {
-  //   await createComment(postData.postId, content);
-  //   await loadComments(); // 댓글 목록 새로고침
-  // } catch (error) {
-  //   console.error('댓글 등록 실패:', error);
-  //   showToast('댓글 등록 중 오류가 발생했습니다');
-  // }
+  // TODO: 실제 API 연동
+  // await createComment(postData.postId, content);
 }
-// 댓글 수정
+
+// 댓글 수정 (Mock)
 function handleUpdateComment(commentId, newContent) {
   console.log('댓글 수정:', commentId);
   
-  // Mock 데이터 수정
   const comment = mockComments.find(c => c.id === commentId);
   if (comment) {
     comment.content = newContent;
@@ -342,34 +376,10 @@ function handleUpdateComment(commentId, newContent) {
   loadComments();
   showToast('댓글이 수정되었습니다');
   
-  // TODO: 실제 API 연동 (추후)
-  // try {
-  //   await updateComment(postData.postId, commentId, newContent);
-  //   await loadComments();
-  // } catch (error) {
-  //   console.error('댓글 수정 실패:', error);
-  //   showToast('댓글 수정 중 오류가 발생했습니다');
-  // }
+  // TODO: 실제 API 연동
+  // await updateComment(postData.postId, commentId, newContent);
 }
-// 댓글 수정/삭제 버튼 설정
-function setupCommentActions(commentElement, commentId) {
-  const editBtn = commentElement.querySelector('.comment-edit-btn');
-  const deleteBtn = commentElement.querySelector('.comment-delete-btn');
-  
-  // 수정 버튼
-  if (editBtn) {
-    editBtn.addEventListener('click', function() {
-      startEditComment(commentElement, commentId);
-    });
-  }
-  
-  // 삭제 버튼
-  if (deleteBtn) {
-    deleteBtn.addEventListener('click', function() {
-      handleDeleteComment(commentId);
-    });
-  }
-}
+
 // 댓글 수정 모드 시작
 function startEditComment(commentElement, commentId) {
   console.log('댓글 수정 모드:', commentId);
@@ -389,7 +399,8 @@ function startEditComment(commentElement, commentId) {
   commentInput.focus();
   commentInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
-// 댓글 삭제
+
+// 댓글 삭제 (Mock)
 function handleDeleteComment(commentId) {
   showModal(
     '댓글을 삭제하시겠습니까?',
@@ -397,27 +408,19 @@ function handleDeleteComment(commentId) {
     function() {
       console.log('댓글 삭제 확인');
       
-      // Mock 데이터 삭제
       const index = mockComments.findIndex(c => c.id === commentId);
       if (index !== -1) {
         mockComments.splice(index, 1);
         postData.commentCount -= 1;
       }
       
-      // UI 업데이트
       updatePostStats();
       loadComments();
       
       showToast('댓글이 삭제되었습니다');
       
-      // TODO: 실제 API 연동 (추후)
-      // try {
-      //   await deleteComment(postData.postId, commentId);
-      //   await loadComments();
-      // } catch (error) {
-      //   console.error('댓글 삭제 실패:', error);
-      //   showToast('댓글 삭제 중 오류가 발생했습니다');
-      // }
+      // TODO: 실제 API 연동
+      // await deleteComment(postData.postId, commentId);
     },
     function() {
       console.log('댓글 삭제 취소');
@@ -425,91 +428,42 @@ function handleDeleteComment(commentId) {
   );
 }
 
-//=========데이터 로드=========
-// 현재 사용자 정보 로드
-async function loadCurrentUser() {
-  try {
-    const response = await getMyInfo();
-    currentUserId = response.data.userId;
-    console.log('현재 사용자 ID:', currentUserId);
-  } catch (error) {
-    console.error('사용자 정보 로드 실패:', error);
-    currentUserId = null;
-  }
-}
-// 게시글 데이터 로드
-async function loadPostData() {
-  console.log('게시글 데이터 로드 중...');
+// 댓글 수정/삭제 버튼 설정
+function setupCommentActions(commentElement, commentId) {
+  const editBtn = commentElement.querySelector('.comment-edit-btn');
+  const deleteBtn = commentElement.querySelector('.comment-delete-btn');
   
-  // URL 파라미터에서 postId 가져오기
-  const urlParams = new URLSearchParams(window.location.search);
-  const postId = urlParams.get('id');
-  
-  if (!postId) {
-    showToast('게시글을 찾을 수 없습니다');
-    setTimeout(() => navigateTo('main.html'), 1500);
-    return;
+  if (editBtn) {
+    editBtn.addEventListener('click', function() {
+      startEditComment(commentElement, commentId);
+    });
   }
   
-  showLoading('게시글을 불러오는 중...');
-  
-  try {
-    const response = await getPost(postId);
-    postData = response.data;
-    
-    // Mock 데이터 추가 (백엔드 API 완성 시 제거)
-    postData.isLiked = false;
-    postData.likes = postData.likes || Math.floor(Math.random() * 1000);
-    postData.views = postData.views || Math.floor(Math.random() * 5000);
-    postData.commentCount = mockComments.length;
-    
-    console.log('게시글 로드 완료:', postData.postId);
-    
-    hideLoading();
-    
-    // UI 업데이트
-    updatePostUI();
-    loadComments();
-    
-  } catch (error) {
-    console.error('게시글 로드 실패:', error);
-    hideLoading();
-    
-    if (error.status === 404) {
-      showToast('존재하지 않는 게시글입니다');
-    } else if (error.status === 401) {
-      showToast('로그인이 필요합니다');
-    } else {
-      showToast('게시글을 불러오는데 실패했습니다');
-    }
-    
-    setTimeout(() => navigateTo('main.html'), 1500);
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', function() {
+      handleDeleteComment(commentId);
+    });
   }
 }
 
-///=========초기화=========
-async function init() {
-  console.log('게시글 상세 페이지 초기화 중...');
+async function initPostDetailPage() {
+  console.log('게시글 상세 페이지 초기화');
   
-  // 사용자 정보 로드
   await loadCurrentUser();
-  
-  // 게시글 데이터 로드
   await loadPostData();
   
-  // 이벤트 설정
-  setupBackButton()
+  setupBackButton();
   setupLikeButton();
   setupPostActions();
   setupCommentInput();
   
-  console.log('✅ 게시글 상세 페이지 로딩 완료!');
+  console.log('게시글 상세 페이지 로딩 완료');
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', init);
+  document.addEventListener('DOMContentLoaded', initPostDetailPage);
 } else {
-  init();
+  initPostDetailPage();
 }
 
-console.log('post/detail.js 로드 완료');
+console.log('posts/detail.js 로드 완료');

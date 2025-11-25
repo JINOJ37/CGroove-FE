@@ -64,4 +64,33 @@ function truncateText(text, maxLength) {
   return text.substring(0, maxLength) + '...';
 }
 
+// 게시물 목록 : 날짜 포맷 (상대 시간)
+function formatRelativeTime(dateStr) {
+  try {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now - date;
+    
+    const seconds = Math.floor(diff / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+    
+    if (seconds < 60) return '방금 전';
+    if (minutes < 60) return `${minutes}분 전`;
+    if (hours < 24) return `${hours}시간 전`;
+    if (days < 7) return `${days}일 전`;
+    
+    return date.toLocaleDateString('ko-KR', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  } catch (e) {
+    return dateStr || '';
+  }
+}
+
+window.formatRelativeTime = formatRelativeTime;
+
 console.log('common/format.js 로드 완료');

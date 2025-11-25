@@ -343,4 +343,33 @@ function confirmBack(fallbackUrl, hasChanges, message = '변경 사항이 저장
   }
 }
 
+// 게시물 목록 : HTML 이스케이프
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+}
+
+// 게시물 목록 : 선택된 동아리 이름 가져오기
+function getSelectedClubName() {
+  const clubFilter = document.getElementById('clubFilter');
+  
+  if (!clubFilter || clubFilter.value === 'all') {
+    return 'C.Groove';
+  }
+  
+  const selectedClub = myClubs.find(c => {
+    return String(c.clubId) === String(clubFilter.value);
+  });
+  
+  return selectedClub ? (selectedClub.clubName || selectedClub.name) : 'C.Groove';
+}
+
+window.escapeHtml = escapeHtml;
+window.getImageUrl = getImageUrl;
+
 console.log('common/utils.js 로드 완료');

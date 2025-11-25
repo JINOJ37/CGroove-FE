@@ -63,5 +63,34 @@ function processImageFile(
   });
 }
 
+// image_util.js에 추가
+function validateImageFile(file, options = {}) {
+  const {
+    maxSizeBytes = 5 * 1024 * 1024,  // 5MB
+    allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp']
+  } = options;
+
+  if (!file) {
+    return { valid: false, error: '파일이 없습니다' };
+  }
+
+  if (!file.type.startsWith('image/')) {
+    return { valid: false, error: '이미지 파일만 허용됩니다' };
+  }
+
+  if (!allowedTypes.includes(file.type)) {
+    return { valid: false, error: `허용된 형식: ${allowedTypes.join(', ')}` };
+  }
+
+  if (file.size > maxSizeBytes) {
+    const sizeMB = (maxSizeBytes / 1024 / 1024).toFixed(1);
+    return { valid: false, error: `파일 크기는 ${sizeMB}MB 이하여야 합니다` };
+  }
+
+  return { valid: true };
+}
+
+window.validateImageFile = validateImageFile;
+
 // 전역에서 쓸 수 있게
 window.processImageFile = processImageFile;
