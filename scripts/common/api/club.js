@@ -97,9 +97,8 @@ export async function rejectApplication(clubId, applicantId) {
 
 // 멤버 역할 변경
 export async function updateMemberRole(clubId, userId, role) {
-  return await apiRequest(`/clubs/${clubId}/members/${userId}/role`, {
-    method: 'PATCH',
-    body: JSON.stringify({ role })
+  return await apiRequest(`/clubs/${clubId}/members/${userId}/role?newRole=${role}`, {
+    method: 'PATCH'
   });
 }
 

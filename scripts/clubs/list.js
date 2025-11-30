@@ -8,8 +8,6 @@ import {
   hideLoading
 } from '../common/util/utils.js';
 
-import { getImageUrl } from '../common/util/image_util.js';
-
 import { initHeader } from '../common/component/header.js';
 
 // ==================== 상태 관리 ====================
@@ -17,8 +15,8 @@ import { initHeader } from '../common/component/header.js';
 let currentFilter = 'all';
 let currentSort = 'name';
 let clubs = [];
-let myClubIds = [];        // ✅ 배열로 통일
-let pendingClubIds = [];   // ✅ 배열로 통일
+let myClubIds = [];
+let pendingClubIds = [];
 
 // ==================== 데이터 로드 ====================
 

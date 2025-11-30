@@ -16,9 +16,7 @@ import {
   smartBack 
 } from '../common/util/utils.js';
 
-import { formatDate } from '../common/util/format.js';
-
-import { getImageUrl } from '../common/util/image_util.js';
+import { getMyInfo } from '../common/api/user.js';
 
 import { initHeader } from '../common/component/header.js';
 
@@ -47,6 +45,9 @@ function renderMembers(list = members) {
     return;
   }
 
+  console.log('=== 렌더링 시작 ===');
+  console.log('myRole:', myRole);
+
   container.innerHTML = list.map(member => {
     const profileImg = member.profileImage 
       ? `${API_BASE_URL}${member.profileImage}` 
@@ -58,6 +59,16 @@ function renderMembers(list = members) {
     
     const canChangeRole = myRole === 'LEADER' && !isLeader && !member.isMe;
     const canKick = (myRole === 'LEADER' || myRole === 'MANAGER') && !isLeader;
+
+    console.log(`멤버 [${member.nickname}]:`, {
+      userId: member.userId,
+      role: member.role,
+      isMe: member.isMe,
+      isLeader,
+      myRole,
+      canChangeRole,
+      canKick
+    });
 
     const roleText = isLeader ? '클럽장' :
                      isManager ? '운영진' : '멤버';
@@ -95,6 +106,8 @@ function renderMembers(list = members) {
       </div>
     `;
   }).join('');
+
+  console.log('===================');
 }
 
 function renderEmptyState() {
@@ -237,16 +250,57 @@ async function loadMembers() {
 
   try {
     const response = await getActiveMembers(currentClubId);
-    members = response.data || [];
+    let memberList = response.data || [];
 
-    console.log('멤버 목록:', members);
+    console.log('=== 멤버 목록 ===');
+    console.log('원본:', memberList);
 
-    // 내 역할 찾기 (API에서 제공하지 않으면 추정)
-    // 백엔드에서 내 정보 포함해서 보내준다면 필터링
+    // ✅ isMe 필드가 없으면 직접 추가
+    if (memberList.length > 0 && memberList[0].isMe === undefined) {
+      console.log('isMe 필드 없음 - 내 정보로 설정');
+      
+      try {
+        const myInfoResponse = await getMyInfo();
+        const myUserId = myInfoResponse.data.userId;
+        
+        console.log('내 userId:', myUserId);
+        
+        // isMe 플래그 추가
+        memberList = memberList.map(m => ({
+          ...m,
+          isMe: m.userId === myUserId
+        }));
+        
+        console.log('isMe 플래그 추가 완료');
+        
+      } catch (error) {
+        console.error('내 정보 조회 실패:', error);
+        // 실패해도 계속 진행 (isMe 없이)
+        memberList = memberList.map(m => ({
+          ...m,
+          isMe: false
+        }));
+      }
+    }
+
+    members = memberList;
+
+    console.log('처리된 멤버 목록:', members);
+
+    // 내 역할 찾기
     const me = members.find(m => m.isMe === true);
+    
+    console.log('나:', me);
+    
     if (me) {
       myRole = me.role;
+      console.log('내 역할:', myRole);
+    } else {
+      console.warn('내 정보를 찾을 수 없음');
+      myRole = null;
     }
+    
+    console.log('================');
 
     renderMembers(members);
 
@@ -264,7 +318,6 @@ async function loadMembers() {
     }
   }
 }
-
 // ==================== 초기화 ====================
 
 async function init() {
