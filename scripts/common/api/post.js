@@ -37,4 +37,8 @@ export async function deletePost(postId) {
   return await apiRequest(`/posts/${postId}`, { method: 'DELETE' });
 }
 
+export async function togglePostLike(postId) {
+  return await apiRequest(`/posts/${postId}/like`, { method: 'POST' });
+}
+
 console.log('common/api/post.js 로드 완료');

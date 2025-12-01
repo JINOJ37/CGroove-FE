@@ -37,6 +37,10 @@ export async function deleteEvent(eventId) {
   return await apiRequest(`/events/${eventId}`, { method: 'DELETE' });
 }
 
+export async function toggleEventLike(eventId) {
+  return await apiRequest(`/events/${eventId}/like`, { method: 'POST' });
+}
+
 // ==========================================
 // 2. 행사 참여 (신청/취소) - EventJoinController
 // ==========================================

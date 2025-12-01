@@ -91,4 +91,13 @@ export function formatRelativeTime(dateStr) {
   }
 }
 
+// HTML 이스케이프 (XSS 방지)
+export function escapeHtml(text) {
+  if (!text) return '';
+  
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 console.log('common/util/format.js 로드 완료');

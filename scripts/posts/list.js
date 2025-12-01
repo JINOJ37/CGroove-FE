@@ -1,8 +1,25 @@
-// 게시글 목록 페이지
+// ==================== Import ====================
+
+import { initHeader } from '../common/component/header.js';
+import { initCustomSelects } from '../common/component/customSelect.js';
+import { navigateTo } from '../common/util/utils.js';
+import { showLoading, hideLoading } from '../common/util/utils.js';
+import { showToast } from '../common/util/utils.js';
+import { formatRelativeTime } from '../common/util/format.js';
+import { escapeHtml } from '../common/util/format.js';
+import { getImageUrl } from '../common/util/image_util.js';
+import { getPosts } from '../common/api/post.js';
+import { togglePostLike } from '../common/api/post.js';
+import { getMyClubs } from '../common/api/club.js';
+import { API_BASE_URL } from '../common/api/core.js';
+
+// ==================== 상수 ====================
 
 const DEFAULT_POST_IMAGE = '📄';
 const DEFAULT_EVENT_IMAGE = '🎉';
 const POSTS_PER_PAGE = 10;
+
+// ==================== 상태 관리 ====================
 
 let currentPage = 1;
 let isLoading = false;
@@ -14,13 +31,15 @@ let currentClubFilter = 'all';
 let currentTypeFilter = 'all';
 let currentSort = 'latest';
 
-// 초기 데이터 로드
+// ==================== API 호출 ====================
+
 async function loadInitialData() {
   showLoading();
 
   try {
     const postsResp = await getPosts();
     allPosts = postsResp.data || [];
+    console.log('게시글 로드:', allPosts.length, '개');
   } catch (err) {
     console.error('게시글 로드 실패:', err);
     allPosts = [];
@@ -36,7 +55,6 @@ async function loadInitialData() {
   applyFiltersAndSortAndRender(true);
 }
 
-// 동아리 목록 로드
 async function loadMyClubs() {
   const wrapper = document.querySelector('.custom-select[data-target="clubFilter"]');
   const hiddenSelect = document.getElementById('clubFilter');
@@ -80,26 +98,19 @@ async function loadMyClubs() {
       });
     }
 
-    if (window.initCustomSelects) {
-      console.log('커스텀 셀렉트 초기화');
-      window.initCustomSelects();
-    }
-
+    initCustomSelects();
     setupClubCustomSelectBehavior();
 
   } catch (err) {
     console.error('동아리 로드 실패:', err);
-    if (window.initCustomSelects) window.initCustomSelects();
+    initCustomSelects();
     setupClubCustomSelectBehavior();
   }
 }
 
-// 좋아요 토글
 async function toggleLike(postId) {
   try {
-    const response = await apiRequest(`/posts/${postId}/like`, {
-      method: 'POST'
-    });
+    const response = await togglePostLike(postId);
     
     console.log('좋아요 토글 성공');
     
@@ -132,7 +143,8 @@ async function toggleLike(postId) {
   }
 }
 
-// 게시글 카드 HTML 생성
+// ==================== UI 렌더링 ====================
+
 function createPostCardHTML(post) {
   const isEvent = post.eventId || post.type === 'event';
   const typeBadge = isEvent
@@ -194,7 +206,6 @@ function createPostCardHTML(post) {
   `;
 }
 
-// 게시글 목록 렌더링
 function renderPosts(posts, replace = false) {
   const container = document.getElementById('postsContainer');
   if (replace) container.innerHTML = '';
@@ -207,11 +218,8 @@ function renderPosts(posts, replace = false) {
   posts.forEach(p => {
     container.insertAdjacentHTML('beforeend', createPostCardHTML(p));
   });
-
-  setupCardClickEvents();
 }
 
-// 빈 상태 렌더링
 function renderEmptyState() {
   const container = document.getElementById('postsContainer');
   container.innerHTML = `
@@ -222,7 +230,6 @@ function renderEmptyState() {
   `;
 }
 
-// 끝 메시지 렌더링
 function renderEndMessage() {
   const container = document.getElementById('postsContainer');
   const endMessage = document.createElement('div');
@@ -234,7 +241,6 @@ function renderEndMessage() {
   container.appendChild(endMessage);
 }
 
-// 히어로 메시지 업데이트
 function updateHeroMessage() {
   const subtitle = document.getElementById('heroSubtitle');
   if (!subtitle) return;
@@ -243,7 +249,17 @@ function updateHeroMessage() {
   subtitle.innerHTML = `${clubName} <span class="highlight">게시판</span>입니다.`;
 }
 
-// 필터 및 정렬 적용
+function getSelectedClubName() {
+  if (currentClubFilter === 'all') {
+    return 'C.Groove';
+  }
+  
+  const club = myClubs.find(c => String(c.clubId) === String(currentClubFilter));
+  return club ? club.clubName : 'C.Groove';
+}
+
+// ==================== 필터 & 정렬 ====================
+
 function applyFiltersAndSortAndRender(replace = true) {
   console.log('필터/정렬 적용:', { currentClubFilter, currentTypeFilter, currentSort });
   
@@ -291,7 +307,6 @@ function applyFiltersAndSortAndRender(replace = true) {
   renderPosts(displayedPosts, true);
 }
 
-// 더 보기 (무한 스크롤)
 function loadMorePosts() {
   if (isLoading || !hasMorePosts) return;
 
@@ -342,7 +357,35 @@ function loadMorePosts() {
   }, 400);
 }
 
-// 타입 필터 탭
+// ==================== 이벤트 핸들러 ====================
+
+function setupLogoClick() {
+  const logoBtn = document.getElementById('logoBtn');
+  if (logoBtn) {
+    logoBtn.style.cursor = 'pointer';
+    logoBtn.addEventListener('click', () => {
+      navigateTo('main.html');
+    });
+  }
+}
+
+function setupActionButtons() {
+  const createPostBtn = document.getElementById('createPostBtn');
+  const createEventBtn = document.getElementById('createEventBtn');
+
+  if (createPostBtn) {
+    createPostBtn.addEventListener('click', () => {
+      navigateTo('post_create.html');
+    });
+  }
+
+  if (createEventBtn) {
+    createEventBtn.addEventListener('click', () => {
+      navigateTo('event_create.html');
+    });
+  }
+}
+
 function setupFilterTabs() {
   document.querySelectorAll('.type-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -355,7 +398,6 @@ function setupFilterTabs() {
   });
 }
 
-// 정렬 버튼
 function setupSortButtons() {
   document.querySelectorAll('.sort-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -368,11 +410,10 @@ function setupSortButtons() {
   });
 }
 
-// 카드 클릭 이벤트 (이벤트 위임)
 function setupCardClickEvents() {
   const container = document.getElementById('postsContainer');
   if (!container) return;
-  if (container.dataset.attach === 'true') return;
+  if (container.dataset.attached === 'true') return;
 
   container.addEventListener('click', function(e) {
     // 좋아요 버튼 클릭
@@ -398,10 +439,10 @@ function setupCardClickEvents() {
     }
   });
 
-  container.dataset.attach = 'true';
+  container.dataset.attached = 'true';
+  console.log('카드 클릭 이벤트 등록 완료');
 }
 
-// 무한 스크롤
 function setupInfinityScroll() {
   window.addEventListener('scroll', function() {
     if (isLoading || !hasMorePosts) return;
@@ -416,7 +457,6 @@ function setupInfinityScroll() {
   });
 }
 
-// 동아리 커스텀 셀렉트 이벤트
 function setupClubCustomSelectBehavior() {
   const hidden = document.getElementById('clubFilter');
   if (!hidden) {
@@ -430,7 +470,6 @@ function setupClubCustomSelectBehavior() {
   console.log('동아리 필터 이벤트 핸들러 등록 완료');
 }
 
-// 동아리 필터 변경 핸들러
 function handleClubChange(e) {
   const newValue = e.target.value || 'all';
   console.log('동아리 필터 변경:', newValue);
@@ -439,9 +478,15 @@ function handleClubChange(e) {
   applyFiltersAndSortAndRender();
 }
 
-async function initPostListPage() {
+// ==================== 초기화 ====================
+
+async function init() {
   console.log('게시글 목록 페이지 초기화');
 
+  await initHeader();
+
+  setupLogoClick();
+  setupActionButtons();
   setupFilterTabs();
   setupSortButtons();
   setupInfinityScroll();
@@ -453,9 +498,9 @@ async function initPostListPage() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initPostListPage);
+  document.addEventListener('DOMContentLoaded', init);
 } else {
-  initPostListPage();
+  init();
 }
 
 console.log('posts/list.js 로드 완료');
