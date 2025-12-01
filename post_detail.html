@@ -19,14 +19,14 @@
     <!-- 헤더 -->
     <header class="header">
       <div class="header-container">
-        <button class="header-back">‹</button>
+        <button class="header-back" id="backBtn">‹</button>
         <h1 class="logo bagel-fat-one-regular">C.Groove</h1>
         <div class="header-profile" id="profileMenu">
           <span class="profile-avatar"></span>
           <div class="dropdown-menu" id="dropdownMenu">
-            <div class="dropdown-item" onclick="location.href='profile_edit.html'">회원정보수정</div>
-            <div class="dropdown-item" onclick="location.href='password_edit.html'">비밀번호수정</div>
-            <div class="dropdown-item" onclick="logout()">로그아웃</div>
+            <div class="dropdown-item" data-nav="profile_edit.html">회원정보수정</div>
+            <div class="dropdown-item" data-nav="password_edit.html">비밀번호수정</div>
+            <div class="dropdown-item" data-action="logout">로그아웃</div>
           </div>
         </div>
       </div>
@@ -43,8 +43,8 @@
         <div class="detail-title-wrapper">
           <h2 class="detail-title">제목 로딩 중...</h2>
           <div class="detail-actions">
-            <button class="btn btn-secondary btn-small">수정</button>
-            <button class="btn btn-secondary btn-small">삭제</button>
+            <button class="btn btn-secondary btn-small" id="editBtn">수정</button>
+            <button class="btn btn-secondary btn-small" id="deleteBtn">삭제</button>
           </div>
         </div>
         
@@ -96,27 +96,12 @@
             댓글 등록
           </button>
         </form>
-        
-        <!-- 댓글 목록 -->
         <div class="comments-list">
-          <!-- JS로 동적 렌더링 -->
         </div>
       </div>
     </div>
   </div>
   
-  <script src="scripts/common/utils.js"></script>
-  <script src="scripts/common/format.js"></script>
-  <script src="scripts/common/api.js"></script>
-  <script src="scripts/common/header.js"></script> 
-  <script src="scripts/posts/detail.js"></script>
-  
-  <script>
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initHeader);
-    } else {
-      initHeader();
-    }
-  </script>
+  <script type="module" src="scripts/posts/detail.js"></script>
 </body>
 </html>
