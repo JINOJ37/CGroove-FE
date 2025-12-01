@@ -489,6 +489,16 @@ async function init() {
   console.log('게시글 상세 페이지 로딩 완료');
 }
 
+window.addEventListener('pageshow', async (event) => {
+  const isBackNavigation = event.persisted || 
+                           (performance.getEntriesByType("navigation")[0]?.type === 'back_forward');
+
+  if (isBackNavigation) {
+    showLoading();
+    await loadPostData();
+  }
+});
+
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', init);
 } else {

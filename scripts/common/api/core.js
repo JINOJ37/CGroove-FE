@@ -38,19 +38,7 @@ export function storeToken(accessToken) {
 }
 
 export function getAccessToken() {
-  const token = localStorage.getItem('accessToken');
-  const storedAt = localStorage.getItem('tokenStoredAt');
-  
-  if (token && storedAt) {
-    const elapsed = Date.now() - parseInt(storedAt, 10);
-    const expireTime = 15 * 60 * 1000;
-    
-    if (elapsed > expireTime) {
-      console.warn('Access Token 클라이언트 만료 감지');
-    }
-  }
-  
-  return token;
+  return localStorage.getItem('accessToken');
 }
 
 export function removeToken() {

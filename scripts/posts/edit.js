@@ -1,4 +1,17 @@
-// 게시글 수정 페이지
+// ==================== Import ====================
+
+import { initHeader } from '../common/component/header.js';
+import { showLoading, hideLoading } from '../common/util/utils.js';
+import { showToast } from '../common/util/utils.js';
+import { navigateTo, confirmBack, replaceLocation } from '../common/util/utils.js';
+import { clearError, updateButtonState } from '../common/util/utils.js';
+import { validateTitle, validateContent } from '../common/util/validators.js';
+import { getPost, updatePost } from '../common/api/post.js';
+import { getMyInfo } from '../common/api/user.js';
+import { processImageFile } from '../common/util/image_util.js';
+import { API_BASE_URL } from '../common/api/core.js';
+
+// ==================== 상태 관리 ====================
 
 let postData = null;
 let currentUserId = null;
@@ -8,9 +21,11 @@ const validation = {
   title: true,
   content: true
 };
+
 let imageFiles = [];
 
-// 현재 사용자 정보 가져오기
+// ==================== API 호출 ====================
+
 async function loadCurrentUser() {
   try {
     const response = await getMyInfo();
@@ -22,7 +37,6 @@ async function loadCurrentUser() {
   }
 }
 
-// 게시글 데이터 로드
 async function loadPostData() {
   console.log('게시글 데이터 로드 중');
 
@@ -30,12 +44,12 @@ async function loadPostData() {
   const postId = urlParams.get('id');
 
   if (!postId) {
-    showToast('게시글을 찾을 수 없습니다');
-    setTimeout(() => navigateTo('main.html'), 1500);
+    showToast('게시글을 찾을 수 없습니다', 1500);
+    setTimeout(() => navigateTo('post_list.html'), 1500);
     return;
   }
 
-  showLoading('게시글을 불러오는 중...');
+  showLoading();
 
   try {
     const response = await getPost(postId);
@@ -57,27 +71,37 @@ async function loadPostData() {
   }
 }
 
-// 게시글 수정
 async function updatePostData(formData) {
   try {
+    showLoading();
     const response = await updatePost(postData.postId, formData);
+    hideLoading();
     
     console.log('게시글 수정 완료');
     
-    showToast('게시글이 수정되었습니다');
+    showToast('게시글이 수정되었습니다', 1500);
     
     setTimeout(() => {
-      replaceLocation(`post_detail.html?id=${postData.postId}`);
+
+      const isFromDetail = document.referrer && document.referrer.includes('post_detail.html');
+      
+      if (isFromDetail) {
+        history.back();
+      } else {
+        replaceLocation(`post_detail.html?id=${postData.postId}`);
+      }
     }, 1500);
 
   } catch (error) {
+    hideLoading();
     console.error('게시글 수정 실패:', error);
     handleUpdateError(error);
     throw error;
   }
 }
 
-// 폼 UI 업데이트
+// ==================== UI 렌더링 ====================
+
 function updateFormUI() {
   document.getElementById('titleInput').value = postData.title;
   document.getElementById('contentInput').value = postData.content;
@@ -87,7 +111,6 @@ function updateFormUI() {
   console.log('폼 UI 업데이트 완료');
 }
 
-// 기존 이미지 로드
 function loadExistingImages() {
   if (!postData.images || postData.images.length === 0) return;
 
@@ -99,86 +122,6 @@ function loadExistingImages() {
   console.log('기존 이미지 로드:', postData.images.length, '개');
 }
 
-// 수정 권한 체크
-function checkEditPermission() {
-  if (Number(postData.authorId) !== Number(currentUserId)) {
-    console.error('수정 권한이 없습니다');
-    showToast('수정 권한이 없습니다');
-
-    setTimeout(() => {
-      navigateTo(`post_detail.html?id=${postData.postId}`);
-    }, 1500);
-
-    return false;
-  }
-
-  return true;
-}
-
-// 로드 에러 처리
-function handleLoadError(error) {
-  if (error.status === 404) {
-    showToast('존재하지 않는 게시글입니다');
-  } else if (error.status === 401) {
-    showToast('로그인이 필요합니다');
-  } else {
-    showToast('게시글을 불러오는데 실패했습니다');
-  }
-
-  setTimeout(() => navigateTo('main.html'), 1500);
-}
-
-// 수정 에러 처리
-function handleUpdateError(error) {
-  if (error.status === 403) {
-    showToast('수정 권한이 없습니다');
-  } else if (error.status === 401) {
-    showToast('로그인이 필요합니다');
-  } else if (error.status === 413) {
-    showToast('이미지 용량이 너무 큽니다 (최대 20MB)');
-  } else {
-    showToast('게시글 수정 중 오류가 발생했습니다');
-  }
-}
-
-// 변경 여부 체크
-function checkForChanges() {
-  if (!postData) {
-    hasChanges = false;
-    updateButtonState(validation, hasChanges);
-    return;
-  }
-
-  const currentTitle = document.getElementById('titleInput').value.trim();
-  const currentContent = document.getElementById('contentInput').value.trim();
-
-  const titleChanged = currentTitle !== postData.title;
-  const contentChanged = currentContent !== postData.content;
-  const imagesChanged = checkImageChanges();
-
-  hasChanges =
-    (titleChanged || contentChanged || imagesChanged) &&
-    validation.title &&
-    validation.content;
-
-  updateButtonState(validation, hasChanges);
-}
-
-// 이미지 변경 여부 체크
-function checkImageChanges() {
-  const currentExistingPaths = getExistingImagePaths();
-  const originalImagePaths = postData.images || [];
-
-  const existingImagesChanged =
-    currentExistingPaths.length !== originalImagePaths.length ||
-    !currentExistingPaths.every(path => originalImagePaths.includes(path));
-
-  const newImagesAdded = getValidImageCount() > 0;
-
-  return existingImagesChanged || newImagesAdded;
-}
-
-// 기존 이미지를 미리보기에 추가
 function addExistingImageToPreview(imageUrl, imagePath) {
   const previewItem = document.createElement('div');
   previewItem.className = 'image-preview-item';
@@ -198,7 +141,6 @@ function addExistingImageToPreview(imageUrl, imagePath) {
   document.getElementById('imagePreviewContainer').appendChild(previewItem);
 }
 
-// 새 이미지를 미리보기에 추가
 function addImageToPreview(file, previewUrl) {
   imageFiles.push(file);
   const fileIndex = imageFiles.length - 1;
@@ -221,7 +163,6 @@ function addImageToPreview(file, previewUrl) {
   document.getElementById('imagePreviewContainer').appendChild(previewItem);
 }
 
-// 이미지 삭제 버튼 생성
 function createImageDeleteButton(onClickHandler) {
   const deleteBtn = document.createElement('button');
   deleteBtn.className = 'image-delete-btn';
@@ -231,7 +172,6 @@ function createImageDeleteButton(onClickHandler) {
   return deleteBtn;
 }
 
-// 기존 이미지 삭제
 function removeExistingImageFromPreview(imagePath) {
   const previewItem = document.querySelector(`[data-path="${imagePath}"]`);
   if (previewItem) {
@@ -242,7 +182,6 @@ function removeExistingImageFromPreview(imagePath) {
   checkForChanges();
 }
 
-// 새 이미지 삭제
 function removeImageFromPreview(fileIndex) {
   imageFiles[fileIndex] = null;
 
@@ -255,23 +194,87 @@ function removeImageFromPreview(fileIndex) {
   checkForChanges();
 }
 
-// 유효한 이미지 개수
+// ==================== 검증 ====================
+
+function checkEditPermission() {
+  if (Number(postData.authorId) !== Number(currentUserId)) {
+    console.error('수정 권한이 없습니다');
+    showToast('수정 권한이 없습니다', 1500);
+
+    setTimeout(() => {
+      navigateTo(`post_detail.html?id=${postData.postId}`);
+    }, 1500);
+
+    return false;
+  }
+
+  return true;
+}
+
+function validateForm(title, content) {
+  if (!validateTitle(title, validation)) {
+    showToast('제목을 확인해주세요', 2000, 'error');
+    return false;
+  }
+
+  if (!validateContent(content, validation)) {
+    showToast('내용을 확인해주세요', 2000, 'error');
+    return false;
+  }
+
+  return true;
+}
+
+function checkForChanges() {
+  if (!postData) {
+    hasChanges = false;
+    updateButtonState(validation, hasChanges);
+    return;
+  }
+
+  const currentTitle = document.getElementById('titleInput').value.trim();
+  const currentContent = document.getElementById('contentInput').value.trim();
+
+  const titleChanged = currentTitle !== postData.title;
+  const contentChanged = currentContent !== postData.content;
+  const imagesChanged = checkImageChanges();
+
+  hasChanges =
+    (titleChanged || contentChanged || imagesChanged) &&
+    validation.title &&
+    validation.content;
+
+  updateButtonState(validation, hasChanges);
+}
+
+function checkImageChanges() {
+  const currentExistingPaths = getExistingImagePaths();
+  const originalImagePaths = postData.images || [];
+
+  const existingImagesChanged =
+    currentExistingPaths.length !== originalImagePaths.length ||
+    !currentExistingPaths.every(path => originalImagePaths.includes(path));
+
+  const newImagesAdded = getValidImageCount() > 0;
+
+  return existingImagesChanged || newImagesAdded;
+}
+
+// ==================== 유틸리티 ====================
+
 function getValidImageCount() {
   return imageFiles.filter(file => file !== null).length;
 }
 
-// 유효한 이미지 파일들 반환
 function getValidImageFiles() {
   return imageFiles.filter(file => file !== null);
 }
 
-// 현재 남아있는 기존 이미지 경로들
 function getExistingImagePaths() {
   const existingItems = document.querySelectorAll('[data-type="existing"]');
   return Array.from(existingItems).map(item => item.dataset.path);
 }
 
-// 수정용 폼 데이터 생성
 function createUpdateFormData(title, content) {
   const formData = new FormData();
   formData.append('title', title);
@@ -305,20 +308,46 @@ function createUpdateFormData(title, content) {
   return formData;
 }
 
-// 뒤로가기 버튼
-function setupBackButton() {
-  const backBtn = document.querySelector('.header-back');
-  if (backBtn) {
-    backBtn.onclick = () => {
-      const fallback = postData?.postId
-        ? `post_detail.html?id=${postData.postId}`
-        : 'main.html';
-      confirmBack(fallback, hasChanges, '수정 사항이 저장되지 않습니다.');
-    };
+// ==================== 에러 처리 ====================
+
+function handleLoadError(error) {
+  if (error.status === 404) {
+    showToast('존재하지 않는 게시글입니다', 1500);
+  } else if (error.status === 401) {
+    showToast('로그인이 필요합니다', 1500);
+  } else {
+    showToast('게시글을 불러오는데 실패했습니다', 1500);
+  }
+
+  setTimeout(() => navigateTo('post_list.html'), 1500);
+}
+
+function handleUpdateError(error) {
+  if (error.status === 403) {
+    showToast('수정 권한이 없습니다', 2000, 'error');
+  } else if (error.status === 401) {
+    showToast('로그인이 필요합니다', 2000, 'error');
+  } else if (error.status === 413) {
+    showToast('이미지 용량이 너무 큽니다 (최대 20MB)', 2000, 'error');
+  } else {
+    showToast('게시글 수정 중 오류가 발생했습니다', 2000, 'error');
   }
 }
 
-// 제목 입력
+// ==================== 이벤트 핸들러 ====================
+
+function setupBackButton() {
+  const backBtn = document.getElementById('backBtn');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      const fallback = postData?.postId
+        ? `post_detail.html?id=${postData.postId}`
+        : 'post_list.html';
+      confirmBack(fallback, hasChanges, '수정 사항이 저장되지 않습니다.');
+    });
+  }
+}
+
 function setupTitleEvents() {
   const titleInput = document.getElementById('titleInput');
 
@@ -334,9 +363,10 @@ function setupTitleEvents() {
     }
     checkForChanges();
   });
+
+  console.log('제목 입력 이벤트 등록 완료');
 }
 
-// 내용 입력
 function setupContentEvents() {
   const contentInput = document.getElementById('contentInput');
 
@@ -352,9 +382,10 @@ function setupContentEvents() {
     }
     checkForChanges();
   });
+
+  console.log('내용 입력 이벤트 등록 완료');
 }
 
-// 이미지 업로드
 function setupImageEvents() {
   const fileSelectBtn = document.getElementById('fileSelectBtn');
   const imageInput = document.getElementById('imageInput');
@@ -390,9 +421,10 @@ function setupImageEvents() {
     console.log('현재 새 이미지 개수:', getValidImageCount());
     checkForChanges();
   });
+
+  console.log('이미지 업로드 이벤트 등록 완료');
 }
 
-// 수정하기 버튼
 function setupSubmitEvent() {
   const editForm = document.getElementById('editForm');
 
@@ -400,7 +432,7 @@ function setupSubmitEvent() {
     e.preventDefault();
 
     if (!hasChanges) {
-      showToast('변경된 내용이 없습니다');
+      showToast('변경된 내용이 없습니다', 2000);
       return;
     }
 
@@ -413,24 +445,10 @@ function setupSubmitEvent() {
 
     await handleUpdatePost(e.target, title, content);
   });
+
+  console.log('폼 제출 이벤트 등록 완료');
 }
 
-// 폼 검증
-function validateForm(title, content) {
-  if (!validateTitle(title, validation)) {
-    showToast('제목을 확인해주세요');
-    return false;
-  }
-
-  if (!validateContent(content, validation)) {
-    showToast('내용을 확인해주세요');
-    return false;
-  }
-
-  return true;
-}
-
-// 게시글 수정 처리
 async function handleUpdatePost(form, title, content) {
   const btn = form.querySelector('button[type="submit"]');
   const originalText = btn.textContent;
@@ -449,8 +467,12 @@ async function handleUpdatePost(form, title, content) {
   }
 }
 
-async function initPostEditPage() {
+// ==================== 초기화 ====================
+
+async function init() {
   console.log('게시글 수정 페이지 초기화');
+
+  await initHeader();
 
   await loadCurrentUser();
   await loadPostData();
@@ -468,9 +490,9 @@ async function initPostEditPage() {
 }
 
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initPostEditPage);
+  document.addEventListener('DOMContentLoaded', init);
 } else {
-  initPostEditPage();
+  init();
 }
 
 console.log('posts/edit.js 로드 완료');
