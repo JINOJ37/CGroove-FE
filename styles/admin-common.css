@@ -1,0 +1,259 @@
+/* ========================================
+   관리자/목록 화면 공통 (Admin Common)
+   - 동아리 신청/멤버 관리
+   - 행사 신청/참여자 관리
+======================================== */
+
+.admin-main {
+  background: #FAFAFA;
+  padding: 60px 40px;
+  min-height: calc(100vh - 80px);
+}
+
+.admin-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.admin-header {
+  margin-bottom: 40px;
+}
+
+.admin-title {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1A1A1A;
+  margin-bottom: 12px;
+}
+
+.admin-subtitle {
+  font-size: 16px;
+  color: #666;
+}
+
+/* ========================================
+   카드 스타일 (신청자, 멤버, 참여자 공통)
+======================================== */
+
+/* .participant-card 클래스 추가 (행사 참여자용) */
+.application-card,
+.member-card,
+.participant-card {
+  background: white;
+  border: 1px solid #E0E0E0;
+  padding: 24px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: border-color 0.2s;
+}
+
+.application-card:hover,
+.member-card:hover,
+.participant-card:hover {
+  border-color: #1A1A1A;
+}
+
+/* ========================================
+   사용자 정보 영역 (프로필, 이름, 이메일 등)
+======================================== */
+
+.user-info,
+.member-info,
+.participant-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profile-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid #E0E0E0;
+}
+
+.user-details,
+.member-details,
+.participant-details {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.user-name,
+.member-name,
+.participant-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1A1A1A;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.user-email,
+.member-email,
+.participant-email {
+  font-size: 14px;
+  color: #666;
+}
+
+.application-date,
+.join-date {
+  font-size: 13px;
+  color: #999;
+}
+
+/* ========================================
+   역할/상태 뱃지 (Badge)
+======================================== */
+
+.role-badge,
+.status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-family: 'KIMM_Bold', sans-serif;
+  font-size: 12px;
+  color: white;
+  margin-left: 6px;
+}
+
+/* 동아리 역할 */
+.role-badge.leader { background: #1A1A1A; }
+.role-badge.manager { background: #666; }
+.role-badge.member { background: #999; }
+
+/* 행사 신청 상태 (예시) */
+.status-badge.approved { background: #4CAF50; } /* 승인됨 */
+.status-badge.pending { background: #FFB800; }  /* 대기중 */
+
+/* ========================================
+   액션 버튼 (승인, 거절, 추방, 취소 등)
+======================================== */
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.action-buttons .btn {
+  padding: 8px 16px;
+  font-size: 14px;
+  min-width: 70px;
+}
+
+/* 검정색 버튼 (승인 등 긍정적 액션) */
+.approve-btn {
+  background: #1A1A1A;
+  color: white;
+  border: 1px solid #1A1A1A;
+}
+
+.approve-btn:hover {
+  background: #000;
+}
+
+/* 흰색 버튼 (거절, 추방 등 부정적/보조 액션) */
+.reject-btn,
+.kick-btn,
+.cancel-btn {
+  background: white;
+  border: 1px solid #E0E0E0;
+  color: #666;
+}
+
+.reject-btn:hover,
+.kick-btn:hover,
+.cancel-btn:hover {
+  border-color: #1A1A1A;
+  color: #1A1A1A;
+}
+
+/* ========================================
+   드롭다운 (Role Select)
+======================================== */
+
+.role-select {
+  padding: 8px 12px;
+  border: 1px solid #E0E0E0;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  background: white;
+  transition: border-color 0.2s;
+}
+
+.role-select:hover {
+  border-color: #1A1A1A;
+}
+
+.role-select:focus {
+  outline: none;
+  border-color: #1A1A1A;
+}
+
+/* ========================================
+   빈 상태 (Empty State)
+======================================== */
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #999;
+}
+
+.empty-state-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.empty-state-text {
+  font-weight: 700;
+  font-size: 16px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+/* ========================================
+   반응형 (Mobile)
+======================================== */
+
+@media (max-width: 768px) {
+  .admin-main {
+    padding: 40px 20px;
+  }
+
+  .admin-title {
+    font-size: 24px;
+  }
+
+  /* 카드 세로 배치 */
+  .application-card,
+  .member-card,
+  .participant-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px;
+  }
+
+  .user-info,
+  .member-info,
+  .participant-info {
+    width: 100%;
+  }
+
+  .action-buttons {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  .action-buttons .btn {
+    flex: 1;
+  }
+}

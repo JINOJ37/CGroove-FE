@@ -210,9 +210,25 @@ function updateEventUI() {
   console.log('행사 UI 업데이트');
   
   document.querySelector('.detail-title').textContent = eventData.title;
-  document.querySelector('.author-name').textContent = eventData.hostName || '익명';
+  document.querySelector('.author-name').textContent = eventData.hostNickname || '익명';
   document.querySelector('.post-date').textContent = formatDate(eventData.createdAt);
   document.querySelector('.detail-text').textContent = eventData.content;
+
+  const avatarEl = document.querySelector('.author-avatar');
+  if (avatarEl) {
+    const profilePath = eventData.hostProfileImage;
+
+    if (profilePath) {
+      avatarEl.innerHTML = `
+        <img src="${API_BASE_URL}${profilePath}" 
+             alt="프로필" 
+             style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+      `;
+    } else {
+      avatarEl.textContent = '👤';
+      avatarEl.style.background = 'none'; 
+    }
+  }
   
   updateEventTypeBadge();
   updateEventInfo();

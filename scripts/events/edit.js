@@ -98,7 +98,12 @@ async function submitEvent(formData) {
     showToast('행사가 수정되었습니다', 1500);
     
     setTimeout(() => {
-      navigateTo(`event_detail.html?id=${eventId}`);
+      if (document.referrer && document.referrer.includes('event_detail.html')) {
+          history.back(); 
+      } else {
+          window.location.replace(`event_detail.html?id=${eventId}`);
+      }
+      
     }, 1500);
     
   } catch (error) {
@@ -554,7 +559,11 @@ function setupImageEvents() {
 }
 
 function setupSubmitEvent() {
-  const eventForm = document.getElementById('eventForm');
+  const eventForm = document.getElementById('editForm');
+  if (!eventForm) {
+      console.error("HTML에서 'editForm' ID를 가진 요소를 찾을 수 없습니다.");
+      return;
+  }
   
   eventForm.addEventListener('submit', async function(e) {
     e.preventDefault();

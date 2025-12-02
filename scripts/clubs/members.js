@@ -51,7 +51,7 @@ function renderMembers(list = members) {
   container.innerHTML = list.map(member => {
     const profileImg = member.profileImage 
       ? `${API_BASE_URL}${member.profileImage}` 
-      : '/images/default-profile.png';
+      : '/assets/images/default-profile.png';
 
     const isLeader = member.role === 'LEADER';
     const isManager = member.role === 'MANAGER';

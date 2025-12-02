@@ -9,7 +9,7 @@ import { formatRelativeTime } from '../common/util/format.js';
 import { escapeHtml } from '../common/util/format.js';
 import { getImageUrl } from '../common/util/image_util.js';
 import { getPosts, togglePostLike } from '../common/api/post.js';
-import { getEvents, toggleEventLike } from '../common/api/event.js'; // ✅ 추가
+import { getEvents, toggleEventLike } from '../common/api/event.js';
 import { getMyClubs } from '../common/api/club.js';
 import { API_BASE_URL } from '../common/api/core.js';
 
@@ -24,7 +24,7 @@ const POSTS_PER_PAGE = 10;
 let currentPage = 1;
 let isLoading = false;
 let hasMorePosts = true;
-let allPosts = []; // ✅ posts + events 통합 배열
+let allPosts = [];
 let displayedPosts = [];
 let myClubs = [];
 let currentClubFilter = 'all';
@@ -33,40 +33,34 @@ let currentSort = 'latest';
 
 // ==================== API 호출 ====================
 
-// ✅ Posts + Events 병렬 로드
 async function loadInitialData() {
   showLoading();
 
   try {
-    // 병렬 호출
     const [postsResp, eventsResp] = await Promise.all([
       getPosts(),
       getEvents()
     ]);
     
-    // Posts 데이터 가공
     const posts = (postsResp.data || []).map(p => ({
       ...p,
-      type: 'post', // ✅ 타입 명시
+      type: 'post',
       id: p.postId || p.id,
       displayId: p.postId || p.id
     }));
     
-    // Events 데이터 가공
     const events = (eventsResp.data || []).map(e => ({
       ...e,
-      type: 'event', // ✅ 타입 명시
+      type: 'event',
       id: e.eventId || e.id,
       displayId: e.eventId || e.id,
-      // 통일된 필드명 매핑
-      postId: null, // post는 없음
+      postId: null,
       eventId: e.eventId || e.id,
       likes: e.likeCount || 0,
-      comments: e.participantCount || 0, // 참여자 수를 댓글처럼 표시
+      comments: e.participantCount || 0,
       views: e.viewCount || 0
     }));
     
-    // ✅ 통합 배열
     allPosts = [...posts, ...events];
     
     console.log('데이터 로드:', posts.length, '개 포스트,', events.length, '개 행사');
@@ -139,15 +133,14 @@ async function loadMyClubs() {
   }
 }
 
-// ✅ 좋아요 토글 (Post/Event 구분)
 async function toggleLike(itemId, itemType) {
   try {
     let response;
     
     if (itemType === 'event') {
-      response = await toggleEventLike(itemId); // ✅ Event 좋아요 API
+      response = await toggleEventLike(itemId);
     } else {
-      response = await togglePostLike(itemId); // Post 좋아요 API
+      response = await togglePostLike(itemId);
     }
     
     console.log('좋아요 토글 성공');
@@ -204,11 +197,11 @@ function createPostCardHTML(item) {
   let profileImage = null;
 
   if (isEvent) {
-    authorName = item.hostName || item.host?.nickname || item.host?.username || '익명';
-    profileImage = item.host?.profileImage;
+    authorName = item.hostNickname || '익명';
+    profileImage = item.hostProfileImage;
   } else {
-    authorName = item.authorName || item.author?.nickname || item.author?.username || '익명';
-    profileImage = item.author?.profileImage;
+    authorName = item.authorNickname || '익명';
+    profileImage = item.authorProfileImage;
   }
 
   // 프로필 이미지 HTML 생성

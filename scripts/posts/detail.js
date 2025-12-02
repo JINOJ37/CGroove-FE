@@ -160,9 +160,25 @@ function updatePostUI() {
   console.log('게시글 UI 업데이트');
   
   document.querySelector('.detail-title').textContent = postData.title;
-  document.querySelector('.author-name').textContent = postData.author?.username || postData.authorName || '익명';
+  document.querySelector('.author-name').textContent = postData.authorNickname || '익명';
   document.querySelector('.post-date').textContent = formatDate(postData.createdAt);
   document.querySelector('.detail-text').textContent = postData.content;
+
+  const avatarEl = document.querySelector('.author-avatar');
+  if (avatarEl) {
+    const profilePath = postData.authorProfileImage;
+
+    if (profilePath) {
+      avatarEl.innerHTML = `
+        <img src="${API_BASE_URL}${profilePath}" 
+             alt="프로필" 
+             style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+      `;
+    } else {
+      avatarEl.textContent = '👤';
+      avatarEl.style.background = 'none'; 
+    }
+  }
   
   updatePostImage();
   updatePostStats();
