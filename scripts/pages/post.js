@@ -188,6 +188,8 @@ function formatNumber(num) {
 
 // ==================== UI 렌더링 ====================
 
+// ==================== UI 렌더링 ====================
+
 function createPostCardHTML(item) {
   const isEvent = item.type === 'event';
   
@@ -202,10 +204,8 @@ function createPostCardHTML(item) {
   
   if (item.images && item.images.length > 0) {
     const imageUrl = getImageUrl(item.images[0]);
-    // 이미지가 깨질 경우 대비해 onerror 처리
     imageHTML = `<img src="${imageUrl}" alt="${escapeHtml(item.title)}" onerror="this.parentElement.innerHTML='<div class=\\'post-image-placeholder\\'>${fallbackIcon}</div>'">`;
   } else {
-    // 이미지가 아예 없는 경우
     imageHTML = `<div class="post-image-placeholder">${fallbackIcon}</div>`;
   }
 
@@ -214,32 +214,45 @@ function createPostCardHTML(item) {
   let profileImage = null;
 
   if (isEvent) {
-    // 행사: hostName 필드 또는 host 객체 확인
-    authorName = item.hostName || item.host?.nickname || item.host?.username || '주최자';
-    profileImage = item.host?.profileImage;
+    authorName = item.hostNickname || '주최자';
+    profileImage = item.hostProfileImage;
   } else {
-    // 게시글: authorName 필드 또는 author 객체 확인
-    authorName = item.authorName || item.author?.nickname || item.author?.username || '익명';
-    profileImage = item.author?.profileImage;
+    authorName = item.authorNickname || '익명';
+    profileImage = item.authorProfileImage;
   }
 
   // 4. 프로필 이미지 HTML 생성
-  let authorAvatarHTML = '👤'; // 기본 아이콘
+  let authorAvatarHTML = '👤';
   if (profileImage) {
     const profileUrl = `${API_BASE_URL}${profileImage}`;
     authorAvatarHTML = `<img src="${profileUrl}" alt="${escapeHtml(authorName)}" class="author-avatar-img" onerror="this.outerHTML='👤'">`;
   }
 
-  // 5. 좋아요 상태 및 통계
+  // 5. 동아리 정보 표시 (clubId가 있으면)
+  let clubBadge = '';
+  if (item.clubId) {
+    const club = myClubs.find(c => String(c.clubId) === String(item.clubId));
+    const clubName = club ? club.clubName : '동아리';
+    clubBadge = `<span class="club-badge">${escapeHtml(clubName)}</span>`;
+  }
+
+  // 6. 좋아요 상태 및 통계
   const isLiked = item.isLiked || false;
   const likeClass = isLiked ? 'liked' : '';
   const likeIcon = isLiked ? '❤️' : '🤍';
   
-  // 서브 통계 (댓글 or 참여자)
-  const subCount = item.subCount || 0; // loadInitialData에서 미리 매핑해둠
-  const subIcon = isEvent ? '👥' : '💬'; // 행사면 사람 아이콘, 글이면 말풍선
+  // 7. 댓글/참여자 통계 (통일: 항상 💬 사용)
+  const commentCount = isEvent ? (item.commentCount || 0) : (item.subCount || 0);
+  
+  // 8. 행사 참여 현황 (행사일 때만)
+  let participantInfo = '';
+  if (isEvent) {
+    const current = item.currentParticipants || item.subCount || 0;
+    const capacity = item.capacity || 0;
+    participantInfo = `<span class="stat-item participant-info">👥 ${current}/${capacity}</span>`;
+  }
 
-  // 6. 날짜 표시 (행사는 시작일, 글은 작성일)
+  // 9. 날짜 표시 (행사는 시작일, 글은 작성일)
   let dateStr = '';
   if (isEvent && item.startsAt) {
     const startDate = new Date(item.startsAt);
@@ -256,7 +269,10 @@ function createPostCardHTML(item) {
       <div class="post-image">${imageHTML}</div>
       <div class="post-divider"></div>
       <div class="post-content">
-        <h3 class="post-title">${escapeHtml(item.title)}</h3>
+        <div class="post-header">
+          <h3 class="post-title">${escapeHtml(item.title)}</h3>
+          ${clubBadge}
+        </div>
         <p class="post-excerpt">${escapeHtml(item.content || '')}</p>
         <div class="post-meta">
           <div class="post-author">
@@ -270,8 +286,9 @@ function createPostCardHTML(item) {
               <span class="like-icon">${likeIcon}</span>
               <span class="like-count">${item.likeCount}</span>
             </button>
-            <span class="stat-item right">${subIcon} ${subCount}</span>
-            <span class="stat-item right">👁️ ${item.viewCount}</span>
+            <span class="stat-item">💬 ${commentCount}</span>
+            <span class="stat-item">👁️ ${item.viewCount}</span>
+            ${participantInfo}
           </div>
           <span class="post-date">${dateStr}</span>
         </div>

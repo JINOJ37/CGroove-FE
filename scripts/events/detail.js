@@ -109,7 +109,7 @@ async function loadEventData() {
 async function loadJoinStatus() {
   try {
     const response = await getMyJoinStatus(eventData.eventId);
-    isJoined = response.data.isJoined || false;
+    isJoined = response.data.status == 'CONFIRMED' || false;
     console.log('신청 상태:', isJoined ? '신청됨' : '미신청');
   } catch (error) {
     if (error.status === 404) {

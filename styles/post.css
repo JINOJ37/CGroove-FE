@@ -644,6 +644,55 @@
   font-size: 14px;
 }
 
+/* 포스트 헤더 (제목 + 동아리 뱃지) */
+.post-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.post-title {
+  margin: 0;
+  flex: 1;
+  min-width: 0; /* 긴 제목 줄바꿈 허용 */
+}
+
+/* 동아리 뱃지 */
+.club-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  font-size: 11px;
+  color: #666;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* 참여자 정보 (행사 전용) */
+.participant-info {
+  font-weight: 400;
+  color: #2196F3;
+}
+
+/* 통계 아이템 간격 조정 */
+.post-stats {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #666;
+}
+
 /* ========================================
    반응형
 ======================================== */

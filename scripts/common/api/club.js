@@ -51,6 +51,11 @@ export async function getMyClubs() {
   return await apiRequest('/clubs/my', { method: 'GET' });
 }
 
+// 내 가입한 클럽 목록 조회 (신청 중 포함)
+export async function getMyAllClubs() {
+  return await apiRequest('/clubs/my-all', { method: 'GET' });
+}
+
 // 클럽 가입 신청
 export async function applyToClub(clubId) {
   return await apiRequest(`/clubs/${clubId}/apply`, { method: 'POST' });

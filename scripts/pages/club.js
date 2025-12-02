@@ -1,7 +1,7 @@
 // ==================== Import ====================
 
 import { API_BASE_URL } from '../common/api/core.js';
-import { getClubs, getMyClubs } from '../common/api/club.js';
+import { getClubs, getMyAllClubs } from '../common/api/club.js';
 
 import { 
   navigateTo,
@@ -32,7 +32,7 @@ async function loadClubs() {
   try {
     const [allRes, myRes] = await Promise.allSettled([
       getClubs(),
-      getMyClubs()
+      getMyAllClubs()
     ]);
 
     let apiClubs = [];
