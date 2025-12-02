@@ -9,6 +9,16 @@ export async function getPosts() {
   return await apiRequest('/posts', { method: 'GET' });
 }
 
+// HOT 게시물 조회
+export async function getHotPosts() {
+  return await apiRequest('/posts/hot', { method: 'GET' });
+}
+
+// MyClub 게시물 조회
+export async function getMyClubPosts() {
+  return await apiRequest('/posts/my-club', { method: 'GET' });
+}
+
 // 게시물 상세 조회
 export async function getPost(postId) {
   return await apiRequest(`/posts/${postId}`, { method: 'GET' });

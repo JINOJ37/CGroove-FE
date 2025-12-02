@@ -9,6 +9,11 @@ export async function getEvents() {
   return await apiRequest('/events', { method: 'GET' });
 }
 
+// Upcoming 행사 조회
+export async function getUpcomingEvents() {
+  return await apiRequest('/events/upcoming', { method: 'GET' });
+}
+
 // 행사 상세 조회
 export async function getEvent(eventId) {
   return await apiRequest(`/events/${eventId}`, { method: 'GET' });

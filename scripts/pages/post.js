@@ -15,6 +15,7 @@ import { API_BASE_URL } from '../common/api/core.js';
 
 // ==================== 상수 ====================
 
+// 이미지가 없을 때 보여줄 기본 아이콘 (이모지)
 const DEFAULT_POST_IMAGE = '📄';
 const DEFAULT_EVENT_IMAGE = '🎉';
 const POSTS_PER_PAGE = 10;
@@ -37,33 +38,42 @@ async function loadInitialData() {
   showLoading();
 
   try {
+    // 1. 게시글과 행사 데이터를 병렬로 가져옴
     const [postsResp, eventsResp] = await Promise.all([
       getPosts(),
       getEvents()
     ]);
     
+    // 2. 게시글 데이터 가공
     const posts = (postsResp.data || []).map(p => ({
       ...p,
-      type: 'post',
-      id: p.postId || p.id,
-      displayId: p.postId || p.id
+      type: 'post', // 타입 명시
+      id: p.postId,
+      displayId: p.postId,
+      // 정렬 및 렌더링을 위한 공통 필드 매핑
+      createdAt: p.createdAt,
+      likeCount: p.likeCount || 0,
+      subCount: p.commentCount || 0, // 댓글 수
+      viewCount: p.viewCount || 0
     }));
     
+    // 3. 행사 데이터 가공
     const events = (eventsResp.data || []).map(e => ({
       ...e,
-      type: 'event',
-      id: e.eventId || e.id,
-      displayId: e.eventId || e.id,
-      postId: null,
-      eventId: e.eventId || e.id,
-      likes: e.likeCount || 0,
-      comments: e.participantCount || 0,
-      views: e.viewCount || 0
+      type: 'event', // 타입 명시
+      id: e.eventId,
+      displayId: e.eventId,
+      // 정렬 및 렌더링을 위한 공통 필드 매핑
+      createdAt: e.createdAt, // 생성일 기준 정렬을 위해 필요
+      likeCount: e.likeCount || 0,
+      subCount: e.currentParticipants || e.participantCount || 0, // 참여자 수
+      viewCount: e.viewCount || 0
     }));
     
-    allPosts = [...posts, ...events];
+    // 4. 통합 및 최신순 정렬 (기본값)
+    allPosts = [...posts, ...events].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     
-    console.log('데이터 로드:', posts.length, '개 포스트,', events.length, '개 행사');
+    console.log('데이터 로드 완료:', posts.length, '개 포스트,', events.length, '개 행사');
     
   } catch (err) {
     console.error('데이터 로드 실패:', err);
@@ -77,6 +87,8 @@ async function loadInitialData() {
   }
 
   hideLoading();
+  
+  // 초기 렌더링
   applyFiltersAndSortAndRender(true);
 }
 
@@ -84,34 +96,30 @@ async function loadMyClubs() {
   const wrapper = document.querySelector('.custom-select[data-target="clubFilter"]');
   const hiddenSelect = document.getElementById('clubFilter');
 
-  if (!hiddenSelect) {
-    const sel = document.createElement('select');
-    sel.id = 'clubFilter';
-    sel.style.display = 'none';
-    document.body.appendChild(sel);
+  if (!hiddenSelect) return;
+
+  // 초기화
+  hiddenSelect.innerHTML = `<option value="all">전체</option>`;
+  if (wrapper) {
+    const menu = wrapper.querySelector('.custom-select-menu');
+    if (menu) menu.innerHTML = `<div class="custom-select-option" data-value="all">전체</div>`;
   }
-
-  const hidden = document.getElementById('clubFilter');
-  const menu = wrapper ? wrapper.querySelector('.custom-select-menu') : null;
-
-  hidden.innerHTML = `<option value="all">전체</option>`;
-  if (menu) menu.innerHTML = `<div class="custom-select-option" data-value="all">전체</div>`;
 
   try {
     const resp = await getMyClubs();
     myClubs = resp.data || [];
 
-    console.log('동아리 목록 로드:', myClubs.length, '개');
-
     if (myClubs.length > 0) {
+      const menu = wrapper ? wrapper.querySelector('.custom-select-menu') : null;
+      
       myClubs.forEach((c) => {
         const id = c.clubId ?? c.id;
-        const name = c.clubName || c.name || c.title || `클럽 ${id}`;
+        const name = c.clubName || c.name || `클럽 ${id}`;
 
         const opt = document.createElement('option');
         opt.value = String(id);
         opt.textContent = name;
-        hidden.appendChild(opt);
+        hiddenSelect.appendChild(opt);
 
         if (menu) {
           const div = document.createElement('div');
@@ -128,8 +136,6 @@ async function loadMyClubs() {
 
   } catch (err) {
     console.error('동아리 로드 실패:', err);
-    initCustomSelects();
-    setupClubCustomSelectBehavior();
   }
 }
 
@@ -145,6 +151,7 @@ async function toggleLike(itemId, itemType) {
     
     console.log('좋아요 토글 성공');
     
+    // UI 즉시 업데이트
     const likeBtn = document.querySelector(`.like-btn[data-id="${itemId}"][data-type="${itemType}"]`);
     if (!likeBtn) return;
     
@@ -155,7 +162,7 @@ async function toggleLike(itemId, itemType) {
     icon.textContent = isLiked ? '❤️' : '🤍';
     
     const count = likeBtn.querySelector('.like-count');
-    count.textContent = likeCount;
+    count.textContent = formatNumber(likeCount);
     
     if (isLiked) {
       likeBtn.classList.add('liked');
@@ -174,53 +181,72 @@ async function toggleLike(itemId, itemType) {
   }
 }
 
+// 숫자 포맷팅 (1000 -> 1k 등 필요시 구현, 현재는 단순 문자열)
+function formatNumber(num) {
+  return num;
+}
+
 // ==================== UI 렌더링 ====================
 
 function createPostCardHTML(item) {
   const isEvent = item.type === 'event';
+  
+  // 1. 타입 뱃지 (행사일 경우만 표시)
   const typeBadge = isEvent
     ? `<div class="post-type-badge event">행사</div>`
     : '';
 
-  // 1. 대표 이미지 처리
+  // 2. 이미지 처리 (이미지 없으면 이모지 아이콘 표시)
   let imageHTML = '';
+  const fallbackIcon = isEvent ? DEFAULT_EVENT_IMAGE : DEFAULT_POST_IMAGE;
+  
   if (item.images && item.images.length > 0) {
     const imageUrl = getImageUrl(item.images[0]);
-    const fallbackIcon = isEvent ? DEFAULT_EVENT_IMAGE : DEFAULT_POST_IMAGE;
+    // 이미지가 깨질 경우 대비해 onerror 처리
     imageHTML = `<img src="${imageUrl}" alt="${escapeHtml(item.title)}" onerror="this.parentElement.innerHTML='<div class=\\'post-image-placeholder\\'>${fallbackIcon}</div>'">`;
   } else {
-    const defaultIcon = isEvent ? DEFAULT_EVENT_IMAGE : DEFAULT_POST_IMAGE;
-    imageHTML = `<div class="post-image-placeholder">${defaultIcon}</div>`;
+    // 이미지가 아예 없는 경우
+    imageHTML = `<div class="post-image-placeholder">${fallbackIcon}</div>`;
   }
 
+  // 3. 작성자/주최자 정보 처리
   let authorName = '익명';
   let profileImage = null;
 
   if (isEvent) {
-    authorName = item.hostNickname || '익명';
-    profileImage = item.hostProfileImage;
+    // 행사: hostName 필드 또는 host 객체 확인
+    authorName = item.hostName || item.host?.nickname || item.host?.username || '주최자';
+    profileImage = item.host?.profileImage;
   } else {
-    authorName = item.authorNickname || '익명';
-    profileImage = item.authorProfileImage;
+    // 게시글: authorName 필드 또는 author 객체 확인
+    authorName = item.authorName || item.author?.nickname || item.author?.username || '익명';
+    profileImage = item.author?.profileImage;
   }
 
-  // 프로필 이미지 HTML 생성
-  let authorAvatarHTML = '👤';
+  // 4. 프로필 이미지 HTML 생성
+  let authorAvatarHTML = '👤'; // 기본 아이콘
   if (profileImage) {
     const profileUrl = `${API_BASE_URL}${profileImage}`;
     authorAvatarHTML = `<img src="${profileUrl}" alt="${escapeHtml(authorName)}" class="author-avatar-img" onerror="this.outerHTML='👤'">`;
   }
-  // ==========================================
 
+  // 5. 좋아요 상태 및 통계
   const isLiked = item.isLiked || false;
   const likeClass = isLiked ? 'liked' : '';
   const likeIcon = isLiked ? '❤️' : '🤍';
-
-  const dateStr = formatRelativeTime(item.createdAt);
   
-  // Event일 경우 참여자 수 표시
-  const commentLabel = isEvent ? '참여' : '댓글';
-  const commentCount = isEvent ? (item.participantCount || 0) : (item.commentCount || item.comments || 0);
+  // 서브 통계 (댓글 or 참여자)
+  const subCount = item.subCount || 0; // loadInitialData에서 미리 매핑해둠
+  const subIcon = isEvent ? '👥' : '💬'; // 행사면 사람 아이콘, 글이면 말풍선
+
+  // 6. 날짜 표시 (행사는 시작일, 글은 작성일)
+  let dateStr = '';
+  if (isEvent && item.startsAt) {
+    const startDate = new Date(item.startsAt);
+    dateStr = `📅 ${startDate.getMonth()+1}/${startDate.getDate()}`;
+  } else {
+    dateStr = formatRelativeTime(item.createdAt);
+  }
 
   return `
     <div class="post-card" 
@@ -242,10 +268,10 @@ function createPostCardHTML(item) {
                     data-id="${item.displayId}" 
                     data-type="${item.type}">
               <span class="like-icon">${likeIcon}</span>
-              <span class="like-count">${item.likeCount || item.likes || 0}</span>
+              <span class="like-count">${item.likeCount}</span>
             </button>
-            <span class="stat-item right">${isEvent ? '👥' : '💬'} ${commentCount}</span>
-            <span class="stat-item right">👁️ ${item.viewCount || item.views || 0}</span>
+            <span class="stat-item right">${subIcon} ${subCount}</span>
+            <span class="stat-item right">👁️ ${item.viewCount}</span>
           </div>
           <span class="post-date">${dateStr}</span>
         </div>
@@ -288,7 +314,7 @@ function renderEndMessage() {
   endMessage.style.textAlign = 'center';
   endMessage.style.padding = '40px';
   endMessage.style.color = '#999';
-  endMessage.textContent = '모든 게시글을 불러왔습니다';
+  endMessage.textContent = '모든 목록을 불러왔습니다';
   container.appendChild(endMessage);
 }
 
@@ -318,31 +344,25 @@ function applyFiltersAndSortAndRender(replace = true) {
   
   let filtered = [...allPosts];
 
-  // ✅ 클럽 필터
+  // 1. 클럽 필터
   if (currentClubFilter && currentClubFilter !== 'all') {
     filtered = filtered.filter(p => String(p.clubId) === String(currentClubFilter));
   }
 
-  // ✅ 타입 필터
+  // 2. 타입 필터 (게시글/행사)
   if (currentTypeFilter && currentTypeFilter !== 'all') {
     filtered = filtered.filter(p => p.type === currentTypeFilter);
   }
 
-  // ✅ 정렬
+  // 3. 정렬 로직
   if (currentSort === 'latest') {
     filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } else if (currentSort === 'popular') {
-    filtered.sort((a, b) => {
-      const aLikes = a.likeCount || a.likes || 0;
-      const bLikes = b.likeCount || b.likes || 0;
-      return bLikes - aLikes;
-    });
+    // 좋아요 순
+    filtered.sort((a, b) => b.likeCount - a.likeCount);
   } else if (currentSort === 'views') {
-    filtered.sort((a, b) => {
-      const aViews = a.viewCount || a.views || 0;
-      const bViews = b.viewCount || b.views || 0;
-      return bViews - aViews;
-    });
+    // 조회수 순
+    filtered.sort((a, b) => b.viewCount - a.viewCount);
   }
 
   // 페이지네이션 초기화
@@ -374,7 +394,7 @@ function loadMorePosts() {
   setTimeout(() => {
     let source = [...allPosts];
 
-    // 필터 적용
+    // 필터 & 정렬 (위와 동일 로직 적용)
     if (currentClubFilter && currentClubFilter !== 'all') {
       source = source.filter(p => String(p.clubId) === String(currentClubFilter));
     }
@@ -382,21 +402,12 @@ function loadMorePosts() {
       source = source.filter(p => p.type === currentTypeFilter);
     }
 
-    // 정렬 적용
     if (currentSort === 'latest') {
       source.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     } else if (currentSort === 'popular') {
-      source.sort((a, b) => {
-        const aLikes = a.likeCount || a.likes || 0;
-        const bLikes = b.likeCount || b.likes || 0;
-        return bLikes - aLikes;
-      });
+      source.sort((a, b) => b.likeCount - a.likeCount);
     } else if (currentSort === 'views') {
-      source.sort((a, b) => {
-        const aViews = a.viewCount || a.views || 0;
-        const bViews = b.viewCount || b.views || 0;
-        return bViews - aViews;
-      });
+      source.sort((a, b) => b.viewCount - a.viewCount);
     }
 
     const next = source.slice(start, end);
@@ -413,7 +424,7 @@ function loadMorePosts() {
     currentPage++;
     hideLoading();
     isLoading = false;
-  }, 400);
+  }, 400); // 약간의 지연 효과
 }
 
 // ==================== 이벤트 핸들러 ====================
@@ -475,7 +486,7 @@ function setupCardClickEvents() {
   if (container.dataset.attached === 'true') return;
 
   container.addEventListener('click', function(e) {
-    // ✅ 좋아요 버튼 클릭
+    // 1. 좋아요 버튼 클릭 시
     const likeBtn = e.target.closest('.like-btn');
     if (likeBtn) {
       e.stopPropagation();
@@ -485,7 +496,7 @@ function setupCardClickEvents() {
       return;
     }
     
-    // ✅ 카드 클릭 (상세 페이지 이동)
+    // 2. 카드 전체 클릭 시 상세 이동
     const card = e.target.closest('.post-card');
     if (card) {
       const itemId = card.dataset.id;
@@ -519,21 +530,14 @@ function setupInfinityScroll() {
 
 function setupClubCustomSelectBehavior() {
   const hidden = document.getElementById('clubFilter');
-  if (!hidden) {
-    console.warn('clubFilter 요소를 찾을 수 없음');
-    return;
-  }
+  if (!hidden) return;
   
   hidden.removeEventListener('change', handleClubChange);
   hidden.addEventListener('change', handleClubChange);
-  
-  console.log('동아리 필터 이벤트 핸들러 등록 완료');
 }
 
 function handleClubChange(e) {
   const newValue = e.target.value || 'all';
-  console.log('동아리 필터 변경:', newValue);
-  
   currentClubFilter = newValue;
   applyFiltersAndSortAndRender();
 }

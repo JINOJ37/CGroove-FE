@@ -47,7 +47,7 @@ async function loadParticipants() {
 async function handleReject(participantId, nickname) {
   showModal(
     '참여 거절', // 제목 수정
-    `${nickname}님의 참여를 거절하시겠습니까?\n거절된 사용자는 다시 신청할 수 없습니다.`,
+    `${nickname}님의 참여를 거절하시겠습니까?`,
     async () => {
       try {
         showLoading();

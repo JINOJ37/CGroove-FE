@@ -37,51 +37,47 @@
   <!-- 메인 콘텐츠 영역 -->
   <main class="main-content">
     
-    <!-- 섹션 1: 내 클럽 최신 소식 -->
     <section class="content-section bg-gray">
       <div class="section-container">
         <div class="section-header">
-          <h3 class="section-title">Campus News</h3>
-          <a href="post_list.html?scope=myClubs" class="more-link">더보기 →</a>
+          <h3 class="section-title">Upcoming Event 🔥</h3>
+          <a href="post_list.html" class="more-link">더보기 →</a>
         </div>
         <div class="slider-wrapper">
-          <button class="slider-arrow left" data-target="myClubSlider" aria-label="이전">‹</button>
-          <div class="card-container" id="myClubSlider"></div>
-          <button class="slider-arrow right" data-target="myClubSlider" aria-label="다음">›</button>
+          <button class="slider-arrow left" data-target="allPostsSlider">‹</button>
+          <div class="card-container" id="allPostsSlider"></div>
+          <button class="slider-arrow right" data-target="allPostsSlider">›</button>
         </div>
       </div>
     </section>
 
-    <!-- 섹션 2: 핫 게시물 -->
     <section class="content-section bg-white">
       <div class="section-container">
         <div class="section-header">
-          <h3 class="section-title">Hot Groove</h3>
-          <a href="post_list.html?sort=hot" class="more-link">더보기 →</a>
+          <h3 class="section-title">Hot Groove 🏆</h3>
+          <a href="post_list.html" class="more-link">더보기 →</a>
         </div>
         <div class="slider-wrapper">
-          <button class="slider-arrow left" data-target="hotSlider" aria-label="이전">‹</button>
+          <button class="slider-arrow left" data-target="hotSlider">‹</button>
           <div class="card-container" id="hotSlider"></div>
-          <button class="slider-arrow right" data-target="hotSlider" aria-label="다음">›</button>
+          <button class="slider-arrow right" data-target="hotSlider">›</button>
         </div>
       </div>
     </section>
 
-    <!-- 섹션 3: 전체 게시글 -->
     <section class="content-section bg-gray">
       <div class="section-container">
         <div class="section-header">
-          <h3 class="section-title">Upcoming Event</h3>
-          <a href="post_list.html?scope=all" class="more-link">더보기 →</a>
+          <h3 class="section-title">My Club News 📢</h3>
+          <a href="post_list.html" class="more-link">더보기 →</a>
         </div>
         <div class="slider-wrapper">
-          <button class="slider-arrow left" data-target="allPostsSlider" aria-label="이전">‹</button>
-          <div class="card-container" id="allPostsSlider"></div>
-          <button class="slider-arrow right" data-target="allPostsSlider" aria-label="다음">›</button>
+          <button class="slider-arrow left" data-target="myClubSlider">‹</button>
+          <div class="card-container" id="myClubSlider"></div>
+          <button class="slider-arrow right" data-target="myClubSlider">›</button>
         </div>
       </div>
     </section>
-
   </main>
 
   <!-- TOP 버튼 (스크롤 시 표시) -->
