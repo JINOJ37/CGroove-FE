@@ -508,6 +508,110 @@
   font-weight: 600;
 }
 
+/* ==================== 이미지 갤러리 ==================== */
+
+.detail-image-container {
+  margin: 20px 0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* 단일 이미지 */
+.detail-image {
+  width: 100%;
+  max-height: 400px; /* 🔥 최대 높이 제한 */
+  object-fit: contain;
+  display: block;
+  background: #f9f9f9;
+}
+
+/* 갤러리 구조 */
+.image-gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* 메인 이미지 래퍼 */
+.main-image-wrapper {
+  position: relative;
+  background: #f9f9f9;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.main-image-wrapper .detail-image {
+  width: 100%;
+  max-height: 400px; /* 🔥 최대 높이 제한 */
+  object-fit: contain;
+  display: block;
+}
+
+/* 이미지 카운터 */
+.image-counter {
+  position: absolute;
+  bottom: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* 썸네일 컨테이너 */
+.image-thumbnails {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 4px 0;
+  scrollbar-width: thin;
+  scrollbar-color: #ddd transparent;
+}
+
+.image-thumbnails::-webkit-scrollbar {
+  height: 6px;
+}
+
+.image-thumbnails::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.image-thumbnails::-webkit-scrollbar-thumb {
+  background: #ddd;
+  border-radius: 3px;
+}
+
+/* 썸네일 */
+.image-thumbnail {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.image-thumbnail:hover {
+  border-color: #999;
+  transform: scale(1.05);
+}
+
+.image-thumbnail.active {
+  border-color: #333;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.image-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
 /* ========================================
    반응형
 ======================================== */
@@ -583,5 +687,19 @@
   
   .post-date {
     padding-left: 0;
+  }
+
+  .main-image-wrapper .detail-image {
+    max-height: 300px; /* 모바일에서 더 작게 */
+  }
+  
+  .image-thumbnail {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .image-counter {
+    font-size: 12px;
+    padding: 3px 8px;
   }
 }

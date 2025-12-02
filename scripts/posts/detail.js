@@ -187,19 +187,56 @@ function updatePostUI() {
 }
 
 function updatePostImage() {
-  const imageElement = document.querySelector('.detail-image');
+  const imageContainer = document.querySelector('.detail-image-container');
   
-  if (postData.images && postData.images.length > 0) {
-    imageElement.src = `${API_BASE_URL}${postData.images[0]}`;
-    imageElement.style.display = 'block';
-    
-    imageElement.onerror = function() {
-      console.warn('이미지 로드 실패:', this.src);
-      this.style.display = 'none';
-    };
-  } else {
-    imageElement.style.display = 'none';
+  if (!postData.images || postData.images.length === 0) {
+    imageContainer.style.display = 'none';
+    return;
   }
+  
+  imageContainer.style.display = 'block';
+  
+  // 이미지가 1개일 때
+  if (postData.images.length === 1) {
+    imageContainer.innerHTML = `
+      <img src="${API_BASE_URL}${postData.images[0]}" 
+           alt="게시글 이미지" 
+           class="detail-image"
+           onerror="this.parentElement.style.display='none'">
+    `;
+    return;
+  }
+  
+  // 이미지가 여러 개일 때 - 갤러리 구조
+  const thumbnailsHTML = postData.images.map((img, index) => `
+    <div class="image-thumbnail ${index === 0 ? 'active' : ''}" 
+         data-index="${index}">
+      <img src="${API_BASE_URL}${img}" 
+           alt="썸네일 ${index + 1}"
+           onerror="this.parentElement.style.display='none'">
+    </div>
+  `).join('');
+  
+  imageContainer.innerHTML = `
+    <div class="image-gallery">
+      <div class="main-image-wrapper">
+        <img src="${API_BASE_URL}${postData.images[0]}" 
+             alt="게시글 이미지" 
+             class="detail-image"
+             id="mainImage"
+             onerror="this.style.display='none'">
+        <div class="image-counter">
+          <span id="currentImageIndex">1</span> / ${postData.images.length}
+        </div>
+      </div>
+      <div class="image-thumbnails">
+        ${thumbnailsHTML}
+      </div>
+    </div>
+  `;
+  
+  // 썸네일 클릭 이벤트
+  setupThumbnailEvents();
 }
 
 function updatePostStats() {
@@ -485,6 +522,34 @@ function setupCommentActions(commentElement, commentId) {
       handleDeleteComment(commentId);
     });
   }
+}
+
+function setupThumbnailEvents() {
+  const thumbnails = document.querySelectorAll('.image-thumbnail');
+  const mainImage = document.getElementById('mainImage');
+  const counter = document.getElementById('currentImageIndex');
+  
+  thumbnails.forEach((thumbnail, index) => {
+    thumbnail.addEventListener('click', () => {
+      // 모든 썸네일 비활성화
+      thumbnails.forEach(t => t.classList.remove('active'));
+      
+      // 클릭한 썸네일 활성화
+      thumbnail.classList.add('active');
+      
+      // 메인 이미지 변경
+      mainImage.src = `${API_BASE_URL}${postData.images[index]}`;
+      
+      // 카운터 업데이트
+      if (counter) {
+        counter.textContent = index + 1;
+      }
+      
+      console.log('이미지 전환:', index + 1);
+    });
+  });
+  
+  console.log('이미지 갤러리 이벤트 등록 완료');
 }
 
 // ==================== 초기화 ====================

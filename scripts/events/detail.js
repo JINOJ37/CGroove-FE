@@ -21,7 +21,7 @@ const EVENT_TYPE_LABELS = {
   PERFORMANCE: '공연'
 };
 
-// Mock 댓글 데이터 (TODO: 백엔드 API 완성 시 제거)
+// Mock 댓글 데이터 (백엔드 API 미연동 시 사용)
 const MOCK_COMMENTS = [
   {
     id: 1,
@@ -82,6 +82,11 @@ async function loadEventData() {
     
     console.log('행사 로드 완료:', eventData.eventId);
     
+    // 댓글 수 데이터가 API에 없다면 Mock 데이터 길이로 대체
+    if (eventData.commentCount === undefined) {
+        eventData.commentCount = mockComments.length;
+    }
+    
     // 신청 상태 로드
     await loadJoinStatus();
     
@@ -109,7 +114,9 @@ async function loadEventData() {
 async function loadJoinStatus() {
   try {
     const response = await getMyJoinStatus(eventData.eventId);
-    isJoined = response.data.status == 'CONFIRMED' || false;
+    // status가 CONFIRMED(승인됨) 또는 PENDING(대기중)일 때 가입된 것으로 간주
+    // 백엔드 Enum에 따라 조건 수정 필요 (여기선 단순 예시)
+    isJoined = (response.data.status === 'CONFIRMED' || response.data.status === 'PENDING');
     console.log('신청 상태:', isJoined ? '신청됨' : '미신청');
   } catch (error) {
     if (error.status === 404) {
@@ -187,8 +194,7 @@ async function handleJoinToggle() {
     
     hideLoading();
     updateJoinButton();
-    updateEventInfo();
-    updateEventStats();
+    updateEventInfo(); // 인원수 갱신
     
   } catch (error) {
     hideLoading();
@@ -209,15 +215,16 @@ async function handleJoinToggle() {
 function updateEventUI() {
   console.log('행사 UI 업데이트');
   
+  // 텍스트 정보 업데이트
   document.querySelector('.detail-title').textContent = eventData.title;
   document.querySelector('.author-name').textContent = eventData.hostNickname || '익명';
   document.querySelector('.post-date').textContent = formatDate(eventData.createdAt);
   document.querySelector('.detail-text').textContent = eventData.content;
-
+  
+  // 작성자 프로필 이미지 처리
   const avatarEl = document.querySelector('.author-avatar');
   if (avatarEl) {
     const profilePath = eventData.hostProfileImage;
-
     if (profilePath) {
       avatarEl.innerHTML = `
         <img src="${API_BASE_URL}${profilePath}" 
@@ -235,15 +242,17 @@ function updateEventUI() {
   updateEventImage();
   updateEventStats();
   updateLikeButton();
-  updateJoinButton();
-  updateEventActions();
+  updateJoinButton(); // 버튼 상태 업데이트
 }
 
 function updateEventTypeBadge() {
   const badge = document.getElementById('eventTypeBadge');
   const eventType = eventData.eventType || eventData.type;
-  badge.textContent = EVENT_TYPE_LABELS[eventType] || eventType;
-  badge.className = `event-type-badge ${eventType.toLowerCase()}`;
+  
+  if (badge) {
+    badge.textContent = EVENT_TYPE_LABELS[eventType] || eventType;
+    badge.className = `event-type-badge ${eventType ? eventType.toLowerCase() : ''}`;
+  }
 }
 
 function updateEventInfo() {
@@ -280,25 +289,65 @@ function updateEventInfo() {
 }
 
 function updateEventImage() {
-  const imageElement = document.querySelector('.detail-image');
+  const imageContainer = document.querySelector('.detail-image-container');
   
-  if (eventData.images && eventData.images.length > 0) {
-    imageElement.src = `${API_BASE_URL}${eventData.images[0]}`;
-    imageElement.style.display = 'block';
-    
-    imageElement.onerror = function() {
-      console.warn('이미지 로드 실패:', this.src);
-      this.style.display = 'none';
-    };
-  } else {
-    imageElement.style.display = 'none';
+  if (!eventData.images || eventData.images.length === 0) {
+    imageContainer.style.display = 'none';
+    return;
   }
+  
+  imageContainer.style.display = 'block';
+  
+  // 이미지가 1개일 때
+  if (eventData.images.length === 1) {
+    imageContainer.innerHTML = `
+      <img src="${API_BASE_URL}${eventData.images[0]}" 
+           alt="행사 이미지" 
+           class="detail-image"
+           onerror="this.parentElement.style.display='none'">
+    `;
+    return;
+  }
+  
+  // 이미지가 여러 개일 때 - 갤러리 구조
+  const thumbnailsHTML = eventData.images.map((img, index) => `
+    <div class="image-thumbnail ${index === 0 ? 'active' : ''}" 
+         data-index="${index}">
+      <img src="${API_BASE_URL}${img}" 
+           alt="썸네일 ${index + 1}"
+           onerror="this.parentElement.style.display='none'">
+    </div>
+  `).join('');
+  
+  imageContainer.innerHTML = `
+    <div class="image-gallery">
+      <div class="main-image-wrapper">
+        <img src="${API_BASE_URL}${eventData.images[0]}" 
+             alt="행사 이미지" 
+             class="detail-image"
+             id="mainImage"
+             onerror="this.style.display='none'">
+        <div class="image-counter">
+          <span id="currentImageIndex">1</span> / ${eventData.images.length}
+        </div>
+      </div>
+      <div class="image-thumbnails">
+        ${thumbnailsHTML}
+      </div>
+    </div>
+  `;
+  
+  // 썸네일 클릭 이벤트
+  setupThumbnailEvents();
 }
 
 function updateEventStats() {
   document.getElementById('likeCount').textContent = formatNumber(eventData.likeCount || 0);
-  document.getElementById('viewCount').textContent = formatNumber((eventData.viewCount || 0) + 1);
-  document.getElementById('participantCount').textContent = formatNumber(eventData.currentParticipants || 0);
+  document.getElementById('viewCount').textContent = formatNumber((eventData.viewCount || 0));
+  
+  // 참여자 수 대신 댓글 수 표시
+  const commentCount = eventData.commentCount !== undefined ? eventData.commentCount : mockComments.length;
+  document.getElementById('commentCount').textContent = formatNumber(commentCount);
 }
 
 function updateLikeButton() {
@@ -311,55 +360,50 @@ function updateLikeButton() {
   }
 }
 
+// 상단 버튼 그룹 제어 (주최자 vs 참가자)
 function updateJoinButton() {
   const joinButton = document.getElementById('joinButton');
+  const ownerActions = document.getElementById('ownerActions');
+  const participantActions = document.getElementById('participantActions');
+  
   const currentParticipants = eventData.currentParticipants || 0;
   const capacity = eventData.capacity || 0;
   const isFull = currentParticipants >= capacity;
   const isPastEvent = new Date(eventData.endsAt) < new Date();
   
-  // 주최자는 신청 불가
+  // 주최자 여부 확인
   const isOrganizer = Number(eventData.hostId) === Number(currentUserId);
   
   if (isOrganizer) {
-    joinButton.textContent = '주최자입니다';
-    joinButton.disabled = true;
-    joinButton.className = 'btn btn-secondary btn-large';
-  } else if (isPastEvent) {
-    joinButton.textContent = '종료된 행사';
-    joinButton.disabled = true;
-    joinButton.className = 'btn btn-secondary btn-large';
-  } else if (isJoined) {
-    joinButton.textContent = '신청 취소';
-    joinButton.disabled = false;
-    joinButton.className = 'btn btn-danger btn-large';
-  } else if (isFull) {
-    joinButton.textContent = '마감';
-    joinButton.disabled = true;
-    joinButton.className = 'btn btn-secondary btn-large';
+    // 주최자: 수정/삭제/관리 버튼 표시
+    ownerActions.style.display = 'flex';
+    participantActions.style.display = 'none';
   } else {
-    joinButton.textContent = '신청하기';
-    joinButton.disabled = false;
-    joinButton.className = 'btn btn-primary btn-large';
-  }
-}
-
-function updateEventActions() {
-  const actionsDiv = document.querySelector('.detail-actions');
-  const editBtn = document.getElementById('editBtn');
-  const deleteBtn = document.getElementById('deleteBtn');
-  const manageBtn = document.getElementById('manageParticipantsBtn');
-  
-  const isOwner = Number(eventData.hostId) === Number(currentUserId);
-  
-  if (isOwner) {
-    editBtn.style.display = 'inline-block';
-    deleteBtn.style.display = 'inline-block';
-    manageBtn.style.display = 'inline-block';
-  } else {
-    editBtn.style.display = 'none';
-    deleteBtn.style.display = 'none';
-    manageBtn.style.display = 'none';
+    // 일반 사용자: 신청 버튼 표시
+    ownerActions.style.display = 'none';
+    participantActions.style.display = 'flex';
+    
+    // 버튼 초기화
+    joinButton.classList.remove('btn-secondary', 'btn-danger', 'btn-primary');
+    
+    // 버튼 상태 설정
+    if (isPastEvent) {
+      joinButton.textContent = '종료된 행사';
+      joinButton.disabled = true;
+      joinButton.classList.add('btn-secondary');
+    } else if (isJoined) {
+      joinButton.textContent = '신청 취소';
+      joinButton.disabled = false;
+      joinButton.classList.add('btn-danger');
+    } else if (isFull) {
+      joinButton.textContent = '마감';
+      joinButton.disabled = true;
+      joinButton.classList.add('btn-secondary');
+    } else {
+      joinButton.textContent = '신청하기';
+      joinButton.disabled = false;
+      joinButton.classList.add('btn-primary');
+    }
   }
 }
 
@@ -388,6 +432,7 @@ function createCommentElement(comment) {
   commentDiv.className = 'comment-item';
   commentDiv.dataset.commentId = comment.id;
   
+  // 댓글 작성자 확인
   const isOwnComment = Number(comment.hostId) === Number(currentUserId);
   
   commentDiv.innerHTML = `
@@ -444,6 +489,12 @@ function handleAddComment(content) {
   
   mockComments.push(newComment);
   
+  // 댓글 수 업데이트
+  const commentCountEl = document.getElementById('commentCount');
+  if (commentCountEl) {
+      commentCountEl.textContent = formatNumber(mockComments.length);
+  }
+  
   loadComments();
   showToast('댓글이 등록되었습니다', 1500);
 }
@@ -470,6 +521,12 @@ function handleDeleteComment(commentId) {
       const index = mockComments.findIndex(c => c.id === commentId);
       if (index !== -1) {
         mockComments.splice(index, 1);
+        
+        // 댓글 수 업데이트
+        const commentCountEl = document.getElementById('commentCount');
+        if (commentCountEl) {
+            commentCountEl.textContent = formatNumber(mockComments.length);
+        }
       }
       
       loadComments();
@@ -524,9 +581,11 @@ function setupLikeButton() {
 function setupJoinButton() {
   const joinButton = document.getElementById('joinButton');
   
-  joinButton.addEventListener('click', () => {
-    handleJoinToggle();
-  });
+  if (joinButton) {
+    joinButton.addEventListener('click', () => {
+      handleJoinToggle();
+    });
+  }
   
   console.log('신청 버튼 이벤트 등록 완료');
 }
@@ -536,19 +595,25 @@ function setupEventActions() {
   const deleteBtn = document.getElementById('deleteBtn');
   const manageBtn = document.getElementById('manageParticipantsBtn');
   
-  editBtn.addEventListener('click', () => {
-    console.log('행사 수정으로 이동');
-    navigateTo(`event_edit.html?id=${eventData.eventId}`);
-  });
+  if (editBtn) {
+    editBtn.addEventListener('click', () => {
+      console.log('행사 수정으로 이동');
+      navigateTo(`event_edit.html?id=${eventData.eventId}`);
+    });
+  }
   
-  deleteBtn.addEventListener('click', () => {
-    handleDeleteEvent();
-  });
+  if (deleteBtn) {
+    deleteBtn.addEventListener('click', () => {
+      handleDeleteEvent();
+    });
+  }
   
-  manageBtn.addEventListener('click', () => {
-    console.log('참여자 관리로 이동');
-    navigateTo(`event_participants.html?id=${eventData.eventId}`);
-  });
+  if (manageBtn) {
+    manageBtn.addEventListener('click', () => {
+      console.log('참여자 관리로 이동');
+      navigateTo(`event_participants.html?id=${eventData.eventId}`);
+    });
+  }
   
   console.log('행사 수정/삭제/관리 버튼 이벤트 등록 완료');
 }
@@ -619,6 +684,34 @@ function setupCommentActions(commentElement, commentId) {
   }
 }
 
+function setupThumbnailEvents() {
+  const thumbnails = document.querySelectorAll('.image-thumbnail');
+  const mainImage = document.getElementById('mainImage');
+  const counter = document.getElementById('currentImageIndex');
+  
+  thumbnails.forEach((thumbnail, index) => {
+    thumbnail.addEventListener('click', () => {
+      // 모든 썸네일 비활성화
+      thumbnails.forEach(t => t.classList.remove('active'));
+      
+      // 클릭한 썸네일 활성화
+      thumbnail.classList.add('active');
+      
+      // 메인 이미지 변경
+      mainImage.src = `${API_BASE_URL}${eventData.images[index]}`;
+      
+      // 카운터 업데이트
+      if (counter) {
+        counter.textContent = index + 1;
+      }
+      
+      console.log('이미지 전환:', index + 1);
+    });
+  });
+  
+  console.log('이미지 갤러리 이벤트 등록 완료');
+}
+
 // ==================== 초기화 ====================
 
 async function init() {
@@ -638,11 +731,13 @@ async function init() {
   console.log('행사 상세 페이지 로딩 완료');
 }
 
+// 뒤로가기로 돌아왔을 때 데이터 새로고침 (BFCache 대응)
 window.addEventListener('pageshow', async (event) => {
   const isBackNavigation = event.persisted || 
                            (performance.getEntriesByType("navigation")[0]?.type === 'back_forward');
 
   if (isBackNavigation) {
+    console.log('뒤로가기 진입 감지: 데이터 갱신');
     showLoading();
     await loadEventData();
   }

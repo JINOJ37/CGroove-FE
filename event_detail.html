@@ -16,7 +16,6 @@
   </div>
   
   <div class="page-container">
-    <!-- 헤더 -->
     <header class="header">
       <div class="header-container">
         <button class="header-back" id="backBtn">‹</button>
@@ -33,17 +32,21 @@
     </header>
     
     <div class="detail-container">
-      <!-- 행사 헤더 -->
       <div class="detail-header">
         <div class="detail-title-wrapper">
           <div class="title-with-badge">
             <h2 class="detail-title">제목 로딩 중...</h2>
             <span class="event-type-badge" id="eventTypeBadge"></span>
           </div>
-          <div class="detail-actions">
+          
+          <div class="detail-actions" id="ownerActions" style="display: none;">
             <button class="btn btn-secondary btn-small" id="editBtn">수정</button>
             <button class="btn btn-secondary btn-small" id="deleteBtn">삭제</button>
             <button class="btn btn-secondary btn-small" id="manageParticipantsBtn">참여자 관리</button>
+          </div>
+          
+          <div class="detail-actions" id="participantActions" style="display: none;">
+            <button class="btn btn-primary btn-small" id="joinButton">신청하기</button>
           </div>
         </div>
         
@@ -56,7 +59,6 @@
         </div>
       </div>
       
-      <!-- 행사 정보 -->
       <div class="event-info">
         <div class="info-row">
           <div class="info-label">📅 행사 일시</div>
@@ -74,10 +76,8 @@
         </div>
       </div>
       
-      <!-- 행사 내용 -->
       <div class="detail-content">
-        <img src="" alt="행사 이미지" class="detail-image" style="display: none;">
-        
+        <div class="detail-image-container"></div>
         <div class="detail-text">
           내용을 불러오는 중...
         </div>
@@ -85,31 +85,22 @@
         <div class="detail-stats">
           <div class="stat-item like-button inactive" id="likeButton">
             <div class="stat-value" id="likeCount">0</div>
-            <div class="stat-label">좋아요수</div>
+            <div class="stat-label">좋아요</div>
           </div>
           <div class="stat-item">
             <div class="stat-value" id="viewCount">0</div>
             <div class="stat-label">조회수</div>
           </div>
           <div class="stat-item">
-            <div class="stat-value" id="participantCount">0</div>
-            <div class="stat-label">참여자</div>
+            <div class="stat-value" id="commentCount">0</div>
+            <div class="stat-label">댓글</div>
           </div>
         </div>
       </div>
       
-      <!-- 신청 버튼 -->
-      <div class="event-join-section">
-        <button class="btn btn-primary btn-large" id="joinButton" disabled>
-          로딩 중...
-        </button>
-      </div>
-      
-      <!-- 댓글 섹션 -->
       <div class="comments-section">
         <h3 class="comments-title">댓글</h3>
         
-        <!-- 댓글 입력 -->
         <form class="comment-form" id="commentForm">
           <textarea 
             class="comment-input" 
