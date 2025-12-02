@@ -142,9 +142,12 @@
 /* 버튼 영역 */
 .club-form-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
+  gap: 8px;
+  flex-direction: column;
+}
+
+.club-form-actions .btn {
+  width: 100%;
 }
 
 /* 버튼 (기존 btn 클래스를 따른다고 가정) */
@@ -173,6 +176,38 @@
 
 .btn-secondary:hover {
   background: #E0E0E0;
+}
+
+/* 동아리 이미지 업로드 스타일 */
+.club-image-upload-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.club-image-preview {
+  width: 200px;
+  height: 200px;
+  border-radius: 12px;
+  border: 2px dashed #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f9f9f9;
+  overflow: hidden;
+}
+
+.club-image-preview .placeholder-text {
+  color: #999;
+  font-size: 14px;
+}
+
+.club-image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
 }
 
 /* 반응형 */

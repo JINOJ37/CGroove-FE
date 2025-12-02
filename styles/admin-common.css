@@ -1,7 +1,5 @@
 /* ========================================
    관리자/목록 화면 공통 (Admin Common)
-   - 동아리 신청/멤버 관리
-   - 행사 신청/참여자 관리
 ======================================== */
 
 .admin-main {
@@ -31,11 +29,7 @@
   color: #666;
 }
 
-/* ========================================
-   카드 스타일 (신청자, 멤버, 참여자 공통)
-======================================== */
-
-/* .participant-card 클래스 추가 (행사 참여자용) */
+/* 카드 스타일 */
 .application-card,
 .member-card,
 .participant-card {
@@ -55,10 +49,7 @@
   border-color: #1A1A1A;
 }
 
-/* ========================================
-   사용자 정보 영역 (프로필, 이름, 이메일 등)
-======================================== */
-
+/* 유저 정보 영역 */
 .user-info,
 .member-info,
 .participant-info {
@@ -107,153 +98,125 @@
   color: #999;
 }
 
-/* ========================================
-   역할/상태 뱃지 (Badge)
-======================================== */
-
+/* 뱃지 */
 .role-badge,
 .status-badge {
   display: inline-block;
   padding: 4px 10px;
   border-radius: 12px;
-  font-family: 'KIMM_Bold', sans-serif;
+  font-family: 'KoreaInstituteOfMachineryAndMaterials', sans-serif; /* 폰트 명시 */
   font-size: 12px;
   color: white;
   margin-left: 6px;
+  white-space: nowrap;
 }
 
-/* 동아리 역할 */
 .role-badge.leader { background: #1A1A1A; }
 .role-badge.manager { background: #666; }
 .role-badge.member { background: #999; }
-
-/* 행사 신청 상태 (예시) */
-.status-badge.approved { background: #4CAF50; } /* 승인됨 */
-.status-badge.pending { background: #FFB800; }  /* 대기중 */
+.status-badge.approved { background: #4CAF50; }
+.status-badge.pending { background: #FFB800; }
 
 /* ========================================
-   액션 버튼 (승인, 거절, 추방, 취소 등)
+   [핵심] 액션 버튼 & 셀렉트 박스 동기화
 ======================================== */
 
 .action-buttons {
   display: flex;
+  align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  height: 36px;
 }
 
+/* 1. 공통 리셋 (폰트 강제 적용) */
+.action-buttons .btn,
+.role-select {
+  box-sizing: border-box !important;
+  margin: 0 !important;
+  height: 36px !important;
+  
+  /* 폰트 직접 지정 (inherit 대신) */
+  font-family: 'KoreaInstituteOfMachineryAndMaterials', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  color: #333 !important;
+  letter-spacing: -0.02em;
+  
+  background-color: white;
+  border: 1px solid #E0E0E0;
+  border-radius: 4px;
+  vertical-align: middle;
+}
+
+/* 2. 버튼 전용 스타일 */
 .action-buttons .btn {
-  padding: 8px 16px;
-  font-size: 14px;
-  min-width: 70px;
+  padding: 0 16px;
+  min-width: 60px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 1; /* 버튼은 flex center로 정렬 */
 }
 
-/* 검정색 버튼 (승인 등 긍정적 액션) */
-.approve-btn {
-  background: #1A1A1A;
-  color: white;
-  border: 1px solid #1A1A1A;
+/* 3. 셀렉트 전용 스타일 */
+.role-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  
+  padding: 0 30px 0 12px; /* 오른쪽 여백 확보 */
+  min-width: 90px;
+  cursor: pointer;
+  line-height: 34px; /* border 제외한 높이로 수직 정렬 */
+  
+  /* 커스텀 화살표 */
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px;
 }
 
-.approve-btn:hover {
-  background: #000;
+/* 호버 효과 통일 */
+.action-buttons .btn:hover,
+.role-select:hover,
+.role-select:focus {
+  border-color: #1A1A1A !important;
+  outline: none;
 }
 
-/* 흰색 버튼 (거절, 추방 등 부정적/보조 액션) */
+/* 드롭다운 옵션 (윈도우/일부 브라우저용 시도) */
+.role-select option {
+  font-family: 'KoreaInstituteOfMachineryAndMaterials', sans-serif !important;
+  background-color: white;
+  color: #333;
+}
+
+/* 버튼 색상 */
+.approve-btn { background: #1A1A1A !important; color: white !important; border-color: #1A1A1A !important; }
+.approve-btn:hover { background: #000 !important; }
+
 .reject-btn,
 .kick-btn,
-.cancel-btn {
-  background: white;
-  border: 1px solid #E0E0E0;
-  color: #666;
-}
+.cancel-btn { background: white !important; border: 1px solid #E0E0E0 !important; color: #666 !important; }
+.reject-btn:hover, .kick-btn:hover, .cancel-btn:hover { border-color: #1A1A1A !important; color: #1A1A1A !important; }
 
-.reject-btn:hover,
-.kick-btn:hover,
-.cancel-btn:hover {
-  border-color: #1A1A1A;
-  color: #1A1A1A;
-}
+/* 빈 상태 & 로딩 */
+.empty-state { text-align: center; padding: 60px 20px; color: #999; }
+.empty-state-icon { font-size: 48px; margin-bottom: 16px; }
+.empty-state-text { font-weight: 700; font-size: 16px; color: #666; margin-bottom: 8px; }
+.loading-message { text-align: center; padding: 40px; color: #999; }
 
-/* ========================================
-   드롭다운 (Role Select)
-======================================== */
-
-.role-select {
-  padding: 8px 12px;
-  border: 1px solid #E0E0E0;
-  border-radius: 8px;
-  font-size: 14px;
-  cursor: pointer;
-  background: white;
-  transition: border-color 0.2s;
-}
-
-.role-select:hover {
-  border-color: #1A1A1A;
-}
-
-.role-select:focus {
-  outline: none;
-  border-color: #1A1A1A;
-}
-
-/* ========================================
-   빈 상태 (Empty State)
-======================================== */
-
-.empty-state {
-  text-align: center;
-  padding: 60px 20px;
-  color: #999;
-}
-
-.empty-state-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
-}
-
-.empty-state-text {
-  font-weight: 700;
-  font-size: 16px;
-  color: #666;
-  margin-bottom: 8px;
-}
-
-/* ========================================
-   반응형 (Mobile)
-======================================== */
-
+/* 모바일 */
 @media (max-width: 768px) {
-  .admin-main {
-    padding: 40px 20px;
+  .admin-main { padding: 40px 20px; }
+  .application-card, .member-card, .participant-card { flex-direction: column; align-items: flex-start; gap: 16px; padding: 16px; }
+  .user-info, .member-info, .participant-info { width: 100%; }
+  
+  .action-buttons { 
+    width: 100%; 
+    justify-content: flex-end; 
+    height: auto; 
   }
-
-  .admin-title {
-    font-size: 24px;
-  }
-
-  /* 카드 세로 배치 */
-  .application-card,
-  .member-card,
-  .participant-card {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-    padding: 16px;
-  }
-
-  .user-info,
-  .member-info,
-  .participant-info {
-    width: 100%;
-  }
-
-  .action-buttons {
-    width: 100%;
-    justify-content: flex-end;
-  }
-
-  .action-buttons .btn {
-    flex: 1;
-  }
+  .action-buttons .btn, .role-select { flex: 1; }
 }

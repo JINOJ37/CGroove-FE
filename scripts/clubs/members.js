@@ -3,9 +3,9 @@
 import { 
   getClub,
   getActiveMembers,
-  getPendingApplications, // 추가
-  approveApplication,     // 추가
-  rejectApplication,      // 추가
+  getPendingApplications,
+  approveApplication,
+  rejectApplication,
   kickMember,
   updateMemberRole
 } from '../common/api/club.js';
@@ -27,7 +27,7 @@ import { initHeader } from '../common/component/header.js';
 let currentClubId = null;
 let members = [];
 let applications = [];
-let myRole = null; // OWNER, LEADER, MANAGER, MEMBER
+let myRole = null; 
 
 // ==================== URL 파라미터 ====================
 
@@ -37,14 +37,10 @@ function getClubIdFromUrl() {
   return clubId ? Number(clubId) : null;
 }
 
-// ==================== API 호출 (데이터 로드) ====================
+// ==================== API 호출 ====================
 
 async function loadAllData() {
-  // 1. 클럽 정보 로드 (이름 표시용)
   await loadClubName();
-
-  // 2. 멤버 목록 & 신청 목록 병렬 로드
-  // (권한에 따라 신청 목록 API가 403이 날 수도 있으므로 try-catch 분리 가능하지만 일단 같이 시도)
   try {
     await Promise.all([
       loadMembers(),
@@ -76,7 +72,6 @@ async function loadMembers() {
     const response = await getActiveMembers(currentClubId);
     let memberList = response.data || [];
 
-    // isMe 필드 보정 (없을 경우 내 정보 조회해서 매칭)
     if (memberList.length > 0 && memberList[0].isMe === undefined) {
         try {
             const myInfo = await getMyInfo();
@@ -90,7 +85,6 @@ async function loadMembers() {
     members = memberList;
     if (countEl) countEl.textContent = members.length;
 
-    // 내 역할 찾기
     const me = members.find(m => m.isMe);
     if (me) myRole = me.role;
 
@@ -109,13 +103,11 @@ async function loadApplications() {
   const countEl = document.getElementById('appCount');
 
   try {
-    // 권한이 없으면(일반 멤버) 이 API에서 에러가 날 수 있음 -> catch에서 처리
     const response = await getPendingApplications(currentClubId);
     applications = response.data || [];
 
     if (countEl) countEl.textContent = applications.length;
 
-    // 신청자가 없으면 섹션 숨김 (선택사항: 없어도 '없음'이라고 보여줄지, 아예 숨길지)
     if (applications.length > 0) {
         section.style.display = 'block';
         divider.style.display = 'block';
@@ -126,7 +118,6 @@ async function loadApplications() {
     }
 
   } catch (error) {
-    // 403 Forbidden이면 일반 멤버라는 뜻이므로 조용히 숨김
     if (error.status === 403) {
         if(section) section.style.display = 'none';
         if(divider) divider.style.display = 'none';
@@ -185,26 +176,32 @@ function renderMembers(list) {
     const isManager = member.role === 'MANAGER';
     const isMember = member.role === 'MEMBER';
     
-    // 권한 로직: 리더는 매니저/멤버 관리 가능, 매니저는 멤버만 관리 가능 (단, 리더는 건드릴 수 없음)
-    // 내 자신은 건드릴 수 없음
     let canChangeRole = false;
     let canKick = false;
 
     if (!member.isMe) {
         if (myRole === 'LEADER') {
-            canChangeRole = true; // 리더는 다 가능
+            canChangeRole = true; 
             canKick = true;
         } else if (myRole === 'MANAGER') {
-            // 매니저는 일반 멤버만 관리 가능
-            if (isMember) {
-                canKick = true; 
-            }
+            if (isMember) canKick = true; 
         }
     }
 
     const roleText = isLeader ? '클럽장' : isManager ? '운영진' : '멤버';
     const roleClass = isLeader ? 'leader' : isManager ? 'manager' : 'member';
     const joinDate = new Date(member.createdAt).toLocaleDateString('ko-KR');
+
+    let roleActionHTML = '';
+    
+    if (canChangeRole) {
+      roleActionHTML = `
+        <select class="role-select" data-user-id="${member.userId}" data-current-role="${member.role}">
+          <option value="MEMBER" ${member.role === 'MEMBER' ? 'selected' : ''}>멤버</option>
+          <option value="MANAGER" ${member.role === 'MANAGER' ? 'selected' : ''}>운영진</option>
+        </select>
+      `;
+    }
 
     return `
       <div class="member-card" data-user-id="${member.userId}">
@@ -220,12 +217,7 @@ function renderMembers(list) {
           </div>
         </div>
         <div class="action-buttons">
-          ${canChangeRole ? `
-            <select class="role-select" data-user-id="${member.userId}" data-current-role="${member.role}">
-              <option value="MEMBER" ${isMember ? 'selected' : ''}>멤버</option>
-              <option value="MANAGER" ${isManager ? 'selected' : ''}>운영진</option>
-            </select>
-          ` : ''}
+          ${roleActionHTML}
           ${canKick ? `
             <button class="btn btn-outline kick-btn" data-user-id="${member.userId}">추방</button>
           ` : ''}
@@ -235,10 +227,9 @@ function renderMembers(list) {
   }).join('');
 }
 
-// ==================== 이벤트 핸들러 (통합) ====================
+// ==================== 이벤트 핸들러 ====================
 
 function setupEventHandlers() {
-  // 1. 가입 신청 (승인/거절)
   const appContainer = document.getElementById('applicationsList');
   if (appContainer) {
     appContainer.addEventListener('click', async (e) => {
@@ -248,9 +239,10 @@ function setupEventHandlers() {
     });
   }
 
-  // 2. 멤버 관리 (추방/역할변경)
   const memContainer = document.getElementById('membersList');
   if (memContainer) {
+    
+    // 추방 버튼 클릭
     memContainer.addEventListener('click', async (e) => {
       if (e.target.classList.contains('kick-btn')) {
         const userId = Number(e.target.dataset.userId);
@@ -258,11 +250,14 @@ function setupEventHandlers() {
       }
     });
 
+    // ✅ 변경 이벤트 (Native Select Change)
     memContainer.addEventListener('change', async (e) => {
       if (e.target.classList.contains('role-select')) {
         const userId = Number(e.target.dataset.userId);
         const newRole = e.target.value;
         const currentRole = e.target.dataset.currentRole;
+        
+        // 값이 실제로 변경되었을 때만 실행
         if (newRole !== currentRole) {
             await handleRoleChange(userId, newRole, e.target);
         }
@@ -270,7 +265,6 @@ function setupEventHandlers() {
     });
   }
 
-  // 3. 뒤로가기
   const backBtn = document.getElementById('backBtn');
   if (backBtn) {
     backBtn.onclick = () => smartBack(`club_detail.html?id=${currentClubId}`);
@@ -284,7 +278,6 @@ async function handleApprove(userId) {
     try {
       await approveApplication(currentClubId, userId);
       showToast('승인되었습니다');
-      // 데이터 새로고침 (신청 목록 줄고 -> 멤버 목록 늘어남)
       loadAllData(); 
     } catch (e) {
       showToast('오류가 발생했습니다', 2000, 'error');
@@ -297,7 +290,7 @@ async function handleReject(userId) {
     try {
       await rejectApplication(currentClubId, userId);
       showToast('거절되었습니다');
-      loadApplications(); // 신청 목록만 갱신
+      loadApplications(); 
     } catch (e) {
       showToast('오류가 발생했습니다', 2000, 'error');
     }
@@ -309,14 +302,17 @@ async function handleKick(userId) {
     try {
       await kickMember(currentClubId, userId);
       showToast('추방되었습니다');
-      loadMembers(); // 멤버 목록만 갱신
+      loadMembers(); 
     } catch (e) {
       showToast('오류가 발생했습니다', 2000, 'error');
     }
   });
 }
 
+// ✅ 역할 변경 로직 (Wrapper 처리 불필요)
 async function handleRoleChange(userId, newRole, selectEl) {
+  const roleText = newRole === 'MANAGER' ? '운영진' : '멤버';
+  
   showModal('역할 변경', `변경하시겠습니까?`, async () => {
     try {
       await updateMemberRole(currentClubId, userId, newRole);
@@ -324,10 +320,12 @@ async function handleRoleChange(userId, newRole, selectEl) {
       loadMembers(); 
     } catch (e) {
       showToast('오류가 발생했습니다', 2000, 'error');
-      selectEl.value = selectEl.dataset.currentRole; // 원복
+      // 실패 시 값 원복 (단순 value 변경만 하면 됨)
+      selectEl.value = selectEl.dataset.currentRole;
     }
   }, () => {
-    selectEl.value = selectEl.dataset.currentRole; // 취소 시 원복
+    // 취소 시 값 원복
+    selectEl.value = selectEl.dataset.currentRole;
   });
 }
 
@@ -353,3 +351,5 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+
+console.log('clubs/members.js 로드 완료');

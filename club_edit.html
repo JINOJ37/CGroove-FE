@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>동아리 정보 수정 - C.Groove</title>
+  <link rel="stylesheet" href="styles/common.css">
+  <link rel="stylesheet" href="styles/forms.css">
+  <link rel="stylesheet" href="styles/post.css">
+  <link rel="stylesheet" href="styles/club.css">
+  <link rel="stylesheet" href="styles/profile.css">
+</head>
+<body class="profile-page">
+  <div id="globalLoading">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <div class="loading-text">로딩 중...</div>
+    </div>
+  </div>
+  
+  <div class="page-container">
+    <header class="header">
+      <div class="header-container">
+        <button class="header-back" id="backBtn">‹</button>
+        <h1 class="logo bagel-fat-one-regular">C.Groove</h1>
+        <div class="header-spacer"></div>
+      </div>
+    </header>
+    
+    <div class="form-container">
+      <div class="form-wrapper">
+        <h2 class="form-title">동아리 정보 수정</h2>
+        
+        <div class="profile-image-wrapper">
+          <div class="profile-image-container" id="clubImageContainer">
+            <div class="profile-image" id="clubImagePreview">
+              <span class="profile-image-empty">+</span>
+            </div>
+            
+            <div class="profile-image-overlay">
+              <span class="overlay-text">변경</span>
+            </div>
+            
+            <div class="profile-image-delete-overlay" id="removeImageBtn">
+              <span class="delete-icon-text">삭제</span>
+            </div>
+          </div>
+          <input type="file" id="clubImageUpload" accept="image/*" style="display: none;">
+          <div class="helper-text" style="text-align: center; margin-top: 8px;">동아리 대표 이미지</div>
+        </div>
+        
+        <form id="clubEditForm" novalidate>
+          <div class="form-group">
+            <label class="form-label required">분류</label>
+            <div class="scope-options">
+              <label class="scope-option">
+                <input type="radio" name="clubType" value="CLUB" checked>
+                <span>중앙 동아리 (CLUB)</span>
+              </label>
+              <label class="scope-option">
+                <input type="radio" name="clubType" value="CREW">
+                <span>소모임/크루 (CREW)</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label required">동아리 이름</label>
+            <input type="text" class="form-input" id="clubNameInput" placeholder="예: Tisket-Tasket" maxlength="100" required>
+            <span class="helper-text"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label required">한 줄 소개</label>
+            <input type="text" class="form-input" id="introInput" placeholder="예: 락킹을 사랑하는 중앙대 댄스팀" maxlength="200">
+            <span class="helper-text"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label required">활동 장소</label>
+            <input type="text" class="form-input" id="locationInput" placeholder="예: 중앙대학교 310관 연습실 / 홍대 인근" maxlength="200">
+            <span class="helper-text"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label required">동아리 소개</label>
+            <textarea class="form-textarea" id="descriptionInput" rows="6" placeholder="동아리 분위기, 연습 빈도, 활동 내용 등을 자유롭게 적어주세요." maxlength="1000" required></textarea>
+            <span class="helper-text"></span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">태그</label>
+            <input type="text" class="form-input" id="tagsInput" placeholder="태그를 쉼표로 구분해서 입력해주세요 (예: 락킹, 중앙대, 공연)">
+            <span class="helper-text"></span>
+          </div>
+
+          <div class="club-form-actions">
+            <button type="submit" class="btn btn-primary" id="submitBtn">수정 완료</button>
+            <button type="button" class="btn btn-danger" id="deleteClubBtn">동아리 삭제</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <script type="module" src="scripts/clubs/edit.js"></script>
+</body>
+</html>

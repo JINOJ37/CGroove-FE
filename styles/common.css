@@ -50,15 +50,27 @@
   box-sizing: border-box;
 }
 
+/* [수정] body 폰트 설정 강화 */
 body {
-  font-family: 'KoreaInstituteOfMachineryAndMaterials', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'KoreaInstituteOfMachineryAndMaterials', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   background-color: #FAFAFA;
   color: #333;
   line-height: 1.6;
   font-weight: 300;
 }
 
-/* 일반 버튼만 상속 */
+/* [추가] 폼 요소 폰트 상속 강제 (가장 중요!) */
+button,
+input,
+select,
+textarea {
+  font-family: inherit !important;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
+/* 일반 버튼만 상속 (위에서 이미 강제했지만 유지) */
 .btn,
 .btn-primary,
 .btn-secondary,
@@ -66,19 +78,13 @@ body {
   font-family: inherit;
 }
 
-/* 화살표/아이콘 버튼은 제외 */
+/* 화살표/아이콘 버튼은 제외 (시스템 폰트 사용) */
 .header-back,
 .slider-arrow,
 .image-delete-btn,
-.btn-remove-image {
-  font-family: -apple-system, system-ui, sans-serif;
-}
-
-/* 인풋/텍스트에어리어만 */
-input:not([type="button"]),
-textarea,
-select {
-  font-family: inherit;
+.btn-remove-image,
+.empty-state-icon { /* 이모지 아이콘용 추가 */
+  font-family: -apple-system, system-ui, sans-serif !important;
 }
 
 .filter-tab,
