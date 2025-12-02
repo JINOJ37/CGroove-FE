@@ -6,8 +6,7 @@
   <title>멤버 관리 - C.Groove</title>
   <link rel="stylesheet" href="styles/common.css">
   <link rel="stylesheet" href="styles/admin-common.css">
-  <link rel="stylesheet" href="styles/club.css">
-</head>
+  </head>
 <body>
   <div id="globalLoading">
     <div class="loading-spinner">
@@ -17,16 +16,14 @@
   </div>
   
   <div class="page-container">
-    <!-- 헤더 -->
     <header class="header">
       <div class="header-container">
-        <button class="header-back">‹</button>
+        <button class="header-back" id="backBtn">‹</button>
         <h1 class="logo bagel-fat-one-regular">C.Groove</h1>
         <div class="header-spacer"></div>
       </div>
     </header>
     
-    <!-- 메인 컨텐츠 -->
     <main class="admin-main">
       <div class="admin-container">
         <div class="admin-header">
@@ -34,10 +31,20 @@
           <p class="admin-subtitle" id="clubName">동아리명 로딩 중...</p>
         </div>
         
-        <!-- 멤버 목록 -->
-        <div class="members-list" id="membersList">
-          <!-- JS로 동적 렌더링 -->
-        </div>
+        <section class="admin-section" id="applicationsSection" style="display: none;">
+          <h3 class="section-title">가입 신청 (<span id="appCount">0</span>)</h3>
+          <div class="applications-list" id="applicationsList">
+            </div>
+        </section>
+
+        <hr class="section-divider" id="sectionDivider" style="display: none; margin: 40px 0; border: 0; border-top: 1px solid #eee;">
+
+        <section class="admin-section">
+          <h3 class="section-title">멤버 목록 (<span id="memberCount">0</span>)</h3>
+          <div class="members-list" id="membersList">
+            </div>
+        </section>
+
       </div>
     </main>
   </div>
