@@ -8,8 +8,8 @@ import { showToast } from '../common/util/utils.js';
 import { formatRelativeTime } from '../common/util/format.js';
 import { escapeHtml } from '../common/util/format.js';
 import { getImageUrl } from '../common/util/image_util.js';
-import { getPosts } from '../common/api/post.js';
-import { togglePostLike } from '../common/api/post.js';
+import { getPosts, togglePostLike } from '../common/api/post.js';
+import { getEvents, toggleEventLike } from '../common/api/event.js'; // ✅ 추가
 import { getMyClubs } from '../common/api/club.js';
 import { API_BASE_URL } from '../common/api/core.js';
 
@@ -24,7 +24,7 @@ const POSTS_PER_PAGE = 10;
 let currentPage = 1;
 let isLoading = false;
 let hasMorePosts = true;
-let allPosts = [];
+let allPosts = []; // ✅ posts + events 통합 배열
 let displayedPosts = [];
 let myClubs = [];
 let currentClubFilter = 'all';
@@ -33,15 +33,46 @@ let currentSort = 'latest';
 
 // ==================== API 호출 ====================
 
+// ✅ Posts + Events 병렬 로드
 async function loadInitialData() {
   showLoading();
 
   try {
-    const postsResp = await getPosts();
-    allPosts = postsResp.data || [];
-    console.log('게시글 로드:', allPosts.length, '개');
+    // 병렬 호출
+    const [postsResp, eventsResp] = await Promise.all([
+      getPosts(),
+      getEvents()
+    ]);
+    
+    // Posts 데이터 가공
+    const posts = (postsResp.data || []).map(p => ({
+      ...p,
+      type: 'post', // ✅ 타입 명시
+      id: p.postId || p.id,
+      displayId: p.postId || p.id
+    }));
+    
+    // Events 데이터 가공
+    const events = (eventsResp.data || []).map(e => ({
+      ...e,
+      type: 'event', // ✅ 타입 명시
+      id: e.eventId || e.id,
+      displayId: e.eventId || e.id,
+      // 통일된 필드명 매핑
+      postId: null, // post는 없음
+      eventId: e.eventId || e.id,
+      likes: e.likeCount || 0,
+      comments: e.participantCount || 0, // 참여자 수를 댓글처럼 표시
+      views: e.viewCount || 0
+    }));
+    
+    // ✅ 통합 배열
+    allPosts = [...posts, ...events];
+    
+    console.log('데이터 로드:', posts.length, '개 포스트,', events.length, '개 행사');
+    
   } catch (err) {
-    console.error('게시글 로드 실패:', err);
+    console.error('데이터 로드 실패:', err);
     allPosts = [];
   }
 
@@ -108,13 +139,20 @@ async function loadMyClubs() {
   }
 }
 
-async function toggleLike(postId) {
+// ✅ 좋아요 토글 (Post/Event 구분)
+async function toggleLike(itemId, itemType) {
   try {
-    const response = await togglePostLike(postId);
+    let response;
+    
+    if (itemType === 'event') {
+      response = await toggleEventLike(itemId); // ✅ Event 좋아요 API
+    } else {
+      response = await togglePostLike(itemId); // Post 좋아요 API
+    }
     
     console.log('좋아요 토글 성공');
     
-    const likeBtn = document.querySelector(`.like-btn[data-post-id="${postId}"]`);
+    const likeBtn = document.querySelector(`.like-btn[data-id="${itemId}"][data-type="${itemType}"]`);
     if (!likeBtn) return;
     
     const isLiked = response.data.isLiked;
@@ -145,56 +183,64 @@ async function toggleLike(postId) {
 
 // ==================== UI 렌더링 ====================
 
-function createPostCardHTML(post) {
-  const isEvent = post.eventId || post.type === 'event';
+function createPostCardHTML(item) {
+  const isEvent = item.type === 'event';
   const typeBadge = isEvent
     ? `<div class="post-type-badge event">행사</div>`
     : '';
 
   let imageHTML = '';
-  if (post.images && post.images.length > 0) {
-    const imageUrl = getImageUrl(post.images[0]);
+  if (item.images && item.images.length > 0) {
+    const imageUrl = getImageUrl(item.images[0]);
     const fallbackIcon = isEvent ? DEFAULT_EVENT_IMAGE : DEFAULT_POST_IMAGE;
-    imageHTML = `<img src="${imageUrl}" alt="${escapeHtml(post.title)}" onerror="this.parentElement.innerHTML='<div class=\\'post-image-placeholder\\'>${fallbackIcon}</div>'">`;
+    imageHTML = `<img src="${imageUrl}" alt="${escapeHtml(item.title)}" onerror="this.parentElement.innerHTML='<div class=\\'post-image-placeholder\\'>${fallbackIcon}</div>'">`;
   } else {
     const defaultIcon = isEvent ? DEFAULT_EVENT_IMAGE : DEFAULT_POST_IMAGE;
     imageHTML = `<div class="post-image-placeholder">${defaultIcon}</div>`;
   }
 
-  const authorName = post.author?.username || post.authorName || '익명';
+  const authorName = item.author?.username || item.authorName || '익명';
   let authorAvatarHTML = '👤';
   
-  if (post.author?.profileImage) {
-    const profileUrl = `${API_BASE_URL}${post.author.profileImage}`;
+  if (item.author?.profileImage) {
+    const profileUrl = `${API_BASE_URL}${item.author.profileImage}`;
     authorAvatarHTML = `<img src="${profileUrl}" alt="${escapeHtml(authorName)}" class="author-avatar-img" onerror="this.outerHTML='👤'">`;
   }
 
-  const isLiked = post.isLiked || false;
+  const isLiked = item.isLiked || false;
   const likeClass = isLiked ? 'liked' : '';
   const likeIcon = isLiked ? '❤️' : '🤍';
 
-  const dateStr = formatRelativeTime(post.createdAt);
+  const dateStr = formatRelativeTime(item.createdAt);
+  
+  // ✅ Event일 경우 참여자 수 표시
+  const commentLabel = isEvent ? '참여' : '댓글';
+  const commentCount = isEvent ? (item.participantCount || 0) : (item.commentCount || item.comments || 0);
 
   return `
-    <div class="post-card" data-id="${post.postId || post.id}" data-event-id="${post.eventId || ''}">
+    <div class="post-card" 
+         data-id="${item.displayId}" 
+         data-type="${item.type}">
       ${typeBadge}
       <div class="post-image">${imageHTML}</div>
       <div class="post-divider"></div>
       <div class="post-content">
-        <h3 class="post-title">${escapeHtml(post.title)}</h3>
-        <p class="post-excerpt">${escapeHtml(post.content || '')}</p>
+        <h3 class="post-title">${escapeHtml(item.title)}</h3>
+        <p class="post-excerpt">${escapeHtml(item.content || '')}</p>
         <div class="post-meta">
           <div class="post-author">
             <span class="author-avatar">${authorAvatarHTML}</span>
             <span>${escapeHtml(authorName)}</span>
           </div>
           <div class="post-stats">
-            <button class="stat-item like-btn ${likeClass}" data-post-id="${post.postId || post.id}">
+            <button class="stat-item like-btn ${likeClass}" 
+                    data-id="${item.displayId}" 
+                    data-type="${item.type}">
               <span class="like-icon">${likeIcon}</span>
-              <span class="like-count">${post.likeCount || post.likes || 0}</span>
+              <span class="like-count">${item.likeCount || item.likes || 0}</span>
             </button>
-            <span class="stat-item right">💬 ${post.commentCount || post.comments || 0}</span>
-            <span class="stat-item right">👁️ ${post.viewCount || post.views || 0}</span>
+            <span class="stat-item right">${isEvent ? '👥' : '💬'} ${commentCount}</span>
+            <span class="stat-item right">👁️ ${item.viewCount || item.views || 0}</span>
           </div>
           <span class="post-date">${dateStr}</span>
         </div>
@@ -267,27 +313,31 @@ function applyFiltersAndSortAndRender(replace = true) {
   
   let filtered = [...allPosts];
 
-  // 클럽 필터
+  // ✅ 클럽 필터
   if (currentClubFilter && currentClubFilter !== 'all') {
     filtered = filtered.filter(p => String(p.clubId) === String(currentClubFilter));
   }
 
-  // 타입 필터
+  // ✅ 타입 필터
   if (currentTypeFilter && currentTypeFilter !== 'all') {
-    if (currentTypeFilter === 'event') {
-      filtered = filtered.filter(p => p.type === 'event');
-    } else if (currentTypeFilter === 'post') {
-      filtered = filtered.filter(p => p.type !== 'event');
-    }
+    filtered = filtered.filter(p => p.type === currentTypeFilter);
   }
 
-  // 정렬
+  // ✅ 정렬
   if (currentSort === 'latest') {
     filtered.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   } else if (currentSort === 'popular') {
-    filtered.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+    filtered.sort((a, b) => {
+      const aLikes = a.likeCount || a.likes || 0;
+      const bLikes = b.likeCount || b.likes || 0;
+      return bLikes - aLikes;
+    });
   } else if (currentSort === 'views') {
-    filtered.sort((a, b) => (b.views || 0) - (a.views || 0));
+    filtered.sort((a, b) => {
+      const aViews = a.viewCount || a.views || 0;
+      const bViews = b.viewCount || b.views || 0;
+      return bViews - aViews;
+    });
   }
 
   // 페이지네이션 초기화
@@ -324,20 +374,24 @@ function loadMorePosts() {
       source = source.filter(p => String(p.clubId) === String(currentClubFilter));
     }
     if (currentTypeFilter && currentTypeFilter !== 'all') {
-      if (currentTypeFilter === 'event') {
-        source = source.filter(p => p.type === 'event');
-      } else {
-        source = source.filter(p => p.type !== 'event');
-      }
+      source = source.filter(p => p.type === currentTypeFilter);
     }
 
     // 정렬 적용
     if (currentSort === 'latest') {
       source.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     } else if (currentSort === 'popular') {
-      source.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+      source.sort((a, b) => {
+        const aLikes = a.likeCount || a.likes || 0;
+        const bLikes = b.likeCount || b.likes || 0;
+        return bLikes - aLikes;
+      });
     } else if (currentSort === 'views') {
-      source.sort((a, b) => (b.views || 0) - (a.views || 0));
+      source.sort((a, b) => {
+        const aViews = a.viewCount || a.views || 0;
+        const bViews = b.viewCount || b.views || 0;
+        return bViews - aViews;
+      });
     }
 
     const next = source.slice(start, end);
@@ -416,25 +470,26 @@ function setupCardClickEvents() {
   if (container.dataset.attached === 'true') return;
 
   container.addEventListener('click', function(e) {
-    // 좋아요 버튼 클릭
+    // ✅ 좋아요 버튼 클릭
     const likeBtn = e.target.closest('.like-btn');
     if (likeBtn) {
       e.stopPropagation();
-      const postId = likeBtn.dataset.postId;
-      toggleLike(postId);
+      const itemId = likeBtn.dataset.id;
+      const itemType = likeBtn.dataset.type;
+      toggleLike(itemId, itemType);
       return;
     }
     
-    // 카드 클릭 (상세 페이지 이동)
+    // ✅ 카드 클릭 (상세 페이지 이동)
     const card = e.target.closest('.post-card');
     if (card) {
-      const postId = card.dataset.id;
-      const eventId = card.dataset.eventId;
+      const itemId = card.dataset.id;
+      const itemType = card.dataset.type;
       
-      if (eventId) {
-        navigateTo(`event_detail.html?id=${eventId}`);
+      if (itemType === 'event') {
+        navigateTo(`event_detail.html?id=${itemId}`);
       } else {
-        navigateTo(`post_detail.html?id=${postId}`);
+        navigateTo(`post_detail.html?id=${itemId}`);
       }
     }
   });

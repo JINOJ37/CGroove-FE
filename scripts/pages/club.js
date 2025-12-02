@@ -308,4 +308,4 @@ if (document.readyState === 'loading') {
   initClubsPage();
 }
 
-console.log('club/list.js 로드 완료');
+console.log('pages/club.js 로드 완료');
