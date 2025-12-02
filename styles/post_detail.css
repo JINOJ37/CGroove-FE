@@ -444,6 +444,70 @@
   display: block;
 }
 
+/* event-specific styles */
+.title-with-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.event-type-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.event-type-badge.workshop { background: #e3f2fd; color: #1976d2; }
+.event-type-badge.battle { background: #fce4ec; color: #c2185b; }
+.event-type-badge.jam { background: #fff3e0; color: #f57c00; }
+.event-type-badge.performance { background: #f3e5f5; color: #7b1fa2; }
+
+.event-info {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #666;
+}
+
+.info-value {
+  color: #333;
+}
+
+.location-link {
+  margin-left: 8px;
+  text-decoration: none;
+}
+
+.event-join-section {
+  margin: 32px 0;
+  text-align: center;
+}
+
+.btn-large {
+  width: 100%;
+  max-width: 400px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+}
+
 /* ========================================
    반응형
 ======================================== */

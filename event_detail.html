@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>행사 상세 - C.Groove</title>
+  <link rel="stylesheet" href="styles/common.css">
+  <link rel="stylesheet" href="styles/post_detail.css">
+</head>
+<body>
+  <div id="globalLoading">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <div class="loading-text">로딩 중...</div>
+    </div>
+  </div>
+  
+  <div class="page-container">
+    <!-- 헤더 -->
+    <header class="header">
+      <div class="header-container">
+        <button class="header-back" id="backBtn">‹</button>
+        <h1 class="logo bagel-fat-one-regular">C.Groove</h1>
+        <div class="header-profile" id="profileMenu">
+          <span class="profile-avatar"></span>
+          <div class="dropdown-menu" id="dropdownMenu">
+            <div class="dropdown-item" data-nav="profile_edit.html">회원정보수정</div>
+            <div class="dropdown-item" data-nav="password_edit.html">비밀번호수정</div>
+            <div class="dropdown-item" data-action="logout">로그아웃</div>
+          </div>
+        </div>
+      </div>
+    </header>
+    
+    <div class="detail-container">
+      <!-- 행사 헤더 -->
+      <div class="detail-header">
+        <div class="detail-title-wrapper">
+          <div class="title-with-badge">
+            <h2 class="detail-title">제목 로딩 중...</h2>
+            <span class="event-type-badge" id="eventTypeBadge"></span>
+          </div>
+          <div class="detail-actions">
+            <button class="btn btn-secondary btn-small" id="editBtn">수정</button>
+            <button class="btn btn-secondary btn-small" id="deleteBtn">삭제</button>
+            <button class="btn btn-secondary btn-small" id="manageParticipantsBtn">참여자 관리</button>
+          </div>
+        </div>
+        
+        <div class="detail-meta">
+          <div class="post-author">
+            <span class="author-avatar">👤</span>
+            <span class="author-name">작성자 로딩 중...</span>
+          </div>
+          <span class="post-date">날짜 로딩 중...</span>
+        </div>
+      </div>
+      
+      <!-- 행사 정보 -->
+      <div class="event-info">
+        <div class="info-row">
+          <div class="info-label">📅 행사 일시</div>
+          <div class="info-value" id="eventDateTime">-</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">📍 장소</div>
+          <div class="info-value" id="eventLocation">-</div>
+        </div>
+        <div class="info-row">
+          <div class="info-label">👥 모집 인원</div>
+          <div class="info-value">
+            <span id="currentParticipants">0</span> / <span id="maxCapacity">0</span>명
+          </div>
+        </div>
+      </div>
+      
+      <!-- 행사 내용 -->
+      <div class="detail-content">
+        <img src="" alt="행사 이미지" class="detail-image" style="display: none;">
+        
+        <div class="detail-text">
+          내용을 불러오는 중...
+        </div>
+        
+        <div class="detail-stats">
+          <div class="stat-item like-button inactive" id="likeButton">
+            <div class="stat-value" id="likeCount">0</div>
+            <div class="stat-label">좋아요수</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="viewCount">0</div>
+            <div class="stat-label">조회수</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-value" id="participantCount">0</div>
+            <div class="stat-label">참여자</div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 신청 버튼 -->
+      <div class="event-join-section">
+        <button class="btn btn-primary btn-large" id="joinButton" disabled>
+          로딩 중...
+        </button>
+      </div>
+      
+      <!-- 댓글 섹션 -->
+      <div class="comments-section">
+        <h3 class="comments-title">댓글</h3>
+        
+        <!-- 댓글 입력 -->
+        <form class="comment-form" id="commentForm">
+          <textarea 
+            class="comment-input" 
+            id="commentInput"
+            placeholder="댓글을 남겨주세요!"
+          ></textarea>
+          <button type="submit" class="btn btn-primary comment-submit" id="commentSubmit" disabled>
+            댓글 등록
+          </button>
+        </form>
+        <div class="comments-list">
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script type="module" src="scripts/events/detail.js"></script>
+</body>
+</html>

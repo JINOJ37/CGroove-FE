@@ -189,6 +189,7 @@ function createPostCardHTML(item) {
     ? `<div class="post-type-badge event">행사</div>`
     : '';
 
+  // 1. 대표 이미지 처리
   let imageHTML = '';
   if (item.images && item.images.length > 0) {
     const imageUrl = getImageUrl(item.images[0]);
@@ -199,13 +200,24 @@ function createPostCardHTML(item) {
     imageHTML = `<div class="post-image-placeholder">${defaultIcon}</div>`;
   }
 
-  const authorName = item.author?.username || item.authorName || '익명';
+  let authorName = '익명';
+  let profileImage = null;
+
+  if (isEvent) {
+    authorName = item.hostName || item.host?.nickname || item.host?.username || '익명';
+    profileImage = item.host?.profileImage;
+  } else {
+    authorName = item.authorName || item.author?.nickname || item.author?.username || '익명';
+    profileImage = item.author?.profileImage;
+  }
+
+  // 프로필 이미지 HTML 생성
   let authorAvatarHTML = '👤';
-  
-  if (item.author?.profileImage) {
-    const profileUrl = `${API_BASE_URL}${item.author.profileImage}`;
+  if (profileImage) {
+    const profileUrl = `${API_BASE_URL}${profileImage}`;
     authorAvatarHTML = `<img src="${profileUrl}" alt="${escapeHtml(authorName)}" class="author-avatar-img" onerror="this.outerHTML='👤'">`;
   }
+  // ==========================================
 
   const isLiked = item.isLiked || false;
   const likeClass = isLiked ? 'liked' : '';
@@ -213,7 +225,7 @@ function createPostCardHTML(item) {
 
   const dateStr = formatRelativeTime(item.createdAt);
   
-  // ✅ Event일 경우 참여자 수 표시
+  // Event일 경우 참여자 수 표시
   const commentLabel = isEvent ? '참여' : '댓글';
   const commentCount = isEvent ? (item.participantCount || 0) : (item.commentCount || item.comments || 0);
 
