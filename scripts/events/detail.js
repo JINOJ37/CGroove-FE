@@ -1,15 +1,11 @@
 // ==================== Import ====================
 
 import { initHeader } from '../common/component/header.js';
-import { showLoading, hideLoading } from '../common/util/utils.js';
-import { showToast } from '../common/util/utils.js';
-import { navigateTo, smartBack } from '../common/util/utils.js';
-import { showModal } from '../common/util/utils.js';
-import { formatDate } from '../common/util/format.js';
-import { formatNumber } from '../common/util/format.js';
-import { escapeHtml } from '../common/util/format.js';
+import { showLoading, hideLoading, showToast, navigateTo, smartBack, showModal } from '../common/util/utils.js';
+import { formatDate, formatNumber, escapeHtml } from '../common/util/format.js';
 import { getEvent, deleteEvent, toggleEventLike, applyEvent, cancelEventJoin, getMyJoinStatus } from '../common/api/event.js';
 import { getMyInfo } from '../common/api/user.js';
+import { createComment, getComments, updateComment, deleteComment } from '../common/api/comment.js'; // ✅ 댓글 API 추가
 import { API_BASE_URL } from '../common/api/core.js';
 
 // ==================== 상수 ====================
@@ -21,24 +17,6 @@ const EVENT_TYPE_LABELS = {
   PERFORMANCE: '공연'
 };
 
-// Mock 댓글 데이터 (백엔드 API 미연동 시 사용)
-const MOCK_COMMENTS = [
-  {
-    id: 1,
-    content: '기대되는 행사네요! 꼭 참여하고 싶습니다 🔥',
-    host: '김철수',
-    hostId: 999,
-    createdAt: '2025-11-17T10:30:00Z'
-  },
-  {
-    id: 2,
-    content: '언제 신청 시작하나요?',
-    host: '이영희',
-    hostId: 998,
-    createdAt: '2025-11-17T11:00:00Z'
-  }
-];
-
 // ==================== 상태 관리 ====================
 
 let eventData = null;
@@ -46,8 +24,6 @@ let currentUserId = null;
 let isJoined = false;
 let isEditingComment = false;
 let editingCommentId = null;
-let mockComments = [...MOCK_COMMENTS];
-let nextCommentId = 3;
 
 // ==================== API 호출 ====================
 
@@ -82,18 +58,13 @@ async function loadEventData() {
     
     console.log('행사 로드 완료:', eventData.eventId);
     
-    // 댓글 수 데이터가 API에 없다면 Mock 데이터 길이로 대체
-    if (eventData.commentCount === undefined) {
-        eventData.commentCount = mockComments.length;
-    }
-    
     // 신청 상태 로드
     await loadJoinStatus();
     
     hideLoading();
     
     updateEventUI();
-    loadComments();
+    loadComments(); // ✅ 실제 댓글 로드 호출
     
   } catch (error) {
     console.error('행사 로드 실패:', error);
@@ -115,10 +86,10 @@ async function loadJoinStatus() {
   try {
     const response = await getMyJoinStatus(eventData.eventId);
     // status가 CONFIRMED(승인됨) 또는 PENDING(대기중)일 때 가입된 것으로 간주
-    // 백엔드 Enum에 따라 조건 수정 필요 (여기선 단순 예시)
     isJoined = (response.data.status === 'CONFIRMED' || response.data.status === 'PENDING');
     console.log('신청 상태:', isJoined ? '신청됨' : '미신청');
   } catch (error) {
+    // 404는 신청 내역이 없는 것이므로 에러 아님
     if (error.status === 404) {
       isJoined = false;
     } else {
@@ -161,8 +132,6 @@ async function toggleLike() {
     updateLikeButton();
     updateEventStats();
     
-    console.log('좋아요 상태:', eventData.isLiked ? '활성' : '비활성');
-    
   } catch (error) {
     console.error('좋아요 실패:', error);
     
@@ -203,7 +172,7 @@ async function handleJoinToggle() {
     if (error.status === 401) {
       showToast('로그인이 필요합니다', 2000, 'error');
     } else if (error.status === 400) {
-      showToast(error.message || '신청 처리 중 오류가 발생했습니다', 2000, 'error');
+      showToast(error.data?.detail || '신청 처리 중 오류가 발생했습니다', 2000, 'error');
     } else {
       showToast('신청 처리 중 오류가 발생했습니다', 2000, 'error');
     }
@@ -284,8 +253,8 @@ function updateEventInfo() {
   }
   
   // 모집 인원
-  document.getElementById('currentParticipants').textContent = eventData.currentParticipants || 0;
-  document.getElementById('maxCapacity').textContent = eventData.capacity || 0;
+  document.getElementById('currentParticipants').textContent = formatNumber(eventData.currentParticipants || 0);
+  document.getElementById('maxCapacity').textContent = formatNumber(eventData.capacity || 0);
 }
 
 function updateEventImage() {
@@ -337,22 +306,22 @@ function updateEventImage() {
     </div>
   `;
   
-  // 썸네일 클릭 이벤트
   setupThumbnailEvents();
 }
 
 function updateEventStats() {
   document.getElementById('likeCount').textContent = formatNumber(eventData.likeCount || 0);
-  document.getElementById('viewCount').textContent = formatNumber((eventData.viewCount || 0));
+  document.getElementById('viewCount').textContent = formatNumber((eventData.viewCount || 0) + 1);
   
-  // 참여자 수 대신 댓글 수 표시
-  const commentCount = eventData.commentCount !== undefined ? eventData.commentCount : mockComments.length;
-  document.getElementById('commentCount').textContent = formatNumber(commentCount);
+  // 댓글 수는 loadComments()에서 업데이트되므로 여기서는 eventData에 값이 있을 때만 표시
+  const commentCountEl = document.getElementById('commentCount');
+  if (eventData.commentCount !== undefined) {
+      commentCountEl.textContent = formatNumber(eventData.commentCount);
+  }
 }
 
 function updateLikeButton() {
   const likeButton = document.getElementById('likeButton');
-  
   if (eventData.isLiked) {
     likeButton.className = 'stat-item like-button active';
   } else {
@@ -371,7 +340,7 @@ function updateJoinButton() {
   const isFull = currentParticipants >= capacity;
   const isPastEvent = new Date(eventData.endsAt) < new Date();
   
-  // 주최자 여부 확인
+  // 주최자 여부 확인 (Number 변환으로 안전하게 비교)
   const isOrganizer = Number(eventData.hostId) === Number(currentUserId);
   
   if (isOrganizer) {
@@ -407,41 +376,64 @@ function updateJoinButton() {
   }
 }
 
-function loadComments() {
-  console.log('댓글 로드:', mockComments.length, '개');
-  
-  const commentsList = document.querySelector('.comments-list');
-  commentsList.innerHTML = '';
-  
-  if (mockComments.length === 0) {
-    commentsList.innerHTML = `
-      <div class="empty-comments">
-        <p>첫 번째 댓글을 작성해보세요!</p>
-      </div>
-    `;
-  } else {
-    mockComments.forEach(comment => {
+// ==================== 댓글 기능 (실제 API) ====================
+
+async function loadComments() {
+  try {
+    // ✅ [변경] eventId로 댓글 조회
+    const response = await getComments({ eventId: eventData.eventId });
+    const comments = response.data;
+    
+    console.log('댓글 로드 완료:', comments.length, '개');
+    
+    // UI 업데이트
+    const commentsList = document.querySelector('.comments-list');
+    commentsList.innerHTML = '';
+    
+    // 댓글 수 업데이트
+    document.getElementById('commentCount').textContent = formatNumber(comments.length);
+    
+    if (!comments || comments.length === 0) {
+      return;
+    } 
+    
+    comments.forEach(comment => {
       const commentElement = createCommentElement(comment);
       commentsList.appendChild(commentElement);
     });
+    
+  } catch (error) {
+    console.error('댓글 로드 실패:', error);
   }
 }
 
 function createCommentElement(comment) {
   const commentDiv = document.createElement('div');
   commentDiv.className = 'comment-item';
-  commentDiv.dataset.commentId = comment.id;
+  commentDiv.dataset.commentId = comment.commentId;
   
-  // 댓글 작성자 확인
-  const isOwnComment = Number(comment.hostId) === Number(currentUserId);
+  // DTO의 isMyComment 필드 활용
+  const isOwnComment = comment.isMyComment;
   
+  // ✅ [변경] 수정됨 표시 로직
+  const isEdited = comment.updatedAt > comment.createdAt;
+  const displayDate = formatDate(isEdited ? comment.updatedAt : comment.createdAt);
+  const editLabel = isEdited ? ' <span style="font-size: 0.85em; color: #999; font-weight: normal;">(수정됨)</span>' : '';
+  
+  // 프로필 이미지 처리
+  let profileHtml = '<span class="author-avatar">👤</span>';
+  if (comment.profileImage) {
+      profileHtml = `<span class="author-avatar"><img src="${API_BASE_URL}${comment.profileImage}" style="width:100%; height:100%; border-radius:50%; object-fit:cover;"></span>`;
+  }
+  
+  // ✅ [변경] DTO 필드명 (nickname 등) 사용
   commentDiv.innerHTML = `
     <div class="comment-header">
       <div class="comment-author-wrapper">
-        <span class="author-avatar">👤</span>
+        ${profileHtml}
         <div>
-          <div class="author-name">${escapeHtml(comment.host || '익명')}</div>
-          <span class="post-date">${formatDate(comment.createdAt)}</span>
+          <div class="author-name">${escapeHtml(comment.nickname || '익명')}</div>
+          <span class="post-date">${displayDate}${editLabel}</span>
         </div>
       </div>
       ${isOwnComment ? `
@@ -455,7 +447,7 @@ function createCommentElement(comment) {
   `;
   
   if (isOwnComment) {
-    setupCommentActions(commentDiv, comment.id);
+    setupCommentActions(commentDiv, comment.commentId);
   }
   
   return commentDiv;
@@ -474,63 +466,65 @@ function resetCommentForm() {
   editingCommentId = null;
 }
 
-// ==================== 댓글 처리 (Mock) ====================
+// ==================== 댓글 이벤트 핸들러 ====================
 
-function handleAddComment(content) {
-  console.log('댓글 추가:', content);
-  
-  const newComment = {
-    id: nextCommentId++,
-    content: content,
-    host: '나',
-    hostId: currentUserId,
-    createdAt: new Date().toISOString()
-  };
-  
-  mockComments.push(newComment);
-  
-  // 댓글 수 업데이트
-  const commentCountEl = document.getElementById('commentCount');
-  if (commentCountEl) {
-      commentCountEl.textContent = formatNumber(mockComments.length);
+async function handleAddComment(content) {
+  if (!currentUserId) {
+    showToast('로그인이 필요합니다', 1500);
+    return;
   }
-  
-  loadComments();
-  showToast('댓글이 등록되었습니다', 1500);
+
+  try {
+    showLoading();
+    // ✅ [변경] eventId 사용
+    await createComment({
+      content: content,
+      eventId: eventData.eventId
+    });
+    
+    await loadComments();
+    hideLoading();
+    showToast('댓글이 등록되었습니다', 1500);
+    
+  } catch (error) {
+    hideLoading();
+    console.error('댓글 작성 실패:', error);
+    showToast('댓글 작성에 실패했습니다', 1500);
+  }
 }
 
-function handleUpdateComment(commentId, newContent) {
-  console.log('댓글 수정:', commentId);
-  
-  const comment = mockComments.find(c => c.id === commentId);
-  if (comment) {
-    comment.content = newContent;
+async function handleUpdateComment(commentId, newContent) {
+  try {
+    showLoading();
+    await updateComment(commentId, newContent);
+    await loadComments();
+    hideLoading();
+    showToast('댓글이 수정되었습니다', 1500);
+    
+  } catch (error) {
+    hideLoading();
+    console.error('댓글 수정 실패:', error);
+    showToast('댓글 수정에 실패했습니다', 1500);
   }
-  
-  loadComments();
-  showToast('댓글이 수정되었습니다', 1500);
 }
 
 function handleDeleteComment(commentId) {
   showModal(
     '댓글을 삭제하시겠습니까?',
     '삭제한 내용은 복구할 수 없습니다.',
-    function() {
-      console.log('댓글 삭제 확인');
-      
-      const index = mockComments.findIndex(c => c.id === commentId);
-      if (index !== -1) {
-        mockComments.splice(index, 1);
+    async function() {
+      try {
+        showLoading();
+        await deleteComment(commentId);
+        await loadComments();
+        hideLoading();
+        showToast('댓글이 삭제되었습니다', 1500);
         
-        // 댓글 수 업데이트
-        const commentCountEl = document.getElementById('commentCount');
-        if (commentCountEl) {
-            commentCountEl.textContent = formatNumber(mockComments.length);
-        }
+      } catch (error) {
+        hideLoading();
+        console.error('댓글 삭제 실패:', error);
+        showToast('댓글 삭제에 실패했습니다', 1500);
       }
-      
-      loadComments();
-      showToast('댓글이 삭제되었습니다', 1500);
     },
     function() {
       console.log('댓글 삭제 취소');
@@ -557,7 +551,7 @@ function startEditComment(commentElement, commentId) {
   commentInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
-// ==================== 이벤트 핸들러 ====================
+// ==================== 이벤트 핸들러 (UI) ====================
 
 function setupBackButton() {
   const backBtn = document.getElementById('backBtn');
@@ -570,24 +564,18 @@ function setupBackButton() {
 
 function setupLikeButton() {
   const likeButton = document.getElementById('likeButton');
-  
   likeButton.addEventListener('click', () => {
     toggleLike();
   });
-  
-  console.log('좋아요 버튼 이벤트 등록 완료');
 }
 
 function setupJoinButton() {
   const joinButton = document.getElementById('joinButton');
-  
   if (joinButton) {
     joinButton.addEventListener('click', () => {
       handleJoinToggle();
     });
   }
-  
-  console.log('신청 버튼 이벤트 등록 완료');
 }
 
 function setupEventActions() {
@@ -597,7 +585,6 @@ function setupEventActions() {
   
   if (editBtn) {
     editBtn.addEventListener('click', () => {
-      console.log('행사 수정으로 이동');
       navigateTo(`event_edit.html?id=${eventData.eventId}`);
     });
   }
@@ -610,12 +597,9 @@ function setupEventActions() {
   
   if (manageBtn) {
     manageBtn.addEventListener('click', () => {
-      console.log('참여자 관리로 이동');
       navigateTo(`event_participants.html?id=${eventData.eventId}`);
     });
   }
-  
-  console.log('행사 수정/삭제/관리 버튼 이벤트 등록 완료');
 }
 
 function handleDeleteEvent() {
@@ -623,7 +607,6 @@ function handleDeleteEvent() {
     '행사를 삭제하시겠습니까?',
     '삭제한 내용은 복구할 수 없습니다.',
     function() {
-      console.log('행사 삭제 확인');
       deleteEventData();
     },
     function() {
@@ -639,7 +622,6 @@ function setupCommentInput() {
   
   commentInput.addEventListener('input', function() {
     const hasContent = this.value.trim() !== '';
-    
     if (hasContent) {
       commentSubmit.disabled = false;
       commentSubmit.classList.add('active');
@@ -651,7 +633,6 @@ function setupCommentInput() {
   
   commentForm.addEventListener('submit', function(e) {
     e.preventDefault();
-    
     const content = commentInput.value.trim();
     if (!content) return;
     
@@ -660,11 +641,8 @@ function setupCommentInput() {
     } else {
       handleAddComment(content);
     }
-    
     resetCommentForm();
   });
-  
-  console.log('댓글 입력 이벤트 등록 완료');
 }
 
 function setupCommentActions(commentElement, commentId) {
@@ -691,25 +669,14 @@ function setupThumbnailEvents() {
   
   thumbnails.forEach((thumbnail, index) => {
     thumbnail.addEventListener('click', () => {
-      // 모든 썸네일 비활성화
       thumbnails.forEach(t => t.classList.remove('active'));
-      
-      // 클릭한 썸네일 활성화
       thumbnail.classList.add('active');
-      
-      // 메인 이미지 변경
       mainImage.src = `${API_BASE_URL}${eventData.images[index]}`;
-      
-      // 카운터 업데이트
       if (counter) {
         counter.textContent = index + 1;
       }
-      
-      console.log('이미지 전환:', index + 1);
     });
   });
-  
-  console.log('이미지 갤러리 이벤트 등록 완료');
 }
 
 // ==================== 초기화 ====================
@@ -718,7 +685,6 @@ async function init() {
   console.log('행사 상세 페이지 초기화');
   
   await initHeader();
-  
   await loadCurrentUser();
   await loadEventData();
   
@@ -731,13 +697,12 @@ async function init() {
   console.log('행사 상세 페이지 로딩 완료');
 }
 
-// 뒤로가기로 돌아왔을 때 데이터 새로고침 (BFCache 대응)
+// 뒤로가기로 돌아왔을 때 데이터 새로고침
 window.addEventListener('pageshow', async (event) => {
   const isBackNavigation = event.persisted || 
                            (performance.getEntriesByType("navigation")[0]?.type === 'back_forward');
 
   if (isBackNavigation) {
-    console.log('뒤로가기 진입 감지: 데이터 갱신');
     showLoading();
     await loadEventData();
   }

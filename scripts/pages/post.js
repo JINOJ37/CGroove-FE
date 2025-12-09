@@ -53,7 +53,7 @@ async function loadInitialData() {
       // 정렬 및 렌더링을 위한 공통 필드 매핑
       createdAt: p.createdAt,
       likeCount: p.likeCount || 0,
-      subCount: p.commentCount || 0, // 댓글 수
+      commentCount: p.commentCount || 0, // 댓글 수
       viewCount: p.viewCount || 0
     }));
     
@@ -66,6 +66,7 @@ async function loadInitialData() {
       // 정렬 및 렌더링을 위한 공통 필드 매핑
       createdAt: e.createdAt, // 생성일 기준 정렬을 위해 필요
       likeCount: e.likeCount || 0,
+      commentCount: e.commentCount || 0, 
       subCount: e.currentParticipants || e.participantCount || 0, // 참여자 수
       viewCount: e.viewCount || 0
     }));
@@ -242,7 +243,7 @@ function createPostCardHTML(item) {
   const likeIcon = isLiked ? '❤️' : '🤍';
   
   // 7. 댓글/참여자 통계 (통일: 항상 💬 사용)
-  const commentCount = isEvent ? (item.commentCount || 0) : (item.subCount || 0);
+  const commentCount = item.commentCount || 0;
   
   // 8. 행사 참여 현황 (행사일 때만)
   let participantInfo = '';
