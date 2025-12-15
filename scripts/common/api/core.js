@@ -1,7 +1,9 @@
 // ==================== API 핵심 기능 (Core) ====================
 
 // API 기본 URL
-export const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8080/';
+export const API_BASE_URL = window.location.hostname === 'localhost'
+  ? 'http://localhost:8080'
+  : '/api';
 
 // ========== 커스텀 API 에러 클래스 ==========
 
