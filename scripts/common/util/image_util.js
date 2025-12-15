@@ -5,10 +5,10 @@ import { API_BASE_URL } from '../api/core.js';
 // ========== 이미지 URL 처리 ==========
 
 const DEFAULT_IMAGES = {
-  profile: '/assets/images/default-profile.png',
-  club: '/assets/images/default-profile.png',
-  post: '/assets/images/default-profile.png',
-  event: '/assets/images/default-profile.png'
+  profile: './assets/images/default-profile.png',
+  club: './assets/images/default-profile.png',
+  post: './assets/images/default-profile.png',
+  event: './assets/images/default-profile.png'
 };
 
 // 이미지 경로를 절대 URL로 변환
