@@ -24,5 +24,17 @@ export default defineConfig({
       // index.html 뿐만 아니라 login.html 등 모든 파일을 포함시킴!
       input: getHtmlFiles()
     }
-  }
+  },
+
+  server: {
+      proxy: {
+        // 프론트에서 '/api'로 시작하는 요청을 보내면 -> 스프링(8080)으로 토스해줍니다.
+        '/api': {
+          target: 'http://localhost:8080',
+          changeOrigin: true,
+          secure: false,
+          rewrite: (path) => path.replace(/^\/api/, '')
+        }
+      }
+    }
 })

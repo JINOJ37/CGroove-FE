@@ -245,19 +245,24 @@ async function handleSubmit(e) {
     return;
   }
 
-  // ✅ [수정] FormData 구성 (백엔드 @RequestParam 방식 - clubName 오류 해결)
   const formData = new FormData();
-  
-  formData.append('clubName', clubName);
-  formData.append('intro', intro);
-  formData.append('description', description);
-  formData.append('locationName', locationName);
-  formData.append('clubType', clubType);
-  
-  const tags = parseTags(tagsStr);
-  tags.forEach(tag => formData.append('tags', tag));
 
-  // 새 이미지가 있을 때만 보냄 (삭제는 이미 즉시 처리됨)
+  const tags = parseTags(tagsStr);
+
+  // JSON 데이터를 Blob으로 변환하여 "request" 파트로 추가
+  const requestData = {
+    clubName: clubName,
+    intro: intro,
+    description: description,
+    locationName: locationName,
+    clubType: clubType,
+    tags: tags.length > 0 ? tags : null
+  };
+  formData.append('request', new Blob([JSON.stringify(requestData)], {
+    type: 'application/json'
+  }));
+
+  // 새 이미지가 있을 때만 "clubImage" 파트로 추가
   if (newImageFile) {
     formData.append('clubImage', newImageFile);
   }

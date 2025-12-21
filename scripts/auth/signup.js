@@ -157,20 +157,28 @@ function setupSignupBtnEvents() {
 
 // ==================== 회원가입 처리 ====================
 
-async function handleSignup(signupData) {  
+async function handleSignup(signupData) {
   try {
     const formData = new FormData();
-    formData.append('email', signupData.email);
-    formData.append('password', signupData.password);
-    formData.append('nickname', signupData.nickname);
-    
+
+    // JSON 데이터를 Blob으로 변환하여 "request" 파트로 추가
+    const requestData = {
+      email: signupData.email,
+      password: signupData.password,
+      nickname: signupData.nickname
+    };
+    formData.append('request', new Blob([JSON.stringify(requestData)], {
+      type: 'application/json'
+    }));
+
+    // 이미지 파일은 "profileImage" 파트로 추가
     if (signupData.profileImage) {
       formData.append('profileImage', signupData.profileImage);
       console.log('프로필 이미지 포함:', signupData.profileImage.name);
     } else {
       console.log('프로필 이미지 없음 (서버에서 null 처리)');
     }
-    
+
     const response = await signup(formData);
     
     console.log('회원가입 성공!', response);

@@ -277,26 +277,31 @@ function getExistingImagePaths() {
 
 function createUpdateFormData(title, content) {
   const formData = new FormData();
-  formData.append('title', title);
-  formData.append('content', content);
 
   const imagesChanged = checkImageChanges();
+  const keepImagePaths = imagesChanged ? getExistingImagePaths() : [];
+
+  // JSON 데이터를 Blob으로 변환하여 "request" 파트로 추가
+  const requestData = {
+    title: title,
+    content: content,
+    tags: null,  // tags 기능이 구현되면 여기에 추가
+    keepImages: keepImagePaths.length > 0 ? keepImagePaths : []
+  };
+  formData.append('request', new Blob([JSON.stringify(requestData)], {
+    type: 'application/json'
+  }));
 
   if (imagesChanged) {
-    const keepImagePaths = getExistingImagePaths();
-
     if (keepImagePaths.length > 0) {
-      keepImagePaths.forEach(path => {
-        formData.append('keepImages', path);
-      });
       console.log('유지할 이미지:', keepImagePaths.length, '개');
       console.log('경로:', keepImagePaths);
     } else {
-      formData.append('keepImages', '');
       console.log('모든 기존 이미지 삭제');
     }
   }
 
+  // 새 이미지 파일들은 "images" 파트로 추가
   const validNewImages = getValidImageFiles();
   if (validNewImages.length > 0) {
     validNewImages.forEach(file => {

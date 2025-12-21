@@ -2,13 +2,18 @@
 
 import { API_BASE_URL } from '../api/core.js';
 
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+
 // ========== 이미지 URL 처리 ==========
 
+const DEFAULT_IMAGES_ROOT = isLocal ? '/public' : '';
+
 const DEFAULT_IMAGES = {
-  profile: './assets/images/default-profile.png',
-  club: './assets/images/default-profile.png',
-  post: './assets/images/default-profile.png',
-  event: './assets/images/default-profile.png'
+  profile: `${DEFAULT_IMAGES_ROOT}/assets/images/default-profile.png`,
+  club: `${DEFAULT_IMAGES_ROOT}/assets/images/default-profile.png`,
+  post: `${DEFAULT_IMAGES_ROOT}/assets/images/default-profile.png`,
+  event: `${DEFAULT_IMAGES_ROOT}/assets/images/default-profile.png`
 };
 
 // 이미지 경로를 절대 URL로 변환
@@ -20,8 +25,10 @@ export function getImageUrl(imagePath, type = 'profile') {
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
     return imagePath;
   }
+
+  const path = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
   
-  return `${API_BASE_URL}${imagePath}`;
+  return `${API_BASE_URL}/${path}`;
 }
 
 // img 엘리먼트에 이미지 설정 (에러 처리 포함)

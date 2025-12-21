@@ -178,16 +178,21 @@ function setupClubSubmitEvent() {
 
     try {
       const formData = new FormData();
-      formData.append('clubName', clubName);
-      formData.append('intro', intro);
-      formData.append('locationName', locationName);
-      formData.append('description', description);
-      formData.append('clubType', clubType);
 
-      if (tags.length > 0) {
-        tags.forEach(tag => formData.append('tags', tag));
-      }
+      // JSON 데이터를 Blob으로 변환하여 "request" 파트로 추가
+      const requestData = {
+        clubName: clubName,
+        intro: intro,
+        locationName: locationName,
+        description: description,
+        clubType: clubType,
+        tags: tags.length > 0 ? tags : null
+      };
+      formData.append('request', new Blob([JSON.stringify(requestData)], {
+        type: 'application/json'
+      }));
 
+      // 클럽 이미지는 "clubImage" 파트로 추가
       if (clubImageFile) {
         formData.append('clubImage', clubImageFile);
         console.log('클럽 이미지 포함:', clubImageFile.name);

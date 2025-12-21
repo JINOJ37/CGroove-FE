@@ -219,44 +219,37 @@ function getValidImageFiles() {
 
 function createEventFormData() {
   const formData = new FormData();
-  
+
   const scope = document.querySelector('input[name="scope"]:checked').value;
-  formData.append('scope', scope);
-  
-  if (scope === 'CLUB') {
-    const clubId = document.getElementById('clubSelect').value;
-    formData.append('clubId', clubId);
-  }
-  
-  formData.append('type', document.getElementById('typeSelect').value);
-  formData.append('title', document.getElementById('titleInput').value.trim());
-  formData.append('content', document.getElementById('contentInput').value.trim());
-  
-  // 선택적 필드 처리
-  const locationName = document.getElementById('locationNameInput').value.trim();
-  if (locationName) formData.append('locationName', locationName);
-  
-  const locationAddress = document.getElementById('locationAddressInput').value.trim();
-  if (locationAddress) formData.append('locationAddress', locationAddress);
-  
-  const locationLink = document.getElementById('locationLinkInput').value.trim();
-  if (locationLink) formData.append('locationLink', locationLink);
-  
-  formData.append('capacity', document.getElementById('capacityInput').value);
-  formData.append('startsAt', document.getElementById('startsAtInput').value);
-  formData.append('endsAt', document.getElementById('endsAtInput').value);
-  
+  const clubId = scope === 'CLUB' ? document.getElementById('clubSelect').value : null;
   const tagsInput = document.getElementById('tagsInput').value.trim();
   const tags = parseTags(tagsInput);
-  tags.forEach(tag => {
-    formData.append('tags', tag);
-  });
-  
+
+  // JSON 데이터를 Blob으로 변환하여 "request" 파트로 추가
+  const requestData = {
+    scope: scope,
+    clubId: clubId,
+    type: document.getElementById('typeSelect').value,
+    title: document.getElementById('titleInput').value.trim(),
+    content: document.getElementById('contentInput').value.trim(),
+    locationName: document.getElementById('locationNameInput').value.trim() || null,
+    locationAddress: document.getElementById('locationAddressInput').value.trim() || null,
+    locationLink: document.getElementById('locationLinkInput').value.trim() || null,
+    capacity: parseInt(document.getElementById('capacityInput').value),
+    startsAt: document.getElementById('startsAtInput').value,
+    endsAt: document.getElementById('endsAtInput').value,
+    tags: tags.length > 0 ? tags : null
+  };
+  formData.append('request', new Blob([JSON.stringify(requestData)], {
+    type: 'application/json'
+  }));
+
+  // 이미지 파일들은 "images" 파트로 추가
   const validImages = getValidImageFiles();
   validImages.forEach(file => {
     formData.append('images', file);
   });
-  
+
   return formData;
 }
 

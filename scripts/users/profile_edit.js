@@ -198,14 +198,20 @@ function setupEditButtonEvent() {
   });
 }
 
-async function updateUserInfo(nickname) {  
+async function updateUserInfo(nickname) {
   const formData = new FormData();
-  formData.append('nickname', nickname);
-  
+
+  // JSON 데이터를 Blob으로 변환하여 "request" 파트로 추가
+  const requestData = { nickname: nickname };
+  formData.append('request', new Blob([JSON.stringify(requestData)], {
+    type: 'application/json'
+  }));
+
+  // 이미지 파일은 "profileImage" 파트로 추가
   if (newProfileImage) {
     formData.append('profileImage', newProfileImage);
   }
-  
+
   return await apiRequest('/users', {
     method: 'PATCH',
     body: formData,

@@ -434,25 +434,24 @@ function setupFormSubmit() {
     const formData = new FormData();
 
     const scope = document.querySelector('input[name="scope"]:checked').value;
-    formData.append('scope', scope);
-
-    if (scope === 'CLUB') {
-      const clubId = document.getElementById('clubSelect').value;
-      formData.append('clubId', clubId);
-    }
-
     const title = document.getElementById('titleInput').value.trim();
-    formData.append('title', title);
-
     const content = document.getElementById('contentInput').value.trim();
-    formData.append('content', content);
-
     const tagsInput = document.getElementById('tagsInput').value.trim();
     const tags = parseTags(tagsInput);
-    tags.forEach(tag => {
-      formData.append('tags', tag);
-    });
 
+    // JSON 데이터를 Blob으로 변환하여 "request" 파트로 추가
+    const requestData = {
+      scope: scope,
+      clubId: scope === 'CLUB' ? document.getElementById('clubSelect').value : null,
+      title: title,
+      content: content,
+      tags: tags
+    };
+    formData.append('request', new Blob([JSON.stringify(requestData)], {
+      type: 'application/json'
+    }));
+
+    // 이미지 파일들은 "images" 파트로 추가
     selectedFiles.forEach(file => {
       formData.append('images', file);
     });
